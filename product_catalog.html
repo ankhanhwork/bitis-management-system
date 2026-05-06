@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Biti's Product Catalog</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#ecf1ff",
+                    "on-background": "#111c2d",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#e7eeff",
+                    "surface-container-low": "#f0f3ff",
+                    "secondary": "#bb0013",
+                    "on-tertiary-fixed-variant": "#454748",
+                    "on-secondary-fixed-variant": "#93000d",
+                    "on-primary-fixed-variant": "#00458f",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#333537",
+                    "surface-container-high": "#dee8ff",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed-dim": "#abc7ff",
+                    "surface-tint": "#255dad",
+                    "tertiary-fixed-dim": "#c5c7c8",
+                    "secondary-fixed-dim": "#ffb4ab",
+                    "on-error-container": "#93000a",
+                    "outline": "#737783",
+                    "on-secondary-fixed": "#410002",
+                    "secondary-container": "#e71520",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#ffdad6",
+                    "background": "#f9f9ff",
+                    "primary-container": "#004a99",
+                    "inverse-surface": "#263143",
+                    "on-primary-fixed": "#001b3f",
+                    "on-primary-container": "#9bbdff",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#bbbcbd",
+                    "inverse-primary": "#abc7ff",
+                    "surface-container-highest": "#d8e3fb",
+                    "on-surface-variant": "#424751",
+                    "surface-variant": "#d8e3fb",
+                    "on-secondary-container": "#fffbff",
+                    "primary-fixed": "#d7e2ff",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed": "#e1e3e4",
+                    "surface-bright": "#f9f9ff",
+                    "primary": "#00346f",
+                    "surface": "#f9f9ff",
+                    "tertiary-container": "#4a4c4d",
+                    "surface-dim": "#cfdaf2",
+                    "on-surface": "#111c2d",
+                    "outline-variant": "#c2c6d3",
+                    "on-tertiary-fixed": "#191c1d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-padding": "24px",
+                    "md": "24px",
+                    "lg": "32px",
+                    "xs": "8px",
+                    "gutter": "20px",
+                    "base": "4px",
+                    "xl": "48px",
+                    "sm": "16px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "data-mono": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-xl": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "label-bold": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9ff; }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- SideNavBar Shell -->
+<aside class="docked fixed left-0 top-0 h-screen w-[260px] border-r border-slate-200 bg-white flex flex-col py-6 px-4 z-50">
+<div class="mb-10 px-4">
+<h1 class="text-xl font-black text-[#004a99] tracking-tighter uppercase">Biti's Manager</h1>
+<p class="text-xs font-medium text-slate-500 tracking-tight">Enterprise Ops</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="dashboard.html">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] text-sm font-medium tracking-tight">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-[#004a99] border-r-4 border-[#004a99] font-semibold rounded-xl group active:scale-[0.98]" href="product_catalog.html">
+<span class="material-symbols-outlined">category</span>
+<span class="font-['Inter'] text-sm font-medium tracking-tight">Product Catalog</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="inventory_tracker.html">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-['Inter'] text-sm font-medium tracking-tight">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="order_management.html">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-['Inter'] text-sm font-medium tracking-tight">Orders</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Inter'] text-sm font-medium tracking-tight">Settings</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-slate-100 pt-6 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-['Inter'] text-sm font-medium tracking-tight">Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-['Inter'] text-sm font-medium tracking-tight">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="ml-[260px] min-h-screen">
+<!-- TopNavBar Shell -->
+<header class="sticky top-0 w-full z-40 border-b border-slate-200 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 h-16">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-slate-50 border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary-container/20" placeholder="Search product catalog..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:text-[#004a99] transition-colors active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-[#004a99] transition-colors active:opacity-80">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-[#004a99] transition-colors active:opacity-80">
+<span class="material-symbols-outlined">apps</span>
+</button>
+</div>
+<div class="h-6 w-[1px] bg-slate-200"></div>
+<div class="flex items-center gap-3">
+<img alt="Manager Profile" class="w-8 h-8 rounded-full border border-slate-200" data-alt="professional portrait of a store manager in a clean office environment with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7L7_SlnVy71CqcDGsj1ItJalvewnWjt6JXXuD_IZeM_ee1xQbgMpnERt1NtlY5p7RY0Cqk_lexzH9k_JvhKfzrRoUkMrtbVCnpeq6rMB46dSuRD0PlT-UFr1B1v5A7-lkI-UJE_SvJdj1mXdVeETpGh-fq4MbBJR5yfpGjzQLfSJZN4PzodQ2MQU8TPSmToyGYMb0O8EwK0rDvoXUZBsf3yqnFDxdfXHhQZiJvPFYFyK1UEXwTAULr4KFKpsWyjCz3Nv13WHtVlU"/>
+<div class="hidden lg:block">
+<p class="text-xs font-semibold text-on-surface">Admin User</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-wider">Main Branch</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Canvas Content -->
+<section class="p-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+<div>
+<h2 class="font-headline-xl text-headline-xl text-primary">Product Catalog</h2>
+<p class="font-body-md text-body-md text-slate-500 mt-1">Manage corporate product data, specifications, and SKU definitions.</p>
+</div>
+<a class="bg-primary-container text-white px-6 py-3 rounded-xl font-label-bold text-label-bold flex items-center gap-2 shadow-lg shadow-primary-container/20 hover:translate-y-[-2px] transition-all active:scale-[0.98]" href="add_product.html">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                    Add New Product
+                </a>
+</div>
+<!-- Stats/Contextual Filter Bar -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<div class="bg-white p-6 rounded-xl border border-slate-200 flex items-center gap-4">
+<div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-[#004a99]">
+<span class="material-symbols-outlined">footprint</span>
+</div>
+<div>
+                            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Total SKUs</p>
+                            <p id="totalSkusCount" class="text-xl font-bold">1,248</p>
+                        </div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 flex items-center gap-4">
+<div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-orange-600">
+<span class="material-symbols-outlined">collections</span>
+</div>
+<div>
+<p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Active Categories</p>
+<p class="text-xl font-bold">24</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 flex items-center gap-4">
+<div class="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center text-purple-600">
+<span class="material-symbols-outlined">new_releases</span>
+</div>
+<div>
+<p class="text-xs text-slate-500 font-medium uppercase tracking-wider">New Arrivals</p>
+<p class="text-xl font-bold">12</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 flex items-center gap-4">
+<div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600">
+<span class="material-symbols-outlined">verified</span>
+</div>
+<div>
+<p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Verified Products</p>
+<p class="text-xl font-bold">98%</p>
+</div>
+</div>
+</div>
+<!-- Catalog Table Container -->
+<div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+<div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+<div class="flex gap-4">
+<button class="text-sm font-semibold text-primary px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-sm">All Products</button>
+<button class="text-sm font-medium text-slate-500 px-3 py-1 hover:text-primary transition-colors">Footwear</button>
+<button class="text-sm font-medium text-slate-500 px-3 py-1 hover:text-primary transition-colors">Accessories</button>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-400 hover:text-primary"><span class="material-symbols-outlined">filter_list</span></button>
+<button class="p-2 text-slate-400 hover:text-primary"><span class="material-symbols-outlined">download</span></button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-white">
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">Product</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">SKU Reference</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">Category</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">Unit Price</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 text-right">Actions</th>
+</tr>
+</thead>
+<tbody id="productTableBody" class="divide-y divide-slate-100">
+<!-- Dynamic rows will be inserted here -->
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-slate-50/30 border-t border-slate-100 flex items-center justify-between">
+<p id="showingCount" class="text-xs text-slate-500 font-medium">Showing 1 to 5 of 1,248 products</p>
+<div class="flex items-center gap-2">
+<button class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-white transition-colors">Previous</button>
+<div class="flex gap-1">
+<button class="w-8 h-8 rounded-lg bg-primary-container text-white text-xs font-bold">1</button>
+<button class="w-8 h-8 rounded-lg hover:bg-slate-200 text-xs font-bold">2</button>
+<button class="w-8 h-8 rounded-lg hover:bg-slate-200 text-xs font-bold">3</button>
+<span class="px-1 text-slate-400">...</span>
+<button class="w-8 h-8 rounded-lg hover:bg-slate-200 text-xs font-bold">250</button>
+</div>
+<button class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-white transition-colors">Next</button>
+</div>
+</div>
+</div>
+<!-- Contextual Help / Grid Footer -->
+<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="p-6 bg-gradient-to-br from-primary to-[#004a99] rounded-xl text-white shadow-xl">
+<h3 class="text-lg font-bold mb-2">Catalog Integrity</h3>
+<p class="text-sm opacity-80 mb-4">Maintain high-quality product images and precise SKUs to ensure smooth operational workflow across branches.</p>
+<button class="text-xs font-bold bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg border border-white/20 transition-colors">Review Guidelines</button>
+</div>
+<div class="p-6 bg-white border border-slate-200 rounded-xl">
+<h3 class="text-lg font-bold text-primary mb-2">Recently Modified</h3>
+<ul class="space-y-3">
+<li class="flex items-center justify-between">
+<span class="text-sm text-slate-600">Biti's Hunter Street x Vietmax</span>
+<span class="text-xs font-bold text-[#004a99]">2m ago</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-sm text-slate-600">Classic Leather Belt - Brown</span>
+<span class="text-xs font-bold text-[#004a99]">1h ago</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-sm text-slate-600">Sport Performance Socks (3-Pack)</span>
+<span class="text-xs font-bold text-[#004a99]">4h ago</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB for quick access (suppressed on details, shown here for Catalog view as it's a top-level hub) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-secondary-container text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-transform z-50">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</button>
+<script>
+    async function fetchProducts() {
+        const tableBody = document.getElementById('productTableBody');
+        tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center">Loading products...</td></tr>';
+
+        try {
+            const { data, error } = await window.supabaseClient
+                .from('products')
+                .select('*', { count: 'exact' })
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center">No products found.</td></tr>';
+                return;
+            }
+
+            // Update stats
+            document.getElementById('totalSkusCount').innerText = data.length;
+            document.getElementById('showingCount').innerText = `Showing 1 to ${data.length} of ${data.length} products`;
+
+            tableBody.innerHTML = '';
+            data.forEach(product => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50 transition-colors group';
+                
+                const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.base_price);
+                const publishedDate = new Date(product.created_at).toLocaleDateString('vi-VN');
+
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-lg bg-slate-100 overflow-hidden border border-slate-100">
+                                <img src="${product.image_url || 'https://via.placeholder.com/64'}" alt="${product.name}" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <p class="font-body-lg text-body-lg font-semibold text-on-surface">${product.name}</p>
+                                <p class="text-xs text-slate-400">Published: ${publishedDate}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 font-data-mono text-data-mono text-slate-600">${product.sku}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-100">${product.category}</span>
+                    </td>
+                    <td class="px-6 py-4 font-bold text-primary">${formattedPrice}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-2 text-slate-400 hover:text-blue-600 transition-colors"><span class="material-symbols-outlined">edit</span></button>
+                            <button onclick="deleteProduct('${product.id}')" class="p-2 text-slate-400 hover:text-red-600 transition-colors"><span class="material-symbols-outlined">delete</span></button>
+                            <button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-500">Error loading products.</td></tr>';
+        }
+    }
+
+    async function deleteProduct(id) {
+        if (!confirm('Are you sure you want to delete this product?')) return;
+        
+        try {
+            const { error } = await window.supabaseClient
+                .from('products')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+            fetchProducts();
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            alert('Error deleting product: ' + error.message);
+        }
+    }
+
+    // Initial fetch
+    fetchProducts();
+</script>
+</body></html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Login - Biti's Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .login-gradient {
+            background: radial-gradient(circle at top right, #f8fafc, #e2e8f0);
+        }
+        .ai-shimmer {
+            background: linear-gradient(90deg, #2563eb, #7c3aed, #2563eb);
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer { to { background-position: 200% center; } }
+    </style>
+</head>
+<body class="login-gradient min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-md">
+        <!-- Logo Area -->
+        <div class="flex flex-col items-center mb-10">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-200 mb-4">
+                <span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings: 'FILL' 1;">dataset</span>
+            </div>
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Biti's <span class="text-blue-600">Ops</span></h1>
+            <p class="text-slate-500 font-medium mt-1">AI-Powered E-commerce Manager</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white rounded-3xl shadow-2xl shadow-slate-200/50 border border-slate-100 p-10">
+            <h2 class="text-xl font-bold text-slate-800 mb-2">Welcome Back</h2>
+            <p class="text-sm text-slate-500 mb-8">Enter your credentials to access the terminal.</p>
+
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">mail</span>
+                        <input id="email" type="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all" placeholder="name@bitis.com.vn">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Password</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">lock</span>
+                        <input id="password" type="password" required class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between py-2">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600">
+                        <span class="text-sm text-slate-600 font-medium">Keep me logged in</span>
+                    </label>
+                    <a href="#" class="text-sm text-blue-600 font-bold hover:underline">Forgot?</a>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full py-4 ai-shimmer text-white rounded-xl font-bold text-lg shadow-lg shadow-blue-200 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    Sign Into Terminal
+                </button>
+            </form>
+
+            <div id="errorMessage" class="mt-6 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-medium hidden">
+                <!-- Error msg here -->
+            </div>
+        </div>
+
+        <p class="text-center text-slate-400 text-xs mt-10 font-medium uppercase tracking-tighter">
+            &copy; 2024 Biti's Footwear Group • Internal Operations System
+        </p>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMessage = document.getElementById('errorMessage');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMessage.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Authenticating...';
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                // Success! Redirect to dashboard
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                errorMessage.innerText = error.message;
+                errorMessage.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Sign Into Terminal';
+            }
+        });
+
+        // Check if already logged in
+        async function checkSession() {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (session) {
+                window.location.href = 'dashboard.html';
+            }
+        }
+        checkSession();
+    </script>
+</body>
+</html>

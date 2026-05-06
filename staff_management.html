@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Staff Management - Biti's Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; background: white; border-right: 1px solid #e2e8f0; z-index: 50; }
+        .main-content { margin-left: 260px; padding: 40px; }
+        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar p-6 flex flex-col">
+        <div class="flex items-center gap-3 mb-10 px-2">
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100">
+                <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">dataset</span>
+            </div>
+            <h1 class="text-xl font-black text-slate-900 tracking-tight">Biti's <span class="text-blue-600">Ops</span></h1>
+        </div>
+
+        <nav class="space-y-1 flex-grow">
+            <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 text-slate-500 font-semibold rounded-xl hover:bg-slate-50 transition-all">
+                <span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+            <a href="product_catalog.html" class="flex items-center gap-3 px-4 py-3 text-slate-500 font-semibold rounded-xl hover:bg-slate-50 transition-all">
+                <span class="material-symbols-outlined">inventory_2</span> Product Catalog
+            </a>
+            <a href="order_management.html" class="flex items-center gap-3 px-4 py-3 text-slate-500 font-semibold rounded-xl hover:bg-slate-50 transition-all">
+                <span class="material-symbols-outlined">shopping_cart</span> Orders
+            </a>
+            <a href="inventory_tracker.html" class="flex items-center gap-3 px-4 py-3 text-slate-500 font-semibold rounded-xl hover:bg-slate-50 transition-all">
+                <span class="material-symbols-outlined">warehouse</span> Inventory
+            </a>
+            <a href="staff_management.html" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 font-bold rounded-xl transition-all">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">badge</span> Staff Management
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-6 border-t border-slate-100">
+            <button onclick="window.supabaseClient.auth.signOut().then(() => window.location.href='login.html')" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold rounded-xl hover:bg-red-50 transition-all">
+                <span class="material-symbols-outlined">logout</span> Log Out
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="max-w-5xl mx-auto">
+            <header class="mb-10 flex justify-between items-end">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">Staff Management</h2>
+                    <p class="text-slate-500 font-medium mt-1">Manage terminal access and personnel roles.</p>
+                </div>
+                <div id="currentUserDisplay" class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="text-right">
+                        <p id="userName" class="text-sm font-bold text-slate-800 leading-none">Loading...</p>
+                        <p id="userRole" class="text-[10px] text-blue-600 font-black uppercase tracking-widest mt-1">...</p>
+                    </div>
+                    <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                        <span class="material-symbols-outlined text-slate-400">person</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-12 gap-8">
+                <!-- Registration Form -->
+                <div class="col-span-12 lg:col-span-5">
+                    <section class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-600">person_add</span>
+                            Create New Account
+                        </h3>
+                        <form id="registerForm" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
+                                <input id="regName" type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all" placeholder="Enter full name">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
+                                <input id="regEmail" type="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all" placeholder="employee@bitis.com.vn">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Password</label>
+                                <input id="regPassword" type="password" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all" placeholder="Min 6 characters">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">System Role</label>
+                                <select id="regRole" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all appearance-none cursor-pointer">
+                                    <option value="EMPLOYEE">Employee (Operations)</option>
+                                    <option value="MANAGER">Manager (Full Access)</option>
+                                </select>
+                            </div>
+                            <button type="submit" id="regBtn" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all mt-4">
+                                Register Staff Member
+                            </button>
+                        </form>
+                    </section>
+                </div>
+
+                <!-- Staff List -->
+                <div class="col-span-12 lg:col-span-7">
+                    <section class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+                        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-800">Current Directory</h3>
+                            <span id="staffCount" class="bg-slate-100 text-slate-500 text-xs font-bold px-3 py-1 rounded-full">0 Users</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-slate-50/50">
+                                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Name & Role</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="staffTableBody" class="divide-y divide-slate-50">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Check if logged in and is Manager
+        async function init() {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Fetch profile
+            const { data: profile } = await window.supabaseClient
+                .from('user_profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+            if (!profile || profile.role !== 'MANAGER') {
+                alert('Access Denied. Managers only.');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            document.getElementById('userName').innerText = profile.full_name;
+            document.getElementById('userRole').innerText = profile.role;
+
+            loadStaff();
+        }
+
+        async function loadStaff() {
+            const { data, error } = await window.supabaseClient
+                .from('user_profiles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (data) {
+                document.getElementById('staffCount').innerText = `${data.length} Users`;
+                const tbody = document.getElementById('staffTableBody');
+                tbody.innerHTML = '';
+                data.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50/50 transition-all';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-800">${user.full_name}</div>
+                            <div class="text-[10px] ${user.role === 'MANAGER' ? 'text-blue-600' : 'text-slate-400'} font-black uppercase tracking-widest">${user.role}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-500 font-medium">Loading...</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-slate-300 hover:text-red-500 transition-colors">
+                                <span class="material-symbols-outlined text-xl">delete</span>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        const registerForm = document.getElementById('registerForm');
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('regBtn');
+            btn.disabled = true;
+            btn.innerText = 'Creating Account...';
+
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const fullName = document.getElementById('regName').value;
+            const role = document.getElementById('regRole').value;
+
+            try {
+                // Since a Manager is registering a new staff member, 
+                // in a real app we'd use a cloud function.
+                // For this prototype, we'll use a special signup logic.
+                // Note: Auth.signUp logs the user in. We need to handle this.
+                
+                const { data, error } = await window.supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            full_name: fullName,
+                            role: role
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                alert('Account created! Note: In this demo, new accounts are created via signUp. The system will now reload.');
+                location.reload();
+            } catch (error) {
+                alert(error.message);
+                btn.disabled = false;
+                btn.innerText = 'Register Staff Member';
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

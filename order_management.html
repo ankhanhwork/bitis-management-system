@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Biti's Manager - Order Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#ffdad6",
+                    "secondary-fixed-dim": "#ffb4ab",
+                    "background": "#f9f9ff",
+                    "surface": "#f9f9ff",
+                    "inverse-primary": "#abc7ff",
+                    "error": "#ba1a1a",
+                    "on-background": "#111c2d",
+                    "surface-container-high": "#dee8ff",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#93000d",
+                    "outline": "#737783",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#f0f3ff",
+                    "tertiary": "#333537",
+                    "on-surface-variant": "#424751",
+                    "outline-variant": "#c2c6d3",
+                    "surface-container": "#e7eeff",
+                    "surface-tint": "#255dad",
+                    "surface-bright": "#f9f9ff",
+                    "on-primary-fixed-variant": "#00458f",
+                    "surface-dim": "#cfdaf2",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#d8e3fb",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#d8e3fb",
+                    "inverse-on-surface": "#ecf1ff",
+                    "on-tertiary-container": "#bbbcbd",
+                    "on-secondary-fixed": "#410002",
+                    "primary-fixed-dim": "#abc7ff",
+                    "on-primary-container": "#9bbdff",
+                    "on-primary-fixed": "#001b3f",
+                    "on-secondary-container": "#fffbff",
+                    "primary-container": "#004a99",
+                    "on-tertiary-fixed": "#191c1d",
+                    "secondary-container": "#e71520",
+                    "primary": "#00346f",
+                    "secondary": "#bb0013",
+                    "inverse-surface": "#263143",
+                    "tertiary-fixed": "#e1e3e4",
+                    "on-surface": "#111c2d",
+                    "on-primary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#454748",
+                    "tertiary-container": "#4a4c4d",
+                    "primary-fixed": "#d7e2ff",
+                    "tertiary-fixed-dim": "#c5c7c8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xs": "8px",
+                    "gutter": "20px",
+                    "lg": "32px",
+                    "base": "4px",
+                    "container-padding": "24px",
+                    "md": "24px",
+                    "sm": "16px",
+                    "xl": "48px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "data-mono": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-xl": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-bold": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- SideNavBar (Fixed Shell) -->
+<aside class="fixed left-0 top-0 h-screen w-[260px] z-50 bg-white border-r border-slate-200 flex flex-col py-6 px-4">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 bg-secondary-container flex items-center justify-center rounded-xl">
+<span class="material-symbols-outlined text-white" data-icon="token">token</span>
+</div>
+<div>
+<h2 class="text-lg font-bold text-blue-700">Biti's Ops</h2>
+<p class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Global Warehouse</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-slate-600 hover:bg-slate-50" href="dashboard.html">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] text-[14px]">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-slate-600 hover:bg-slate-50" href="product_catalog.html">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-['Inter'] text-[14px]">Product Catalog</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 bg-blue-50 text-blue-700 border-r-4 border-blue-700 font-semibold" href="order_management.html">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="font-['Inter'] text-[14px]">Orders</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-slate-600 hover:bg-slate-50" href="inventory_tracker.html">
+<span class="material-symbols-outlined" data-icon="package_2">package_2</span>
+<span class="font-['Inter'] text-[14px]">Inventory</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-slate-100 pt-6 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-slate-600 hover:bg-slate-50" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Inter'] text-[14px]">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-slate-600 hover:bg-slate-50" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="font-['Inter'] text-[14px]">Support</span>
+</a>
+<div class="mt-6 p-4 bg-slate-50 rounded-xl">
+<a class="w-full py-2.5 bg-blue-700 text-white rounded-lg font-semibold text-sm hover:bg-blue-800 transition-colors shadow-sm flex items-center justify-center" href="add_product.html">
+                    Add New Product
+                </a>
+</div>
+</div>
+</aside>
+<!-- TopAppBar (Sticky Shell) -->
+<header class="sticky top-0 z-40 w-full h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 ml-[260px] w-[calc(100%-260px)]">
+<div class="flex items-center gap-6">
+<h1 class="text-xl font-black tracking-tight text-blue-700">Biti's Manager</h1>
+<div class="relative w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-blue-700/20 transition-all" placeholder="Search orders, customers, or SKUs..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-500 relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full border-2 border-white"></span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-500">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
+<div class="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-1 rounded-lg transition-colors">
+<img alt="Store Manager Profile" class="w-8 h-8 rounded-full object-cover" data-alt="Professional portrait of a male logistics manager in a blue button-down shirt with a clean warehouse background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAh7t1pNm7b5o9jL0fed1WUdqJoLFDzodRhodS1p4e-bKGJG9Knrq3dyZRCY5upCz3rEX96hLP5XDOJ7Sn79JQQ8UrzAbJOM8rvvvQmOkYrsqOl9kpFX71tCJ9ChauJzV_AhHr4FH1u5PKESEi9XJmcdaC9V85YHVgN86txLin--dO6wDXdOdIZTAqKSF03q6AE4h94P1IDecbM4n9Ezvgt4Lnl39p-B2rYvJrGs5z3XJdOHSzhqOzKebICD6PPNyovi9JfR1Kj9WI"/>
+<div class="text-right hidden xl:block">
+<p class="font-label-bold text-on-surface">Alex Nguyen</p>
+<p class="text-[10px] text-slate-500 font-medium">Ops Lead</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[260px] p-8 min-h-[calc(100vh-64px)]">
+<!-- Dashboard Header & Stats -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+<div>
+<h2 class="font-headline-md text-primary">Order Management</h2>
+<p class="text-on-surface-variant mt-1">Review and fulfill customer orders from across the globe.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2.5 bg-white border border-outline-variant text-on-surface font-semibold rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="filter_list">filter_list</span>
+                    Filters
+                </button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-blue-900 transition-colors shadow-md">
+<span class="material-symbols-outlined text-[20px]" data-icon="download">download</span>
+                    Export CSV
+                </button>
+</div>
+</div>
+<!-- Quick Stats Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="p-2 bg-blue-50 text-blue-700 rounded-lg material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+12%</span>
+</div>
+<div class="mt-4">
+<p class="text-slate-500 text-sm font-medium">Total Orders</p>
+<p id="totalOrdersCount" class="font-headline-md text-primary mt-1">0</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="p-2 bg-amber-50 text-amber-600 rounded-lg material-symbols-outlined" data-icon="pending_actions">pending_actions</span>
+</div>
+<div class="mt-4">
+<p class="text-slate-500 text-sm font-medium">Pending Processing</p>
+<p id="pendingOrdersCount" class="font-headline-md text-primary mt-1">0</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="p-2 bg-indigo-50 text-indigo-600 rounded-lg material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+</div>
+<div class="mt-4">
+<p class="text-slate-500 text-sm font-medium">In Transit</p>
+<p class="font-headline-md text-primary mt-1">156</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+<div class="mt-4">
+<p class="text-slate-500 text-sm font-medium">Revenue Today</p>
+<p id="totalRevenueCount" class="font-headline-md text-primary mt-1">0₫</p>
+</div>
+</div>
+</div>
+<!-- Orders Table Container -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<!-- Table Header / Search within table -->
+<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+<div class="flex items-center gap-4">
+<div class="flex -space-x-2">
+<img alt="avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="Female user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZwKJj_G-q4vEJBAo_CLu5ntQvoMRPilNq7npkeak3BHQF1yCakJj8xFVMFKjM0il4wI1pAEJZsWG9jVWbHXFUaqk3mxciJ4pabq0FnyoAV5YmJmuX_UhUMZzbJoZVZemYGEqKBgkCZcfaAp-vqMnnLemWxWpNbt3tvi2CtQGPhDy9scl3B2FPxeANY5UP1qlSrAYBY-qL2zmzitWzYqWxOACyUkwa5FV5FtRq8uawNKoMyUVNzkL7J7nqntQt_Fdq_Kv2LyuV6TU"/>
+<img alt="avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="Male user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJgulY-4_ibck_JvquwtzGlXHZ1vUEjyzYgQ6TBN3AXMxBipfpxkJmi5NbScrNBc6ZgAuT_u8kfCDzT1XSY4EWrH-hjem-U9FfwSyqJYoXn77wcNAj3_q3uUbDEF7Q0jyZ4_HUZp50ahcIFY6WZDNYg-EY4JC8ywHeKI8Ma9_lMeawTAXYtZnSiGqDzWwA_ARTcnvU7lU690l7DUYVMSzyMjYBc2OHNph12GxAwzesGZznY0Eeym1FKg0yEUlweBuBm8iQSxMI8Ac"/>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">+12</div>
+</div>
+<span class="text-sm font-medium text-slate-600">Active fulfillments today</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-sm text-slate-500">Show:</span>
+<select class="text-sm border-slate-200 rounded-md py-1 px-3 focus:ring-blue-700 focus:border-blue-700 bg-white">
+<option>All Orders</option>
+<option>Recent</option>
+<option>High Value</option>
+</select>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-slate-50/80 sticky top-0 border-b border-slate-200">
+<tr>
+<th class="px-6 py-4 font-label-bold text-slate-500 uppercase tracking-wider">
+<div class="flex items-center gap-2">
+<input class="rounded border-slate-300 text-blue-700 focus:ring-blue-700" type="checkbox"/>
+                                    Order ID
+                                </div>
+</th>
+<th class="px-6 py-4 font-label-bold text-slate-500 uppercase tracking-wider">Customer Name</th>
+<th class="px-6 py-4 font-label-bold text-slate-500 uppercase tracking-wider">Order Date</th>
+<th class="px-6 py-4 font-label-bold text-slate-500 uppercase tracking-wider text-right">Total Amount</th>
+<th class="px-6 py-4 font-label-bold text-slate-500 uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 font-label-bold text-slate-500 uppercase tracking-wider text-center">Actions</th>
+</tr>
+</thead>
+                    <tbody id="orderTableBody" class="divide-y divide-slate-100">
+<!-- Row 1: Shipped -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<input class="rounded border-slate-300 text-blue-700 focus:ring-blue-700" type="checkbox"/>
+<span class="font-data-mono font-bold text-blue-700">#ORD-2024-001</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">LM</div>
+<span class="font-medium text-slate-800">Le Minh Hoang</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600 font-medium">Oct 24, 2023 10:45 AM</td>
+<td class="px-6 py-4 text-right font-bold text-slate-900">$142.50</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-1.5"></span>
+                                    Shipped
+                                </span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button class="p-1.5 hover:bg-blue-50 text-blue-700 rounded-md transition-colors" title="View Details">
+<span class="material-symbols-outlined text-[20px]" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 hover:bg-slate-100 text-slate-500 rounded-md transition-colors" title="Update Status">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Processing -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<input class="rounded border-slate-300 text-blue-700 focus:ring-blue-700" type="checkbox"/>
+<span class="font-data-mono font-bold text-blue-700">#ORD-2024-002</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-xs">TV</div>
+<span class="font-medium text-slate-800">Tran Van Tu</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600 font-medium">Oct 24, 2023 11:12 AM</td>
+<td class="px-6 py-4 text-right font-bold text-slate-900">$89.00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span>
+                                    Processing
+                                </span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button class="p-1.5 hover:bg-blue-50 text-blue-700 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 hover:bg-slate-100 text-slate-500 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Delivered -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<input class="rounded border-slate-300 text-blue-700 focus:ring-blue-700" type="checkbox"/>
+<span class="font-data-mono font-bold text-blue-700">#ORD-2024-003</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-bold text-xs">AN</div>
+<span class="font-medium text-slate-800">Anh Nguyen</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600 font-medium">Oct 23, 2023 09:15 PM</td>
+<td class="px-6 py-4 text-right font-bold text-slate-900">$215.75</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                    Delivered
+                                </span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button class="p-1.5 hover:bg-blue-50 text-blue-700 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 hover:bg-slate-100 text-slate-500 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Pending -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<input class="rounded border-slate-300 text-blue-700 focus:ring-blue-700" type="checkbox"/>
+<span class="font-data-mono font-bold text-blue-700">#ORD-2024-004</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 font-bold text-xs">PH</div>
+<span class="font-medium text-slate-800">Pham Hoang</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600 font-medium">Oct 24, 2023 01:22 PM</td>
+<td class="px-6 py-4 text-right font-bold text-slate-900">$54.20</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>
+                                    Pending
+                                </span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button class="p-1.5 hover:bg-blue-50 text-blue-700 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 hover:bg-slate-100 text-slate-500 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Cancelled -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<input class="rounded border-slate-300 text-blue-700 focus:ring-blue-700" type="checkbox"/>
+<span class="font-data-mono font-bold text-blue-700">#ORD-2024-005</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-xs">BT</div>
+<span class="font-medium text-slate-800">Bui Thanh</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600 font-medium">Oct 22, 2023 11:30 AM</td>
+<td class="px-6 py-4 text-right font-bold text-slate-900">$120.00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-100">
+<span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
+                                    Cancelled
+                                </span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button class="p-1.5 hover:bg-blue-50 text-blue-700 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 hover:bg-slate-100 text-slate-500 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination -->
+<div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                    <span id="showingCount" class="text-sm text-slate-500">Showing 0 orders</span>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-slate-300 text-slate-400 hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-blue-700 bg-blue-700 text-white text-sm font-bold">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-slate-300 text-slate-600 hover:bg-white text-sm font-medium">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-slate-300 text-slate-600 hover:bg-white text-sm font-medium">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-slate-300 text-slate-400 hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Asymmetric Info Cards (Bento Style) -->
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-primary flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+                        Monthly Trends
+                    </h3>
+<div class="flex items-center gap-4 text-xs font-medium uppercase tracking-wider text-slate-400">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-700"></span> Orders</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-600"></span> Revenue</span>
+</div>
+</div>
+<div class="h-48 flex items-end gap-2 px-2">
+<div class="flex-1 bg-slate-100 rounded-t h-[30%] relative group cursor-pointer">
+<div class="absolute inset-x-0 bottom-0 bg-blue-700 rounded-t h-[60%] group-hover:h-[65%] transition-all"></div>
+<div class="absolute inset-x-0 bottom-0 bg-red-600/50 rounded-t h-[20%]"></div>
+</div>
+<div class="flex-1 bg-slate-100 rounded-t h-[45%] relative group cursor-pointer">
+<div class="absolute inset-x-0 bottom-0 bg-blue-700 rounded-t h-[75%] group-hover:h-[80%] transition-all"></div>
+<div class="absolute inset-x-0 bottom-0 bg-red-600/50 rounded-t h-[30%]"></div>
+</div>
+<div class="flex-1 bg-slate-100 rounded-t h-[60%] relative group cursor-pointer">
+<div class="absolute inset-x-0 bottom-0 bg-blue-700 rounded-t h-[55%] group-hover:h-[60%] transition-all"></div>
+<div class="absolute inset-x-0 bottom-0 bg-red-600/50 rounded-t h-[40%]"></div>
+</div>
+<div class="flex-1 bg-slate-100 rounded-t h-[80%] relative group cursor-pointer">
+<div class="absolute inset-x-0 bottom-0 bg-blue-700 rounded-t h-[90%] group-hover:h-[95%] transition-all"></div>
+<div class="absolute inset-x-0 bottom-0 bg-red-600/50 rounded-t h-[15%]"></div>
+</div>
+<div class="flex-1 bg-slate-100 rounded-t h-[55%] relative group cursor-pointer">
+<div class="absolute inset-x-0 bottom-0 bg-blue-700 rounded-t h-[40%] group-hover:h-[45%] transition-all"></div>
+<div class="absolute inset-x-0 bottom-0 bg-red-600/50 rounded-t h-[60%]"></div>
+</div>
+<div class="flex-1 bg-slate-100 rounded-t h-[40%] relative group cursor-pointer">
+<div class="absolute inset-x-0 bottom-0 bg-blue-700 rounded-t h-[85%] group-hover:h-[90%] transition-all"></div>
+<div class="absolute inset-x-0 bottom-0 bg-red-600/50 rounded-t h-[25%]"></div>
+</div>
+<div class="flex-1 bg-slate-100 rounded-t h-[75%] relative group cursor-pointer">
+<div class="absolute inset-x-0 bottom-0 bg-blue-700 rounded-t h-[70%] group-hover:h-[75%] transition-all"></div>
+<div class="absolute inset-x-0 bottom-0 bg-red-600/50 rounded-t h-[35%]"></div>
+</div>
+</div>
+</div>
+<div class="bg-primary p-6 rounded-xl border border-blue-900 shadow-xl flex flex-col justify-between text-white overflow-hidden relative">
+<div class="relative z-10">
+<h3 class="font-headline-md text-white">Ops Intelligence</h3>
+<p class="text-blue-200 mt-2 text-sm leading-relaxed">
+                        Predicted high demand for <span class="font-bold text-white">Hunter X 2024</span> in HCMC district 7 this weekend.
+                    </p>
+</div>
+<div class="relative z-10 mt-6">
+<button class="w-full py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg font-bold text-xs uppercase tracking-widest transition-all">
+                        View Analysis
+                    </button>
+</div>
+<!-- Abstract decorative element -->
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl"></div>
+<div class="absolute -left-6 -top-6 w-32 h-32 bg-secondary/10 rounded-full blur-2xl"></div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button for Orders -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="w-14 h-14 bg-secondary text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[28px]" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+    <script>
+        async function fetchOrders() {
+            const tableBody = document.getElementById('orderTableBody');
+            tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center">Loading orders...</td></tr>';
+
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('orders')
+                    .select('*, customers(*)')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center">No orders found.</td></tr>';
+                    return;
+                }
+
+                // Update Stats
+                document.getElementById('totalOrdersCount').innerText = data.length;
+                const pending = data.filter(o => o.status === 'Pending' || o.status === 'Processing').length;
+                const totalRevenue = data.reduce((acc, o) => acc + Number(o.total_amount), 0);
+                
+                document.getElementById('pendingOrdersCount').innerText = pending;
+                document.getElementById('totalRevenueCount').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue);
+                document.getElementById('showingCount').innerText = `Showing ${data.length} orders`;
+
+                tableBody.innerHTML = '';
+                data.forEach(order => {
+                    const customer = order.customers;
+                    const date = new Date(order.created_at).toLocaleString('vi-VN');
+                    const amount = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_amount);
+                    
+                    let statusClass = 'bg-slate-100 text-slate-500';
+                    if (order.status === 'Processing') statusClass = 'bg-blue-50 text-blue-600';
+                    if (order.status === 'Shipped') statusClass = 'bg-indigo-50 text-indigo-600';
+                    if (order.status === 'Delivered') statusClass = 'bg-emerald-50 text-emerald-600';
+                    if (order.status === 'Cancelled') statusClass = 'bg-red-50 text-red-600';
+
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50 transition-colors group';
+                    row.innerHTML = `
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <input class="rounded border-slate-300 text-blue-700 focus:ring-blue-700" type="checkbox"/>
+                                <span class="font-data-mono font-bold text-blue-700">#${order.order_number}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">
+                                    ${customer.full_name.split(' ').map(n => n[0]).join('')}
+                                </div>
+                                <span class="font-medium text-slate-800">${customer.full_name}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-600 font-medium">${date}</td>
+                        <td class="px-6 py-4 text-right font-bold text-slate-900">${amount}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${statusClass} border">
+                                ${order.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button class="p-1.5 hover:bg-blue-50 text-blue-700 rounded-md transition-colors"><span class="material-symbols-outlined">visibility</span></button>
+                                <button class="p-1.5 hover:bg-slate-100 text-slate-500 rounded-md transition-colors"><span class="material-symbols-outlined">edit</span></button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Error loading orders.</td></tr>';
+            }
+        }
+
+        fetchOrders();
+    </script>
+</body></html>
