@@ -1,138 +1,191 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Staff Management - Biti's Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Staff Management - Bitis's Management System</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; background: white; border-right: 1px solid #e2e8f0; z-index: 50; }
-        .main-content { margin-left: 260px; padding: 40px; }
-        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
     </style>
 </head>
-<body>
-    <!-- Sidebar -->
-    <aside class="sidebar p-6 flex flex-col">
-        <div class="flex items-center gap-3 mb-10 px-2">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100">
-                <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">dataset</span>
+
+<body class="text-slate-800">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-[#2C333A] text-white flex flex-col h-screen sticky top-0">
+            <div class="p-6 mb-4">
+                <div class="flex items-start">
+                    <div class="mr-3 mt-1">
+                        <svg class="w-5 h-5 text-[#FF7043]" fill="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M11 5v11.17l-4.88-4.88c-.39-.39-1.03-.39-1.42 0-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0l6.59-6.59c.39-.39.39-1.02 0-1.41-.39-.39-1.03-.39-1.42 0L13 16.17V5c0-.55-.45-1-1-1s-1 .45-1 1z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold leading-tight">Bitis's<br />Management</h2>
+                        <p class="text-xs text-slate-400 mt-1">System Terminal</p>
+                    </div>
+                </div>
             </div>
-            <h1 class="text-xl font-black text-slate-900 tracking-tight">Biti's <span class="text-blue-600">Ops</span></h1>
-        </div>
+            <nav class="flex-1 px-0 space-y-0.5">
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="index.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Dashboard
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="product_catalog.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Products
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="inventory_tracker.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Inventory
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="order_management.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Orders
+                </a>
+            </nav>
+            <div class="px-0 py-4 space-y-0.5 border-t border-slate-700/30">
+                <a class="flex items-center px-6 py-3 text-sm font-semibold bg-white/10 border-l-4 border-[#E30016] text-white transition"
+                    href="staff_management.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Staff Management
+                </a>
+                <a onclick="window.supabaseClient.auth.signOut().then(() => window.location.href='login.html')"
+                    class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition cursor-pointer">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Sign Out
+                </a>
+            </div>
+        </aside>
 
-        <nav class="space-y-1 flex-grow">
-            <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 text-slate-500 font-semibold rounded-xl hover:bg-slate-50 transition-all">
-                <span class="material-symbols-outlined">dashboard</span> Dashboard
-            </a>
-            <a href="product_catalog.html" class="flex items-center gap-3 px-4 py-3 text-slate-500 font-semibold rounded-xl hover:bg-slate-50 transition-all">
-                <span class="material-symbols-outlined">inventory_2</span> Product Catalog
-            </a>
-            <a href="order_management.html" class="flex items-center gap-3 px-4 py-3 text-slate-500 font-semibold rounded-xl hover:bg-slate-50 transition-all">
-                <span class="material-symbols-outlined">shopping_cart</span> Orders
-            </a>
-            <a href="inventory_tracker.html" class="flex items-center gap-3 px-4 py-3 text-slate-500 font-semibold rounded-xl hover:bg-slate-50 transition-all">
-                <span class="material-symbols-outlined">warehouse</span> Inventory
-            </a>
-            <a href="staff_management.html" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 font-bold rounded-xl transition-all">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">badge</span> Staff Management
-            </a>
-        </nav>
-
-        <div class="mt-auto pt-6 border-t border-slate-100">
-            <button onclick="window.supabaseClient.auth.signOut().then(() => window.location.href='login.html')" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold rounded-xl hover:bg-red-50 transition-all">
-                <span class="material-symbols-outlined">logout</span> Log Out
-            </button>
-        </div>
-    </aside>
-
-    <main class="main-content">
-        <div class="max-w-5xl mx-auto">
-            <header class="mb-10 flex justify-between items-end">
-                <div>
-                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">Staff Management</h2>
-                    <p class="text-slate-500 font-medium mt-1">Manage terminal access and personnel roles.</p>
-                </div>
-                <div id="currentUserDisplay" class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
-                    <div class="text-right">
-                        <p id="userName" class="text-sm font-bold text-slate-800 leading-none">Loading...</p>
-                        <p id="userRole" class="text-[10px] text-blue-600 font-black uppercase tracking-widest mt-1">...</p>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+                <h1 class="text-lg font-bold text-slate-800">Staff Management</h1>
+                <a href="profile.html" class="flex items-center space-x-3 border-l border-slate-100 pl-6 hover:bg-slate-50 p-1 rounded-lg transition">
+                    <img id="adminAvatar" alt="Admin" class="w-10 h-10 rounded-full border border-slate-200 object-cover"
+                        src="https://via.placeholder.com/40" />
+                    <div class="text-left">
+                        <p id="adminName" class="text-sm font-bold text-slate-800 leading-tight">Admin User</p>
+                        <p id="adminEmail" class="text-xs text-slate-400">admin@bitis.com.vn</p>
                     </div>
-                    <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                        <span class="material-symbols-outlined text-slate-400">person</span>
-                    </div>
-                </div>
+                </a>
             </header>
 
-            <div class="grid grid-cols-12 gap-8">
-                <!-- Registration Form -->
-                <div class="col-span-12 lg:col-span-5">
-                    <section class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-                        <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-blue-600">person_add</span>
-                            Create New Account
-                        </h3>
-                        <form id="registerForm" class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
-                                <input id="regName" type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all" placeholder="Enter full name">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
-                                <input id="regEmail" type="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all" placeholder="employee@bitis.com.vn">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Password</label>
-                                <input id="regPassword" type="password" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all" placeholder="Min 6 characters">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">System Role</label>
-                                <select id="regRole" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all appearance-none cursor-pointer">
-                                    <option value="EMPLOYEE">Employee (Operations)</option>
-                                    <option value="MANAGER">Manager (Full Access)</option>
-                                </select>
-                            </div>
-                            <button type="submit" id="regBtn" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all mt-4">
-                                Register Staff Member
-                            </button>
-                        </form>
-                    </section>
-                </div>
+            <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+                <div class="grid grid-cols-12 gap-8 max-w-6xl mx-auto">
+                    <!-- Form -->
+                    <div class="col-span-12 lg:col-span-5">
+                        <section class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
+                            <h3 class="font-bold text-slate-800">Register Staff</h3>
+                            <form id="registerForm" class="space-y-4">
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Full
+                                        Name</label>
+                                    <input id="regName" type="text" required
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                                        placeholder="Enter full name">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Email</label>
+                                    <input id="regEmail" type="email" required
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                                        placeholder="employee@bitis.com.vn">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Password</label>
+                                    <input id="regPassword" type="password" required
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                                        placeholder="Min 6 characters">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Role</label>
+                                    <select id="regRole"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all cursor-pointer">
+                                        <option value="EMPLOYEE">Employee (Operations)</option>
+                                        <option value="MANAGER">Manager (Full Access)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" id="regBtn"
+                                    class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all mt-2">
+                                    Register Staff Member
+                                </button>
+                            </form>
+                        </section>
+                    </div>
 
-                <!-- Staff List -->
-                <div class="col-span-12 lg:col-span-7">
-                    <section class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-                        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                            <h3 class="font-bold text-slate-800">Current Directory</h3>
-                            <span id="staffCount" class="bg-slate-100 text-slate-500 text-xs font-bold px-3 py-1 rounded-full">0 Users</span>
-                        </div>
-                        <div class="overflow-x-auto">
+                    <!-- List -->
+                    <div class="col-span-12 lg:col-span-7">
+                        <section class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">Current Directory</h3>
+                                <span id="staffCount"
+                                    class="text-xs font-bold bg-slate-50 text-slate-400 px-3 py-1 rounded-full">0
+                                    Users</span>
+                            </div>
                             <table class="w-full text-left">
                                 <thead>
-                                    <tr class="bg-slate-50/50">
-                                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Name & Role</th>
-                                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
-                                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
+                                    <tr
+                                        class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-50 bg-slate-50/30">
+                                        <th class="px-6 py-4 font-semibold">Name & Role</th>
+                                        <th class="px-6 py-4 font-semibold">Email</th>
+                                        <th class="px-6 py-4 font-semibold text-right">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="staffTableBody" class="divide-y divide-slate-50">
+                                <tbody id="staffTableBody" class="text-sm">
                                     <!-- Dynamic rows -->
                                 </tbody>
                             </table>
-                        </div>
-                    </section>
+                        </section>
+                    </div>
                 </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script>
-        // Check if logged in and is Manager
         async function init() {
             const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (!session) {
@@ -140,7 +193,6 @@
                 return;
             }
 
-            // Fetch profile
             const { data: profile } = await window.supabaseClient
                 .from('user_profiles')
                 .select('*')
@@ -149,12 +201,16 @@
 
             if (!profile || profile.role !== 'MANAGER') {
                 alert('Access Denied. Managers only.');
-                window.location.href = 'dashboard.html';
+                window.location.href = 'index.html';
                 return;
             }
 
-            document.getElementById('userName').innerText = profile.full_name;
-            document.getElementById('userRole').innerText = profile.role;
+            // Update Header with current manager profile
+            document.getElementById('adminName').innerText = profile.full_name;
+            document.getElementById('adminEmail').innerText = session.user.email;
+            if (profile.avatar_url) {
+                document.getElementById('adminAvatar').src = profile.avatar_url;
+            }
 
             loadStaff();
         }
@@ -171,16 +227,16 @@
                 tbody.innerHTML = '';
                 data.forEach(user => {
                     const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-50/50 transition-all';
+                    tr.className = 'border-b border-slate-50 hover:bg-slate-50 transition-colors';
                     tr.innerHTML = `
                         <td class="px-6 py-4">
                             <div class="font-bold text-slate-800">${user.full_name}</div>
-                            <div class="text-[10px] ${user.role === 'MANAGER' ? 'text-blue-600' : 'text-slate-400'} font-black uppercase tracking-widest">${user.role}</div>
+                            <div class="text-[10px] ${user.role === 'MANAGER' ? 'text-blue-600' : 'text-slate-400'} font-bold uppercase tracking-widest">${user.role}</div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-slate-500 font-medium">Loading...</td>
+                        <td class="px-6 py-4 text-slate-500 text-xs">${user.email || 'Loading...'}</td>
                         <td class="px-6 py-4 text-right">
-                            <button class="text-slate-300 hover:text-red-500 transition-colors">
-                                <span class="material-symbols-outlined text-xl">delete</span>
+                            <button class="text-slate-300 hover:text-red-500 transition-colors p-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                             </button>
                         </td>
                     `;
@@ -189,12 +245,12 @@
             }
         }
 
-        const registerForm = document.getElementById('registerForm');
-        registerForm.addEventListener('submit', async (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('regBtn');
+            const originalText = btn.innerText;
             btn.disabled = true;
-            btn.innerText = 'Creating Account...';
+            btn.innerText = 'Processing...';
 
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
@@ -202,34 +258,23 @@
             const role = document.getElementById('regRole').value;
 
             try {
-                // Since a Manager is registering a new staff member, 
-                // in a real app we'd use a cloud function.
-                // For this prototype, we'll use a special signup logic.
-                // Note: Auth.signUp logs the user in. We need to handle this.
-                
-                const { data, error } = await window.supabaseClient.auth.signUp({
+                const { error } = await window.supabaseClient.auth.signUp({
                     email,
                     password,
-                    options: {
-                        data: {
-                            full_name: fullName,
-                            role: role
-                        }
-                    }
+                    options: { data: { full_name: fullName, role: role } }
                 });
-
                 if (error) throw error;
-
-                alert('Account created! Note: In this demo, new accounts are created via signUp. The system will now reload.');
+                alert('Account created!');
                 location.reload();
             } catch (error) {
                 alert(error.message);
                 btn.disabled = false;
-                btn.innerText = 'Register Staff Member';
+                btn.innerText = originalText;
             }
         });
 
         init();
     </script>
 </body>
+
 </html>

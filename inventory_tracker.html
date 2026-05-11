@@ -1,501 +1,288 @@
 <!DOCTYPE html>
+<html lang="en">
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Biti's Manager - Inventory Tracker</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "inverse-on-surface": "#ecf1ff",
-                        "on-background": "#111c2d",
-                        "error-container": "#ffdad6",
-                        "surface-container": "#e7eeff",
-                        "surface-container-low": "#f0f3ff",
-                        "secondary": "#bb0013",
-                        "on-tertiary-fixed-variant": "#454748",
-                        "on-secondary-fixed-variant": "#93000d",
-                        "on-primary-fixed-variant": "#00458f",
-                        "surface-container-lowest": "#ffffff",
-                        "on-primary": "#ffffff",
-                        "tertiary": "#333537",
-                        "surface-container-high": "#dee8ff",
-                        "on-tertiary": "#ffffff",
-                        "primary-fixed-dim": "#abc7ff",
-                        "surface-tint": "#255dad",
-                        "tertiary-fixed-dim": "#c5c7c8",
-                        "secondary-fixed-dim": "#ffb4ab",
-                        "on-error-container": "#93000a",
-                        "outline": "#737783",
-                        "on-secondary-fixed": "#410002",
-                        "secondary-container": "#e71520",
-                        "on-error": "#ffffff",
-                        "secondary-fixed": "#ffdad6",
-                        "background": "#f9f9ff",
-                        "primary-container": "#004a99",
-                        "inverse-surface": "#263143",
-                        "on-primary-fixed": "#001b3f",
-                        "on-primary-container": "#9bbdff",
-                        "on-secondary": "#ffffff",
-                        "on-tertiary-container": "#bbbcbd",
-                        "inverse-primary": "#abc7ff",
-                        "surface-container-highest": "#d8e3fb",
-                        "on-surface-variant": "#424751",
-                        "surface-variant": "#d8e3fb",
-                        "on-secondary-container": "#fffbff",
-                        "primary-fixed": "#d7e2ff",
-                        "error": "#ba1a1a",
-                        "tertiary-fixed": "#e1e3e4",
-                        "surface-bright": "#f9f9ff",
-                        "primary": "#00346f",
-                        "surface": "#f9f9ff",
-                        "tertiary-container": "#4a4c4d",
-                        "surface-dim": "#cfdaf2",
-                        "on-surface": "#111c2d",
-                        "outline-variant": "#c2c6d3",
-                        "on-tertiary-fixed": "#191c1d"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "container-padding": "24px",
-                        "md": "24px",
-                        "lg": "32px",
-                        "xs": "8px",
-                        "gutter": "20px",
-                        "base": "4px",
-                        "xl": "48px",
-                        "sm": "16px"
-                    },
-                    "fontFamily": {
-                        "headline-md": ["Inter"],
-                        "data-mono": ["Inter"],
-                        "label-bold": ["Inter"],
-                        "body-lg": ["Inter"],
-                        "body-md": ["Inter"],
-                        "headline-xl": ["Inter"]
-                    },
-                    "fontSize": {
-                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                        "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
-                        "label-bold": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
-                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                        "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
-                    }
-                },
-            },
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Inventory Tracker - Bitis's Management System</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
         }
-    </script>
-<style>
-        body { font-family: 'Inter', sans-serif; background-color: #f9f9ff; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     </style>
 </head>
-<body class="text-on-background bg-background min-h-screen">
-<!-- SideNavBar -->
-<aside class="docked fixed left-0 top-0 h-screen w-[260px] border-r border-slate-200 bg-white dark:bg-slate-900 flex flex-col py-6 px-4 z-50">
-<div class="mb-10 px-2">
-<h1 class="text-xl font-black text-[#004a99] dark:text-blue-500 tracking-tighter uppercase">Biti's Manager</h1>
-<p class="font-['Inter'] text-sm font-medium tracking-tight text-slate-500">Enterprise Ops</p>
-</div>
-<nav class="flex-1 space-y-1">
-<a class="flex items-center gap-3 px-3 py-2.5 transition-all duration-200 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg active:scale-[0.98]" href="dashboard.html">
-<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Dashboard</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 transition-all duration-200 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg active:scale-[0.98]" href="product_catalog.html">
-<span class="material-symbols-outlined" data-icon="category">category</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Product Catalog</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 transition-all duration-200 bg-blue-50 dark:bg-blue-900/30 text-[#004a99] dark:text-blue-300 border-r-4 border-[#004a99] font-semibold rounded-lg active:scale-[0.98]" href="inventory_tracker.html">
-<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Inventory</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 transition-all duration-200 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg active:scale-[0.98]" href="order_management.html">
-<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Orders</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 transition-all duration-200 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg active:scale-[0.98]" href="#">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Settings</span>
-</a>
-</nav>
-<div class="mt-auto pt-6 border-t border-slate-100 space-y-1">
-<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-[#004a99] transition-all" href="#">
-<span class="material-symbols-outlined" data-icon="help">help</span>
-<span class="font-['Inter'] text-sm font-medium">Help Center</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-secondary transition-all" href="#">
-<span class="material-symbols-outlined" data-icon="logout">logout</span>
-<span class="font-['Inter'] text-sm font-medium">Sign Out</span>
-</a>
-</div>
-</aside>
-<!-- Main Content Area -->
-<main class="ml-[260px] min-h-screen">
-<!-- TopNavBar -->
-<header class="docked sticky top-0 w-full z-40 border-b border-slate-200 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 h-16">
-<div class="flex items-center gap-6 w-1/2">
-<div class="relative w-full max-w-md">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" data-icon="search">search</span>
-<input class="w-full bg-slate-50 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search SKU, Product Name..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<div class="flex items-center gap-2 mr-4">
-<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full relative">
-<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
-<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full"></span>
-</button>
-<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full">
-<span class="material-symbols-outlined" data-icon="history">history</span>
-</button>
-<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full">
-<span class="material-symbols-outlined" data-icon="apps">apps</span>
-</button>
-</div>
-<div class="h-8 w-px bg-slate-200"></div>
-<div class="flex items-center gap-3 ml-2">
-<div class="text-right">
-<p class="text-xs font-bold text-on-background">Admin Manager</p>
-<p class="text-[10px] text-slate-500">Warehouse A</p>
-</div>
-<img class="w-10 h-10 rounded-full border-2 border-primary/10 object-cover" data-alt="Professional portrait of a male warehouse operations manager wearing a smart casual outfit with a blurred office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCICVKvrdKeHyaq6iDLmXnRf9cxrtUaQf9n6Z07j3rBoYVUzIquXxXZj4fpD6lCfvQ-My1JGG3x-75inFCK0u8_5ByGUVrj9oYTuwHMmM_SCnENdPR1cJomtN3LSPHnLLlqdO-3Js_ebyBOIZLOgTzBOekHMz1eo8xLaHk3jdd78eN3AuccPfHsah9oCiz8GHcouVZMkgKzVzuIcykWRYkqahEv9Utcrk7QKWCpGxVszi-zLueK8YpABL0Na5VomV-9Mu7PYXDa3i4"/>
-</div>
-</div>
-</header>
-<section class="p-container-padding">
-<!-- Header Section -->
-<div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-<div>
-<h2 class="font-headline-xl text-headline-xl text-on-background">Inventory Tracker</h2>
-<p class="font-body-md text-body-md text-slate-500 mt-1">Real-time stock monitoring and warehouse distribution across all regions.</p>
-</div>
-<div class="flex gap-3">
-<button class="bg-white border border-slate-200 text-on-background px-4 py-2 rounded-lg font-label-bold text-label-bold flex items-center gap-2 hover:bg-slate-50 transition-colors shadow-sm">
-<span class="material-symbols-outlined text-sm" data-icon="file_download">file_download</span>
-                        Export Report
-                    </button>
-<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-bold text-label-bold flex items-center gap-2 hover:bg-primary-container transition-colors shadow-lg shadow-primary/20">
-<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
-                        Manual Adjustment
-                    </button>
-</div>
-</div>
-<!-- Dashboard Stats Bento Grid -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-8">
-<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-blue-50 text-primary rounded-lg">
-<span class="material-symbols-outlined" data-icon="inventory">inventory</span>
-</div>
-<span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">+2.4%</span>
-</div>
-<p class="text-slate-500 text-xs font-label-bold uppercase tracking-wider">Total SKUs</p>
-<h3 id="totalSkusCount" class="text-2xl font-bold text-on-background">0</h3>
-</div>
-<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-secondary">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-red-50 text-secondary rounded-lg">
-<span class="material-symbols-outlined" data-icon="warning">warning</span>
-</div>
-<span class="text-xs font-bold text-secondary bg-red-50 px-2 py-1 rounded-full">Critical</span>
-</div>
-<p class="text-slate-500 text-xs font-label-bold uppercase tracking-wider">Out of Stock</p>
-<h3 id="outOfStockCount" class="text-2xl font-bold text-on-background">0</h3>
-</div>
-<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-amber-400">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-amber-50 text-amber-600 rounded-lg">
-<span class="material-symbols-outlined" data-icon="trending_down">trending_down</span>
-</div>
-<span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">Action Required</span>
-</div>
-<p class="text-slate-500 text-xs font-label-bold uppercase tracking-wider">Low Stock</p>
-<h3 id="lowStockCount" class="text-2xl font-bold text-on-background">0</h3>
-</div>
-<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-slate-50 text-slate-600 rounded-lg">
-<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
-</div>
-</div>
-<p class="text-slate-500 text-xs font-label-bold uppercase tracking-wider">Incoming Goods</p>
-<h3 class="text-2xl font-bold text-on-background">320 <span class="text-sm font-normal text-slate-400">items</span></h3>
-</div>
-</div>
-<!-- Inventory Table Container -->
-<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-<!-- Filters Bar -->
-<div class="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
-<div class="flex items-center gap-4">
-<div class="flex items-center gap-2">
-<span class="text-xs font-label-bold text-slate-500 uppercase">Stock Level:</span>
-<select class="text-xs border-slate-200 rounded-lg focus:ring-primary focus:border-primary py-1.5">
-<option>All Statuses</option>
-<option>Sufficient Stock</option>
-<option>Low Stock</option>
-<option>Out of Stock</option>
-</select>
-</div>
-<div class="flex items-center gap-2">
-<span class="text-xs font-label-bold text-slate-500 uppercase">Warehouse:</span>
-<select class="text-xs border-slate-200 rounded-lg focus:ring-primary focus:border-primary py-1.5">
-<option>All Locations</option>
-<option>Warehouse A (HCMC)</option>
-<option>Warehouse B (Hanoi)</option>
-<option>Regional Hub (Da Nang)</option>
-</select>
-</div>
-</div>
-<div class="flex items-center gap-2">
-<button class="p-1.5 text-slate-400 hover:text-primary transition-colors">
-<span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
-</button>
-<button class="p-1.5 text-slate-400 hover:text-primary transition-colors">
-<span class="material-symbols-outlined text-sm" data-icon="sort_by_alpha">sort_by_alpha</span>
-</button>
-</div>
-</div>
-<!-- Table Content -->
-<div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead class="bg-slate-50/50 sticky top-0 z-10">
-<tr>
-<th class="px-6 py-4 text-xs font-label-bold text-slate-500 uppercase tracking-wider">Product</th>
-<th class="px-6 py-4 text-xs font-label-bold text-slate-500 uppercase tracking-wider">SKU</th>
-<th class="px-6 py-4 text-xs font-label-bold text-slate-500 uppercase tracking-wider">Location</th>
-<th class="px-6 py-4 text-xs font-label-bold text-slate-500 uppercase tracking-wider">Current Stock</th>
-<th class="px-6 py-4 text-xs font-label-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
-<th class="px-6 py-4 text-xs font-label-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
-</tr>
-</thead>
-                    <tbody id="inventoryTableBody" class="divide-y divide-slate-100">
-<!-- Row 1 -->
-<tr class="hover:bg-slate-50/80 transition-colors group">
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
-<img class="w-full h-full object-cover" data-alt="Vibrant red lifestyle sneaker on a neutral gray background with professional studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKGZ_XdCO48wSVsXOchSbbPEOEGPnz0spgGWPY8X-NYs1piHx_lhtT94tzPEkUILSu1bNGDdCKMFrw9FklXN0b6q-JpNJLtXjB9f0ED1vSUZlVZDEdEDwOdR-MiUZxKjGbZGDvr1K6So4lTVgQUoQZY4O7xyE0x6EK4uwBTYHwm730Fp-3IsYzDdzOM1zdQ0v_LlGlq0JIb8ARnGc-i8Du29KTNgCb0bnITxObZvTaWseU9bMWhCiSj2Q0ubsTgr4bOOIadj2fD7U"/>
-</div>
-<div>
-<p class="font-label-bold text-on-background text-sm">Biti's Hunter Street x VietMax</p>
-<p class="text-[11px] text-slate-400">Mens • Footwear • Red/Black</p>
-</div>
-</div>
-</td>
-<td class="px-6 py-4 font-data-mono text-data-mono text-slate-600">BH-S-2024-RD-42</td>
-<td class="px-6 py-4">
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[16px] text-slate-400" data-icon="location_on">location_on</span>
-<span class="text-sm text-slate-600">Warehouse A-24</span>
-</div>
-</td>
-<td class="px-6 py-4 font-data-mono text-sm text-on-background">245 units</td>
-<td class="px-6 py-4 text-center">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-green-100 text-green-700">
-                                        Sufficient Stock
-                                    </span>
-</td>
-<td class="px-6 py-4 text-right">
-<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
-</td>
-</tr>
-<!-- Row 2 -->
-<tr class="hover:bg-slate-50/80 transition-colors group">
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
-<img class="w-full h-full object-cover" data-alt="Minimalist lime green athletic running shoe positioned diagonally in a high-contrast studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLpzT2qflQ8ekywIToeiJHTUuxVTVm0jDhxdllAkiO4ysc7ywETQEjx50MMkLnl5TkDHlZjUdxtOtpd94cib3mvWATiiGksJtrOFUdtsqFQW16kdrFY7vG1hf2-FtYkg5ltklGWFHsIWlIRa500a1JKAkVNrn0NaDsPTLsyx9xQWfOEL5cruzHeWwlis_fbf7Yoy6O3mgsdk6fTf8rbdAzvACPKdIgGws5avxz4PUb4cbr3Kcbvp6TD99Z-dCaXNIFIq064Jo2KZA"/>
-</div>
-<div>
-<p class="font-label-bold text-on-background text-sm">Biti's Hunter Core Z</p>
-<p class="text-[11px] text-slate-400">Unisex • Performance • Lime</p>
-</div>
-</div>
-</td>
-<td class="px-6 py-4 font-data-mono text-data-mono text-slate-600">BH-C-2023-LM-40</td>
-<td class="px-6 py-4">
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[16px] text-slate-400" data-icon="location_on">location_on</span>
-<span class="text-sm text-slate-600">Warehouse B-08</span>
-</div>
-</td>
-<td class="px-6 py-4 font-data-mono text-sm text-on-background">14 units</td>
-<td class="px-6 py-4 text-center">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700">
-                                        Low Stock
-                                    </span>
-</td>
-<td class="px-6 py-4 text-right">
-<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
-</td>
-</tr>
-<!-- Row 3 -->
-<tr class="hover:bg-slate-50/80 transition-colors group">
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
-<img class="w-full h-full object-cover" data-alt="Professional studio shot of a pastel-colored fashion sneaker with complex textures and soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfgnENM0h9XLCR8AUVxgKXgEMDbgt82i25EQBrXzGtjEKcDidH9x3reaNCYN_K4HAICZC4vopu7VAwY-X5EVyYb77YKSWFmRvYGfC0RoFKfKRgWBIDKHrY8Dgp2UT1Cl8Byial-tTbxdqlKwJoljZ_48ID9tuCLaQkn_9GZSC1bp2Ov0BYrGQCaQs5PMb4Au_u5gYXNOk6vM4kRj-Jq-aqNzp-Y1ODqTlx5bfehRxdf0ws5q8L4c9aIXwRzvOdyeQd2bvZsoj2G9I"/>
-</div>
-<div>
-<p class="font-label-bold text-on-background text-sm">Biti's Gosto Elegance</p>
-<p class="text-[11px] text-slate-400">Womens • Formal • Nude</p>
-</div>
-</div>
-</td>
-<td class="px-6 py-4 font-data-mono text-data-mono text-slate-600">BG-E-2024-ND-37</td>
-<td class="px-6 py-4">
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[16px] text-slate-400" data-icon="location_on">location_on</span>
-<span class="text-sm text-slate-600">Warehouse A-12</span>
-</div>
-</td>
-<td class="px-6 py-4 font-data-mono text-sm text-secondary font-bold">0 units</td>
-<td class="px-6 py-4 text-center">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-700">
-                                        Out of Stock
-                                    </span>
-</td>
-<td class="px-6 py-4 text-right">
-<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
-</td>
-</tr>
-<!-- Row 4 -->
-<tr class="hover:bg-slate-50/80 transition-colors group">
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
-<img class="w-full h-full object-cover" data-alt="Classic white leather low-top trainer with subtle stitching details against a light gray background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChQ-qm8DPD0aag-CmQlLX1fHTLFX9iEhW1eYbWWCU7_g4yGd01CU61RhMAWs_yAXHaDaQ16P8oUoCFEuOQf97BZJhD0DNdDRvTcbeHaj5LsxG557-Ih3n4YRByczGRv0icZoFvkKbNOKLY4eY4bFW3N7X1D5FLPArEpdBCt7Ok4U9RoLcUW4xa9WpjW5heNOecDMsy3eYqMrUd2tKqrsbdDzIUlD_3EzXBafi9yLJ3FYeN_NXBuQko_YAnhXWKHAc1PubyVHKs41Q"/>
-</div>
-<div>
-<p class="font-label-bold text-on-background text-sm">Biti's Hunter Classic White</p>
-<p class="text-[11px] text-slate-400">Mens • Everyday • White</p>
-</div>
-</div>
-</td>
-<td class="px-6 py-4 font-data-mono text-data-mono text-slate-600">BH-C-2022-WT-43</td>
-<td class="px-6 py-4">
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[16px] text-slate-400" data-icon="location_on">location_on</span>
-<span class="text-sm text-slate-600">Regional Hub-01</span>
-</div>
-</td>
-<td class="px-6 py-4 font-data-mono text-sm text-on-background">512 units</td>
-<td class="px-6 py-4 text-center">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-green-100 text-green-700">
-                                        Sufficient Stock
-                                    </span>
-</td>
-<td class="px-6 py-4 text-right">
-<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
-</td>
-</tr>
-<!-- Row 5 -->
-<tr class="hover:bg-slate-50/80 transition-colors group">
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
-<img class="w-full h-full object-cover" data-alt="Side view of a dark navy performance running shoe with white sole on a clean gray surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHt3AzdDqG9faGgiNBd6FXZI6_Fs4AyRTrRhsdEbiwkXJ0EYjq11JVOV6RmnqQ2JwGIvYczkLQrL4ORIAd28L5nb9XkP5C612SS7qm9XfuaU_sK0virJ5WHYWw1nnJcEfA3NAaRYFAEHUPaC3BiKd8rS3-MOq8T3cjJx88qMBTbKeOqgG-gAoxyGQEAfN8Q5koIDz9wrRUTQsMRoiDh65Hd2_S_XPE6AL_tYtMw7mCzqqQiMjty55SBgK7-4OTVHWRj0yyMnX3_QU"/>
-</div>
-<div>
-<p class="font-label-bold text-on-background text-sm">Biti's Running Pro Elite</p>
-<p class="text-[11px] text-slate-400">Mens • Sport • Navy</p>
-</div>
-</div>
-</td>
-<td class="px-6 py-4 font-data-mono text-data-mono text-slate-600">BR-E-2024-NV-41</td>
-<td class="px-6 py-4">
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[16px] text-slate-400" data-icon="location_on">location_on</span>
-<span class="text-sm text-slate-600">Warehouse B-14</span>
-</div>
-</td>
-<td class="px-6 py-4 font-data-mono text-sm text-on-background">8 units</td>
-<td class="px-6 py-4 text-center">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700">
-                                        Low Stock
-                                    </span>
-</td>
-<td class="px-6 py-4 text-right">
-<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<!-- Pagination -->
-<div class="px-6 py-4 bg-slate-50/30 border-t border-slate-100 flex items-center justify-between">
-                    <p id="showingCount" class="text-xs text-slate-500 font-medium">Showing 0 items</p>
-<div class="flex gap-2">
-<button class="p-1.5 rounded border border-slate-200 bg-white text-slate-400 hover:text-primary hover:border-primary disabled:opacity-50" disabled="">
-<span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
-</button>
-<button class="px-3 py-1 rounded bg-primary text-on-primary text-xs font-bold">1</button>
-<button class="px-3 py-1 rounded bg-white border border-slate-200 text-slate-600 text-xs hover:bg-slate-50">2</button>
-<button class="px-3 py-1 rounded bg-white border border-slate-200 text-slate-600 text-xs hover:bg-slate-50">3</button>
-<button class="p-1.5 rounded border border-slate-200 bg-white text-slate-400 hover:text-primary hover:border-primary">
-<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Contextual Distribution Card -->
-<div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-gutter">
-<div class="md:col-span-2 bg-white rounded-xl border border-slate-200 p-6">
-<h3 class="font-label-bold text-sm uppercase text-slate-500 mb-6">Stock Level Trends</h3>
-<div class="flex items-end justify-between h-40 gap-4 mb-2 px-2">
-<div class="w-full bg-blue-100 rounded-t h-32 flex items-end"><div class="w-full bg-primary h-[85%] rounded-t"></div></div>
-<div class="w-full bg-blue-100 rounded-t h-32 flex items-end"><div class="w-full bg-primary h-[92%] rounded-t"></div></div>
-<div class="w-full bg-blue-100 rounded-t h-32 flex items-end"><div class="w-full bg-primary h-[70%] rounded-t"></div></div>
-<div class="w-full bg-blue-100 rounded-t h-32 flex items-end"><div class="w-full bg-primary h-[40%] rounded-t"></div></div>
-<div class="w-full bg-blue-100 rounded-t h-32 flex items-end"><div class="w-full bg-primary h-[55%] rounded-t"></div></div>
-<div class="w-full bg-blue-100 rounded-t h-32 flex items-end"><div class="w-full bg-primary h-[78%] rounded-t"></div></div>
-<div class="w-full bg-blue-100 rounded-t h-32 flex items-end"><div class="w-full bg-primary h-[88%] rounded-t"></div></div>
-</div>
-<div class="flex justify-between px-2">
-<span class="text-[10px] text-slate-400 uppercase font-bold">Mon</span>
-<span class="text-[10px] text-slate-400 uppercase font-bold">Tue</span>
-<span class="text-[10px] text-slate-400 uppercase font-bold">Wed</span>
-<span class="text-[10px] text-slate-400 uppercase font-bold">Thu</span>
-<span class="text-[10px] text-slate-400 uppercase font-bold">Fri</span>
-<span class="text-[10px] text-slate-400 uppercase font-bold">Sat</span>
-<span class="text-[10px] text-slate-400 uppercase font-bold">Sun</span>
-</div>
-</div>
-<div class="bg-primary-container p-6 rounded-xl flex flex-col justify-between text-on-primary-container">
-<div>
-<span class="material-symbols-outlined text-3xl mb-4" data-icon="electric_bolt">electric_bolt</span>
-<h4 class="font-headline-md text-headline-md mb-2">Replenishment AI</h4>
-<p class="text-sm opacity-80 leading-relaxed">Based on current sales velocity, 24 items in Category: Footwear are predicted to hit 'Low Stock' by Friday. Prepare restocking order.</p>
-</div>
-<button class="mt-6 w-full py-3 bg-white text-primary font-bold rounded-lg hover:bg-opacity-90 transition-all text-sm uppercase tracking-wider">Generate PO</button>
-</div>
-</div>
-</section>
-</main>
-<!-- Floating Action Button (FAB) - Suppressed on sub-screens per instructions, but kept for main dashboard relevance -->
-<button class="fixed bottom-8 right-8 w-14 h-14 bg-secondary text-on-secondary rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all z-50">
-<span class="material-symbols-outlined" data-icon="inventory" style="font-variation-settings: 'FILL' 1;">inventory</span>
-</button>
+
+<body class="text-slate-800">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-[#2C333A] text-white flex flex-col h-screen sticky top-0">
+            <div class="p-6 mb-4">
+                <div class="flex items-start">
+                    <div class="mr-3 mt-1">
+                        <svg class="w-5 h-5 text-[#FF7043]" fill="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M11 5v11.17l-4.88-4.88c-.39-.39-1.03-.39-1.42 0-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0l6.59-6.59c.39-.39.39-1.02 0-1.41-.39-.39-1.03-.39-1.42 0L13 16.17V5c0-.55-.45-1-1-1s-1 .45-1 1z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold leading-tight">Bitis's<br />Management</h2>
+                        <p class="text-xs text-slate-400 mt-1">System Terminal</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 px-0 space-y-0.5">
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="index.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Dashboard
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="product_catalog.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Products
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-semibold bg-white/10 border-l-4 border-[#E30016] text-white transition"
+                    href="inventory_tracker.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Inventory
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="order_management.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Orders
+                </a>
+            </nav>
+            <div class="px-0 py-4 space-y-0.5 border-t border-slate-700/30">
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="staff_management.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Staff Management
+                </a>
+                <a onclick="window.supabaseClient.auth.signOut().then(() => window.location.href='login.html')"
+                    class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition cursor-pointer">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+                <div></div>
+                <div class="flex items-center space-x-6">
+
+                    <a href="profile.html" class="flex items-center space-x-3 border-l border-slate-100 pl-6 hover:bg-slate-50 p-1 rounded-lg transition">
+                        <img id="adminAvatar" alt="Admin" class="w-10 h-10 rounded-full border border-slate-200 object-cover"
+                            src="https://via.placeholder.com/40" />
+                        <div class="text-left">
+                            <p id="adminName" class="text-sm font-bold text-slate-800 leading-tight">Admin User</p>
+                            <p id="adminEmail" class="text-xs text-slate-400">admin@bitis.com.vn</p>
+                        </div>
+                    </a>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900">Inventory Tracker</h1>
+                        <p class="text-slate-500 text-sm mt-1">Real-time stock monitoring and warehouse distribution.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-slate-400 text-sm font-medium uppercase tracking-wider">Total SKUs</p>
+                        <h3 id="totalSkusCount" class="text-3xl font-bold mt-2">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm border-l-4 border-red-500">
+                        <p class="text-slate-400 text-sm font-medium uppercase tracking-wider">Out of Stock</p>
+                        <h3 id="outOfStockCount" class="text-3xl font-bold mt-2">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm border-l-4 border-amber-500">
+                        <p class="text-slate-400 text-sm font-medium uppercase tracking-wider">Low Stock</p>
+                        <h3 id="lowStockCount" class="text-3xl font-bold mt-2">0</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-50 bg-slate-50/30">
+                                <th class="px-6 py-4 font-semibold">Product</th>
+                                <th class="px-6 py-4 font-semibold">SKU</th>
+                                <th class="px-6 py-4 font-semibold">Location</th>
+                                <th class="px-6 py-4 font-semibold">Stock</th>
+                                <th class="px-6 py-4 font-semibold text-center">Status</th>
+                                <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody" class="text-sm">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Inventory Modal -->
+    <div id="editModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[100] p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl transform transition-all duration-300 scale-95" id="modalCard">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-900">Edit Inventory</h2>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </button>
+            </div>
+            
+            <form id="editInventoryForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Product Name</label>
+                    <input type="text" id="editProductName" readonly class="w-full bg-slate-50 border-slate-200 rounded-lg text-sm text-slate-500 cursor-not-allowed">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Current Stock</label>
+                        <input type="number" id="editCurrentStock" required min="0" class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Reorder Level</label>
+                        <input type="number" id="editReorderLevel" required min="0" class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                    </div>
+                </div>
+                
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="closeEditModal()" class="flex-1 px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
+                    <button type="submit" id="saveBtn" class="flex-1 px-4 py-2 bg-[#E30016] text-white rounded-lg text-sm font-bold hover:bg-red-700 transition shadow-lg shadow-red-100">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        let currentEditItem = null;
+
+        function openEditModal(item) {
+            currentEditItem = item;
+            document.getElementById('editProductName').value = item.products.name;
+            document.getElementById('editCurrentStock').value = item.current_stock;
+            document.getElementById('editReorderLevel').value = item.reorder_level;
+            
+            const modal = document.getElementById('editModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Animation
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('modalCard').classList.remove('scale-95');
+                document.getElementById('modalCard').classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('editModal');
+            modal.classList.add('opacity-0');
+            document.getElementById('modalCard').classList.remove('scale-100');
+            document.getElementById('modalCard').classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                currentEditItem = null;
+            }, 300);
+        }
+
+        document.getElementById('editInventoryForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="flex items-center justify-center gap-2"><svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...</span>';
+
+            const newStock = parseInt(document.getElementById('editCurrentStock').value);
+            const newReorder = parseInt(document.getElementById('editReorderLevel').value);
+
+            try {
+                const { error } = await window.supabaseClient
+                    .from('inventory')
+                    .update({ 
+                        current_stock: newStock, 
+                        reorder_level: newReorder,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', currentEditItem.id);
+
+                if (error) throw error;
+                
+                closeEditModal();
+                fetchInventory(); // Refresh table
+            } catch (error) {
+                console.error('Error updating inventory:', error);
+                alert('Failed to update inventory. Please try again.');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = 'Save Changes';
+            }
+        };
+
         async function fetchInventory() {
+            // Load user profile first
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (session) {
+                    const { data: profile } = await window.supabaseClient
+                        .from('user_profiles')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    if (profile) {
+                        document.getElementById('adminName').innerText = profile.full_name;
+                        document.getElementById('adminEmail').innerText = session.user.email;
+                        if (profile.avatar_url) {
+                            document.getElementById('adminAvatar').src = profile.avatar_url;
+                        }
+                    }
+                }
+            } catch (e) { console.error("Error loading profile", e); }
+
             const tableBody = document.getElementById('inventoryTableBody');
-            tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center">Loading inventory...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">Loading inventory...</td></tr>';
 
             try {
                 const { data, error } = await window.supabaseClient
@@ -506,7 +293,7 @@
                 if (error) throw error;
 
                 if (!data || data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center">No inventory records found.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">No inventory found.</td></tr>';
                     return;
                 }
 
@@ -514,10 +301,9 @@
                 document.getElementById('totalSkusCount').innerText = data.length;
                 const outOfStock = data.filter(item => item.current_stock === 0).length;
                 const lowStock = data.filter(item => item.current_stock > 0 && item.current_stock <= item.reorder_level).length;
-                
+
                 document.getElementById('outOfStockCount').innerText = outOfStock;
                 document.getElementById('lowStockCount').innerText = lowStock;
-                document.getElementById('showingCount').innerText = `Showing ${data.length} items`;
 
                 tableBody.innerHTML = '';
                 data.forEach(item => {
@@ -526,45 +312,46 @@
                     const status = item.current_stock === 0 ? 'Out of Stock' : (item.current_stock <= item.reorder_level ? 'Low Stock' : 'Sufficient Stock');
                     const statusClass = item.current_stock === 0 ? 'bg-red-100 text-red-700' : (item.current_stock <= item.reorder_level ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700');
 
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-slate-50/80 transition-colors group';
-                    row.innerHTML = `
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-slate-50 hover:bg-slate-50 transition-colors';
+                    tr.innerHTML = `
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
-                                    <img class="w-full h-full object-cover" src="${product.image_url || 'https://via.placeholder.com/48'}" alt="${product.name}">
+                                <div class="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="${product.image_url || 'https://via.placeholder.com/48'}" alt="${product.name}" class="w-full h-full object-cover">
                                 </div>
                                 <div>
-                                    <p class="font-label-bold text-on-background text-sm">${product.name}</p>
-                                    <p class="text-[11px] text-slate-400">${product.category} • ${product.collection}</p>
+                                    <div class="font-bold text-slate-800">${product.name}</div>
+                                    <div class="text-xs text-slate-400">${product.category}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 font-data-mono text-data-mono text-slate-600">${product.sku}</td>
+                        <td class="px-6 py-4 font-mono text-xs text-slate-500">${product.sku}</td>
                         <td class="px-6 py-4">
-                            <div class="flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[16px] text-slate-400">location_on</span>
-                                <span class="text-sm text-slate-600">${warehouse.name} (${warehouse.location_code})</span>
-                            </div>
+                            <div class="text-slate-600 font-medium">${warehouse.name}</div>
+                            <div class="text-[10px] text-slate-400 uppercase tracking-widest">${warehouse.location_code}</div>
                         </td>
-                        <td class="px-6 py-4 font-data-mono text-sm text-on-background">${item.current_stock} units</td>
+                        <td class="px-6 py-4 font-bold text-slate-900">${item.current_stock} <span class="text-slate-400 font-normal">pcs</span></td>
                         <td class="px-6 py-4 text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${statusClass}">
-                                ${status}
-                            </span>
+                            <span class="px-2 py-1 ${statusClass} text-[10px] font-bold rounded-full uppercase">${status}</span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
+                            <button class="edit-btn text-slate-400 hover:text-slate-600 transition p-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            </button>
                         </td>
                     `;
-                    tableBody.appendChild(row);
+                    tr.querySelector('.edit-btn').onclick = () => openEditModal(item);
+                    tableBody.appendChild(tr);
                 });
             } catch (error) {
                 console.error('Error fetching inventory:', error);
-                tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Error loading inventory.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">Error loading inventory.</td></tr>';
             }
         }
 
         fetchInventory();
     </script>
-</body></html>
+</body>
+
+</html>

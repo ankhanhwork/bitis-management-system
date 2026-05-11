@@ -1,399 +1,420 @@
 <!DOCTYPE html>
+<html lang="en">
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Biti's Product Catalog</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "inverse-on-surface": "#ecf1ff",
-                    "on-background": "#111c2d",
-                    "error-container": "#ffdad6",
-                    "surface-container": "#e7eeff",
-                    "surface-container-low": "#f0f3ff",
-                    "secondary": "#bb0013",
-                    "on-tertiary-fixed-variant": "#454748",
-                    "on-secondary-fixed-variant": "#93000d",
-                    "on-primary-fixed-variant": "#00458f",
-                    "surface-container-lowest": "#ffffff",
-                    "on-primary": "#ffffff",
-                    "tertiary": "#333537",
-                    "surface-container-high": "#dee8ff",
-                    "on-tertiary": "#ffffff",
-                    "primary-fixed-dim": "#abc7ff",
-                    "surface-tint": "#255dad",
-                    "tertiary-fixed-dim": "#c5c7c8",
-                    "secondary-fixed-dim": "#ffb4ab",
-                    "on-error-container": "#93000a",
-                    "outline": "#737783",
-                    "on-secondary-fixed": "#410002",
-                    "secondary-container": "#e71520",
-                    "on-error": "#ffffff",
-                    "secondary-fixed": "#ffdad6",
-                    "background": "#f9f9ff",
-                    "primary-container": "#004a99",
-                    "inverse-surface": "#263143",
-                    "on-primary-fixed": "#001b3f",
-                    "on-primary-container": "#9bbdff",
-                    "on-secondary": "#ffffff",
-                    "on-tertiary-container": "#bbbcbd",
-                    "inverse-primary": "#abc7ff",
-                    "surface-container-highest": "#d8e3fb",
-                    "on-surface-variant": "#424751",
-                    "surface-variant": "#d8e3fb",
-                    "on-secondary-container": "#fffbff",
-                    "primary-fixed": "#d7e2ff",
-                    "error": "#ba1a1a",
-                    "tertiary-fixed": "#e1e3e4",
-                    "surface-bright": "#f9f9ff",
-                    "primary": "#00346f",
-                    "surface": "#f9f9ff",
-                    "tertiary-container": "#4a4c4d",
-                    "surface-dim": "#cfdaf2",
-                    "on-surface": "#111c2d",
-                    "outline-variant": "#c2c6d3",
-                    "on-tertiary-fixed": "#191c1d"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.125rem",
-                    "lg": "0.25rem",
-                    "xl": "0.5rem",
-                    "full": "0.75rem"
-            },
-            "spacing": {
-                    "container-padding": "24px",
-                    "md": "24px",
-                    "lg": "32px",
-                    "xs": "8px",
-                    "gutter": "20px",
-                    "base": "4px",
-                    "xl": "48px",
-                    "sm": "16px"
-            },
-            "fontFamily": {
-                    "headline-md": ["Inter"],
-                    "data-mono": ["Inter"],
-                    "label-bold": ["Inter"],
-                    "body-lg": ["Inter"],
-                    "body-md": ["Inter"],
-                    "headline-xl": ["Inter"]
-            },
-            "fontSize": {
-                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                    "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
-                    "label-bold": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
-                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
-            }
-          },
-        },
-      }
-    </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-            line-height: 1;
-            text-transform: none;
-            letter-spacing: normal;
-            word-wrap: normal;
-            white-space: nowrap;
-            direction: ltr;
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Product Catalog - Bitis's Management System</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
         }
-        body { font-family: 'Inter', sans-serif; background-color: #f9f9ff; }
     </style>
 </head>
-<body class="text-on-surface">
-<!-- SideNavBar Shell -->
-<aside class="docked fixed left-0 top-0 h-screen w-[260px] border-r border-slate-200 bg-white flex flex-col py-6 px-4 z-50">
-<div class="mb-10 px-4">
-<h1 class="text-xl font-black text-[#004a99] tracking-tighter uppercase">Biti's Manager</h1>
-<p class="text-xs font-medium text-slate-500 tracking-tight">Enterprise Ops</p>
-</div>
-<nav class="flex-1 space-y-1">
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="dashboard.html">
-<span class="material-symbols-outlined">dashboard</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Dashboard</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-[#004a99] border-r-4 border-[#004a99] font-semibold rounded-xl group active:scale-[0.98]" href="product_catalog.html">
-<span class="material-symbols-outlined">category</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Product Catalog</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="inventory_tracker.html">
-<span class="material-symbols-outlined">inventory_2</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Inventory</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="order_management.html">
-<span class="material-symbols-outlined">shopping_cart</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Orders</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="#">
-<span class="material-symbols-outlined">settings</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Settings</span>
-</a>
-</nav>
-<div class="mt-auto border-t border-slate-100 pt-6 space-y-1">
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="#">
-<span class="material-symbols-outlined">help</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Help Center</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 transition-all duration-200 rounded-xl group active:scale-[0.98]" href="#">
-<span class="material-symbols-outlined">logout</span>
-<span class="font-['Inter'] text-sm font-medium tracking-tight">Sign Out</span>
-</a>
-</div>
-</aside>
-<!-- Main Content Wrapper -->
-<main class="ml-[260px] min-h-screen">
-<!-- TopNavBar Shell -->
-<header class="sticky top-0 w-full z-40 border-b border-slate-200 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 h-16">
-<div class="flex items-center flex-1 max-w-xl">
-<div class="relative w-full">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-<input class="w-full bg-slate-50 border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary-container/20" placeholder="Search product catalog..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-6">
-<div class="flex items-center gap-4">
-<button class="p-2 text-slate-500 hover:text-[#004a99] transition-colors active:opacity-80">
-<span class="material-symbols-outlined">notifications</span>
-</button>
-<button class="p-2 text-slate-500 hover:text-[#004a99] transition-colors active:opacity-80">
-<span class="material-symbols-outlined">history</span>
-</button>
-<button class="p-2 text-slate-500 hover:text-[#004a99] transition-colors active:opacity-80">
-<span class="material-symbols-outlined">apps</span>
-</button>
-</div>
-<div class="h-6 w-[1px] bg-slate-200"></div>
-<div class="flex items-center gap-3">
-<img alt="Manager Profile" class="w-8 h-8 rounded-full border border-slate-200" data-alt="professional portrait of a store manager in a clean office environment with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7L7_SlnVy71CqcDGsj1ItJalvewnWjt6JXXuD_IZeM_ee1xQbgMpnERt1NtlY5p7RY0Cqk_lexzH9k_JvhKfzrRoUkMrtbVCnpeq6rMB46dSuRD0PlT-UFr1B1v5A7-lkI-UJE_SvJdj1mXdVeETpGh-fq4MbBJR5yfpGjzQLfSJZN4PzodQ2MQU8TPSmToyGYMb0O8EwK0rDvoXUZBsf3yqnFDxdfXHhQZiJvPFYFyK1UEXwTAULr4KFKpsWyjCz3Nv13WHtVlU"/>
-<div class="hidden lg:block">
-<p class="text-xs font-semibold text-on-surface">Admin User</p>
-<p class="text-[10px] text-slate-500 uppercase tracking-wider">Main Branch</p>
-</div>
-</div>
-</div>
-</header>
-<!-- Canvas Content -->
-<section class="p-8">
-<div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-<div>
-<h2 class="font-headline-xl text-headline-xl text-primary">Product Catalog</h2>
-<p class="font-body-md text-body-md text-slate-500 mt-1">Manage corporate product data, specifications, and SKU definitions.</p>
-</div>
-<a class="bg-primary-container text-white px-6 py-3 rounded-xl font-label-bold text-label-bold flex items-center gap-2 shadow-lg shadow-primary-container/20 hover:translate-y-[-2px] transition-all active:scale-[0.98]" href="add_product.html">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
-                    Add New Product
+
+<body class="text-slate-800">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-[#2C333A] text-white flex flex-col h-screen sticky top-0">
+            <div class="p-6 mb-4">
+                <div class="flex items-start">
+                    <div class="mr-3 mt-1">
+                        <svg class="w-5 h-5 text-[#FF7043]" fill="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M11 5v11.17l-4.88-4.88c-.39-.39-1.03-.39-1.42 0-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0l6.59-6.59c.39-.39.39-1.02 0-1.41-.39-.39-1.03-.39-1.42 0L13 16.17V5c0-.55-.45-1-1-1s-1 .45-1 1z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold leading-tight">Bitis's<br />Management</h2>
+                        <p class="text-xs text-slate-400 mt-1">System Terminal</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 px-0 space-y-0.5">
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="index.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Dashboard
                 </a>
-</div>
-<!-- Stats/Contextual Filter Bar -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-<div class="bg-white p-6 rounded-xl border border-slate-200 flex items-center gap-4">
-<div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-[#004a99]">
-<span class="material-symbols-outlined">footprint</span>
-</div>
-<div>
-                            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Total SKUs</p>
-                            <p id="totalSkusCount" class="text-xl font-bold">1,248</p>
+                <a class="flex items-center px-6 py-3 text-sm font-semibold bg-white/10 border-l-4 border-[#E30016] text-white transition"
+                    href="product_catalog.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Products
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="inventory_tracker.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Inventory
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="order_management.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Orders
+                </a>
+            </nav>
+            <div class="px-0 py-4 space-y-0.5 border-t border-slate-700/30">
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="staff_management.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Staff Management
+                </a>
+                <a onclick="window.supabaseClient.auth.signOut().then(() => window.location.href='login.html')"
+                    class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition cursor-pointer">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+                <div></div>
+                <div class="flex items-center space-x-6">
+
+                    <a href="profile.html" class="flex items-center space-x-3 border-l border-slate-100 pl-6 hover:bg-slate-50 p-1 rounded-lg transition">
+                        <img id="adminAvatar" alt="Admin" class="w-10 h-10 rounded-full border border-slate-200 object-cover"
+                            src="https://via.placeholder.com/40" />
+                        <div class="text-left">
+                            <p id="adminName" class="text-sm font-bold text-slate-800 leading-tight">Admin User</p>
+                            <p id="adminEmail" class="text-xs text-slate-400">admin@bitis.com.vn</p>
                         </div>
-</div>
-<div class="bg-white p-6 rounded-xl border border-slate-200 flex items-center gap-4">
-<div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-orange-600">
-<span class="material-symbols-outlined">collections</span>
-</div>
-<div>
-<p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Active Categories</p>
-<p class="text-xl font-bold">24</p>
-</div>
-</div>
-<div class="bg-white p-6 rounded-xl border border-slate-200 flex items-center gap-4">
-<div class="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center text-purple-600">
-<span class="material-symbols-outlined">new_releases</span>
-</div>
-<div>
-<p class="text-xs text-slate-500 font-medium uppercase tracking-wider">New Arrivals</p>
-<p class="text-xl font-bold">12</p>
-</div>
-</div>
-<div class="bg-white p-6 rounded-xl border border-slate-200 flex items-center gap-4">
-<div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600">
-<span class="material-symbols-outlined">verified</span>
-</div>
-<div>
-<p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Verified Products</p>
-<p class="text-xl font-bold">98%</p>
-</div>
-</div>
-</div>
-<!-- Catalog Table Container -->
-<div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-<div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-<div class="flex gap-4">
-<button class="text-sm font-semibold text-primary px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-sm">All Products</button>
-<button class="text-sm font-medium text-slate-500 px-3 py-1 hover:text-primary transition-colors">Footwear</button>
-<button class="text-sm font-medium text-slate-500 px-3 py-1 hover:text-primary transition-colors">Accessories</button>
-</div>
-<div class="flex items-center gap-2">
-<button class="p-2 text-slate-400 hover:text-primary"><span class="material-symbols-outlined">filter_list</span></button>
-<button class="p-2 text-slate-400 hover:text-primary"><span class="material-symbols-outlined">download</span></button>
-</div>
-</div>
-<div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead>
-<tr class="bg-white">
-<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">Product</th>
-<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">SKU Reference</th>
-<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">Category</th>
-<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">Unit Price</th>
-<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 text-right">Actions</th>
-</tr>
-</thead>
-<tbody id="productTableBody" class="divide-y divide-slate-100">
-<!-- Dynamic rows will be inserted here -->
-</tbody>
-</table>
-</div>
-<!-- Pagination -->
-<div class="px-6 py-4 bg-slate-50/30 border-t border-slate-100 flex items-center justify-between">
-<p id="showingCount" class="text-xs text-slate-500 font-medium">Showing 1 to 5 of 1,248 products</p>
-<div class="flex items-center gap-2">
-<button class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-white transition-colors">Previous</button>
-<div class="flex gap-1">
-<button class="w-8 h-8 rounded-lg bg-primary-container text-white text-xs font-bold">1</button>
-<button class="w-8 h-8 rounded-lg hover:bg-slate-200 text-xs font-bold">2</button>
-<button class="w-8 h-8 rounded-lg hover:bg-slate-200 text-xs font-bold">3</button>
-<span class="px-1 text-slate-400">...</span>
-<button class="w-8 h-8 rounded-lg hover:bg-slate-200 text-xs font-bold">250</button>
-</div>
-<button class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-white transition-colors">Next</button>
-</div>
-</div>
-</div>
-<!-- Contextual Help / Grid Footer -->
-<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="p-6 bg-gradient-to-br from-primary to-[#004a99] rounded-xl text-white shadow-xl">
-<h3 class="text-lg font-bold mb-2">Catalog Integrity</h3>
-<p class="text-sm opacity-80 mb-4">Maintain high-quality product images and precise SKUs to ensure smooth operational workflow across branches.</p>
-<button class="text-xs font-bold bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg border border-white/20 transition-colors">Review Guidelines</button>
-</div>
-<div class="p-6 bg-white border border-slate-200 rounded-xl">
-<h3 class="text-lg font-bold text-primary mb-2">Recently Modified</h3>
-<ul class="space-y-3">
-<li class="flex items-center justify-between">
-<span class="text-sm text-slate-600">Biti's Hunter Street x Vietmax</span>
-<span class="text-xs font-bold text-[#004a99]">2m ago</span>
-</li>
-<li class="flex items-center justify-between">
-<span class="text-sm text-slate-600">Classic Leather Belt - Brown</span>
-<span class="text-xs font-bold text-[#004a99]">1h ago</span>
-</li>
-<li class="flex items-center justify-between">
-<span class="text-sm text-slate-600">Sport Performance Socks (3-Pack)</span>
-<span class="text-xs font-bold text-[#004a99]">4h ago</span>
-</li>
-</ul>
-</div>
-</div>
-</section>
-</main>
-<!-- FAB for quick access (suppressed on details, shown here for Catalog view as it's a top-level hub) -->
-<button class="fixed bottom-8 right-8 w-14 h-14 bg-secondary-container text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-transform z-50">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
-</button>
-<script>
-    async function fetchProducts() {
-        const tableBody = document.getElementById('productTableBody');
-        tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center">Loading products...</td></tr>';
+                    </a>
+                </div>
+            </header>
 
-        try {
-            const { data, error } = await window.supabaseClient
-                .from('products')
-                .select('*', { count: 'exact' })
-                .order('created_at', { ascending: false });
+            <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900">Product Catalog</h1>
+                        <p class="text-slate-500 text-sm mt-1">Manage and view your entire shoe inventory.</p>
+                    </div>
+                    <a href="add_product.html"
+                        class="bg-[#E30016] text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-red-100 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                        Add New Product
+                    </a>
+                </div>
 
-            if (error) throw error;
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-50 bg-slate-50/30">
+                                <th class="px-6 py-4 font-semibold">Product Info</th>
+                                <th class="px-6 py-4 font-semibold">SKU</th>
+                                <th class="px-6 py-4 font-semibold">Category</th>
+                                <th class="px-6 py-4 font-semibold">Price</th>
+                                <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody" class="text-sm">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
 
-            if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center">No products found.</td></tr>';
-                return;
-            }
-
-            // Update stats
-            document.getElementById('totalSkusCount').innerText = data.length;
-            document.getElementById('showingCount').innerText = `Showing 1 to ${data.length} of ${data.length} products`;
-
-            tableBody.innerHTML = '';
-            data.forEach(product => {
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-slate-50 transition-colors group';
+    <!-- Edit Product Modal -->
+    <div id="editModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[100] p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white w-full max-w-lg rounded-2xl p-8 shadow-2xl transform transition-all duration-300 scale-95" id="modalCard">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-900">Edit Product</h2>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </button>
+            </div>
+            
+            <form id="editProductForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Product Name</label>
+                        <input type="text" id="editProductName" required class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Brand</label>
+                        <input type="text" id="editProductBrand" class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                        <select id="editProductCategory" class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                            <option value="Lifestyle">Lifestyle</option>
+                            <option value="Running">Running</option>
+                            <option value="Basketball">Basketball</option>
+                            <option value="Training">Training</option>
+                            <option value="Sandals">Sandals</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">SKU</label>
+                        <input type="text" id="editProductSku" required class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Price (VND)</label>
+                        <input type="number" id="editProductPrice" required class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label>
+                        <input type="url" id="editProductImageUrl" class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                    </div>
+                </div>
                 
-                const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.base_price);
-                const publishedDate = new Date(product.created_at).toLocaleDateString('vi-VN');
+                <div class="pt-6 flex gap-3">
+                    <button type="button" onclick="closeEditModal()" class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
+                    <button type="submit" id="saveBtn" class="flex-1 px-4 py-3 bg-[#E30016] text-white rounded-xl text-sm font-bold hover:bg-red-700 transition shadow-lg shadow-red-100">Update Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-                row.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-lg bg-slate-100 overflow-hidden border border-slate-100">
-                                <img src="${product.image_url || 'https://via.placeholder.com/64'}" alt="${product.name}" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <p class="font-body-lg text-body-lg font-semibold text-on-surface">${product.name}</p>
-                                <p class="text-xs text-slate-400">Published: ${publishedDate}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 font-data-mono text-data-mono text-slate-600">${product.sku}</td>
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-100">${product.category}</span>
-                    </td>
-                    <td class="px-6 py-4 font-bold text-primary">${formattedPrice}</td>
-                    <td class="px-6 py-4 text-right">
-                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button class="p-2 text-slate-400 hover:text-blue-600 transition-colors"><span class="material-symbols-outlined">edit</span></button>
-                            <button onclick="deleteProduct('${product.id}')" class="p-2 text-slate-400 hover:text-red-600 transition-colors"><span class="material-symbols-outlined">delete</span></button>
-                            <button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
-                        </div>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-500">Error loading products.</td></tr>';
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[110] p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl transform transition-all duration-300 scale-95 text-center" id="deleteCard">
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-2">Delete Product?</h2>
+            <p class="text-slate-500 text-sm mb-8">This action cannot be undone. This product and all associated inventory records will be removed.</p>
+            
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Keep it</button>
+                <button id="confirmDeleteBtn" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition shadow-lg shadow-red-100">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEditProduct = null;
+        let currentDeleteId = null;
+
+        function openEditModal(product) {
+            currentEditProduct = product;
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductBrand').value = product.brand || '';
+            document.getElementById('editProductCategory').value = product.category;
+            document.getElementById('editProductSku').value = product.sku;
+            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductImageUrl').value = product.image_url || '';
+            
+            const modal = document.getElementById('editModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('modalCard').classList.remove('scale-95');
+                document.getElementById('modalCard').classList.add('scale-100');
+            }, 10);
         }
-    }
 
-    async function deleteProduct(id) {
-        if (!confirm('Are you sure you want to delete this product?')) return;
-        
-        try {
-            const { error } = await window.supabaseClient
-                .from('products')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
-            fetchProducts();
-        } catch (error) {
-            console.error('Error deleting product:', error);
-            alert('Error deleting product: ' + error.message);
+        function closeEditModal() {
+            const modal = document.getElementById('editModal');
+            modal.classList.add('opacity-0');
+            document.getElementById('modalCard').classList.remove('scale-100');
+            document.getElementById('modalCard').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                currentEditProduct = null;
+            }, 300);
         }
-    }
 
-    // Initial fetch
-    fetchProducts();
-</script>
-</body></html>
+        function openDeleteModal(id) {
+            currentDeleteId = id;
+            const modal = document.getElementById('deleteModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('deleteCard').classList.remove('scale-95');
+                document.getElementById('deleteCard').classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.classList.add('opacity-0');
+            document.getElementById('deleteCard').classList.remove('scale-100');
+            document.getElementById('deleteCard').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                currentDeleteId = null;
+            }, 300);
+        }
+
+        document.getElementById('editProductForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = 'Updating...';
+
+            const updates = {
+                name: document.getElementById('editProductName').value,
+                brand: document.getElementById('editProductBrand').value,
+                category: document.getElementById('editProductCategory').value,
+                sku: document.getElementById('editProductSku').value,
+                price: parseInt(document.getElementById('editProductPrice').value),
+                image_url: document.getElementById('editProductImageUrl').value
+            };
+
+            try {
+                const { error } = await window.supabaseClient
+                    .from('products')
+                    .update(updates)
+                    .eq('id', currentEditProduct.id);
+
+                if (error) throw error;
+                closeEditModal();
+                fetchProducts();
+            } catch (error) {
+                console.error('Error updating product:', error);
+                alert('Update failed: ' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = 'Update Product';
+            }
+        };
+
+        document.getElementById('confirmDeleteBtn').onclick = async () => {
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.disabled = true;
+            btn.innerText = 'Deleting...';
+
+            try {
+                // Delete inventory first (manual cascade)
+                await window.supabaseClient.from('inventory').delete().eq('product_id', currentDeleteId);
+                
+                const { error } = await window.supabaseClient
+                    .from('products')
+                    .delete()
+                    .eq('id', currentDeleteId);
+
+                if (error) throw error;
+                closeDeleteModal();
+                fetchProducts();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                alert('Delete failed: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Delete';
+            }
+        };
+
+        async function fetchProducts() {
+            // Load user profile first
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (session) {
+                    const { data: profile } = await window.supabaseClient
+                        .from('user_profiles')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    if (profile) {
+                        document.getElementById('adminName').innerText = profile.full_name;
+                        document.getElementById('adminEmail').innerText = session.user.email;
+                        if (profile.avatar_url) {
+                            document.getElementById('adminAvatar').src = profile.avatar_url;
+                        }
+                    }
+                }
+            } catch (e) { console.error("Error loading profile", e); }
+
+            const tableBody = document.getElementById('productTableBody');
+            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">Loading products...</td></tr>';
+
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('products')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">No products found.</td></tr>';
+                    return;
+                }
+
+                tableBody.innerHTML = '';
+                data.forEach(product => {
+                    const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price);
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-slate-50 hover:bg-slate-50 transition-colors';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="${product.image_url || 'https://via.placeholder.com/48'}" alt="${product.name}" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">${product.name}</div>
+                                    <div class="text-xs text-slate-400">${product.brand || 'Biti\'s'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-xs text-slate-500">${product.sku}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-full uppercase tracking-tighter">${product.category}</span>
+                        </td>
+                        <td class="px-6 py-4 font-bold text-slate-900">${price}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="edit-btn text-slate-400 hover:text-slate-600 transition p-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            </button>
+                            <button class="delete-btn text-slate-400 hover:text-red-500 transition p-1 ml-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            </button>
+                        </td>
+                    `;
+                    tr.querySelector('.edit-btn').onclick = () => openEditModal(product);
+                    tr.querySelector('.delete-btn').onclick = () => openDeleteModal(product.id);
+                    tableBody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Error loading products.</td></tr>';
+            }
+        }
+
+        fetchProducts();
+    </script>
+</body>
+
+</html>

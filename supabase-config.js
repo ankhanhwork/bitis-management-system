@@ -31,7 +31,7 @@ window.authGuard = async (requiredRole = null) => {
     // Role check if needed
     if (requiredRole && profile.role !== requiredRole && profile.role !== 'MANAGER') {
         alert('Unauthorized access.');
-        window.location.href = 'dashboard.html';
+        window.location.href = 'index.html';
         return null;
     }
 
