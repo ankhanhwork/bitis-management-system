@@ -52,17 +52,155 @@ Hệ thống được thiết kế theo dạng trang web tĩnh giao diện Dashb
 6. **Supabase Integration**: Real-time database and authentication.
 - **Tính năng:** Dành riêng cho Manager để đăng ký tài khoản nhân viên mới và quản lý danh bạ nội bộ.
 
-## 4. Cấu trúc Dữ liệu (Supabase Schema - Dự phóng)
+## 4. Cấu trúc Dữ liệu (Supabase Schema Thực tế)
 
-| Table | Mô tả |
-| :--- | :--- |
-| `user_profiles` | Thông tin người dùng: `id`, `full_name`, `role`, `email`, `avatar_url`. |
-| `products` | Thông tin sản phẩm: `name`, `sku`, `category`, `price`, `image_url`, `collection`. |
-| `product_images` | Lưu trữ nhiều ảnh cho 1 sản phẩm: `product_id`, `image_url`. |
-| `inventory` | Quản lý kho: `product_id`, `current_stock`, `reorder_level`, `warehouse_id`. |
-| `warehouses` | Thông tin kho hàng: `name`, `location_code`. |
-| `orders` | Đơn hàng: `order_number`, `customer_id`, `total_amount`, `status`. |
-| `customers` | Khách hàng: `full_name`, `email`. |
+### 4.1. Sơ đồ Quan hệ Thực tế (Entity-Relationship Diagram)
+
+```mermaid
+erDiagram
+    auth_users["auth.users (Bảng auth mặc định)"] {
+        uuid id PK
+    }
+    user_profiles {
+        uuid id PK, FK "Khóa ngoại đến auth.users.id"
+        text full_name
+        text role "Mặc định 'EMPLOYEE'"
+        timestamptz created_at
+        text avatar_url
+        timestamptz updated_at
+    }
+    products {
+        uuid id PK "Tự sinh uuid"
+        text name
+        text sku UK "Duy nhất (Unique)"
+        text category
+        text collection
+        numeric base_price "Mặc định 0"
+        text description
+        text image_url
+        timestamptz created_at
+    }
+    product_images {
+        uuid id PK "Tự sinh uuid"
+        uuid product_id FK "Khóa ngoại đến products.id"
+        text image_url
+        timestamptz created_at
+    }
+    warehouses {
+        uuid id PK "Tự sinh uuid"
+        text name
+        text location_code
+    }
+    inventory {
+        uuid id PK "Tự sinh uuid"
+        uuid product_id FK "Khóa ngoại đến products.id"
+        uuid warehouse_id FK "Khóa ngoại đến warehouses.id"
+        integer current_stock "Mặc định 0"
+        integer reorder_level "Mặc định 10"
+        timestamptz updated_at
+    }
+    customers {
+        uuid id PK "Tự sinh uuid"
+        text full_name
+        text email
+        text phone
+        timestamptz created_at
+    }
+    orders {
+        uuid id PK "Tự sinh uuid"
+        text order_number UK "Duy nhất"
+        uuid customer_id FK "Khóa ngoại đến customers.id"
+        numeric total_amount "Mặc định 0"
+        text status "Mặc định 'Pending'"
+        timestamptz created_at
+    }
+    order_items {
+        uuid id PK "Tự sinh uuid"
+        uuid order_id FK "Khóa ngoại đến orders.id"
+        uuid product_id FK "Khóa ngoại đến products.id"
+        integer quantity "Mặc định 1"
+        numeric unit_price
+    }
+
+    user_profiles ||--|| auth_users : "1-1 liên kết tài khoản"
+    products ||--o{ product_images : "1-n có nhiều ảnh phụ"
+    products ||--o{ inventory : "1-n tồn kho tại nhiều kho"
+    warehouses ||--o{ inventory : "1-n chứa nhiều sản phẩm"
+    customers ||--o{ orders : "1-n đặt nhiều đơn hàng"
+    orders ||--|{ order_items : "1-n có nhiều chi tiết đơn hàng"
+    products ||--o{ order_items : "1-n nằm trong nhiều chi tiết đơn"
+```
+
+### 4.2. Chi tiết các Bảng và Cột
+
+#### 1. Bảng `user_profiles` (Thông tin nhân viên & phân quyền)
+*Lưu trữ thông tin bổ sung cho tài khoản hệ thống.*
+* **`id`** (`uuid`, Primary Key): Khóa chính, liên kết trực tiếp (1-1) với cột `id` trong bảng `auth.users` của hệ thống xác thực Supabase.
+* **`full_name`** (`text`, Nullable): Họ và tên đầy đủ.
+* **`role`** (`text`, Nullable): Vai trò phân quyền trong hệ thống. Giá trị mặc định: `'EMPLOYEE'`. Thường nhận giá trị: `MANAGER` hoặc `EMPLOYEE`.
+* **`avatar_url`** (`text`, Nullable): Đường dẫn đến ảnh đại diện được upload.
+* **`created_at`** (`timestamptz`, Nullable): Thời gian tạo bản ghi. Mặc định: `now()`.
+* **`updated_at`** (`timestamptz`, Nullable): Thời gian cập nhật bản ghi gần nhất. Mặc định: `now()`.
+
+#### 2. Bảng `products` (Danh mục sản phẩm Bitis's)
+*Lưu trữ thông tin cơ bản của các sản phẩm giày dép.*
+* **`id`** (`uuid`, Primary Key): Khóa chính tự sinh (`uuid_generate_v4()`).
+* **`name`** (`text`): Tên sản phẩm.
+* **`sku`** (`text`, Unique): Mã định danh quản lý kho của sản phẩm (duy nhất).
+* **`category`** (`text`, Nullable): Danh mục sản phẩm.
+* **`collection`** (`text`, Nullable): Bộ sưu tập (ví dụ: Hunter, Gomo, Kids...).
+* **`base_price`** (`numeric`, Nullable): Giá bán cơ bản. Mặc định: `0`.
+* **`description`** (`text`, Nullable): Mô tả chi tiết sản phẩm.
+* **`image_url`** (`text`, Nullable): Ảnh đại diện/ảnh chính của sản phẩm.
+* **`created_at`** (`timestamptz`, Nullable): Thời gian tạo bản ghi. Mặc định: `now()`.
+
+#### 3. Bảng `product_images` (Thư viện hình ảnh sản phẩm)
+*Hỗ trợ lưu trữ nhiều hình ảnh phụ bổ sung cho một sản phẩm.*
+* **`id`** (`uuid`, Primary Key): Khóa chính tự sinh (`uuid_generate_v4()`).
+* **`product_id`** (`uuid`, Nullable, Foreign Key): Liên kết đến sản phẩm trong bảng `products(id)`.
+* **`image_url`** (`text`): Đường dẫn đến ảnh phụ.
+* **`created_at`** (`timestamptz`, Nullable): Thời gian thêm ảnh. Mặc định: `now()`.
+
+#### 4. Bảng `warehouses` (Danh sách các kho hàng)
+*Định nghĩa các chi nhánh hoặc vị trí kho vật lý của Bitis.*
+* **`id`** (`uuid`, Primary Key): Khóa chính tự sinh (`uuid_generate_v4()`).
+* **`name`** (`text`): Tên kho (Ví dụ: Kho Quận 1, Kho Tổng miền Nam).
+* **`location_code`** (`text`, Nullable): Mã ký hiệu vị trí kho (Ví dụ: Q1-TPHCM).
+
+#### 5. Bảng `inventory` (Số lượng tồn kho)
+*Quản lý số lượng tồn của từng sản phẩm tại từng kho cụ thể.*
+* **`id`** (`uuid`, Primary Key): Khóa chính tự sinh.
+* **`product_id`** (`uuid`, Nullable, Foreign Key): Liên kết đến `products(id)`.
+* **`warehouse_id`** (`uuid`, Nullable, Foreign Key): Liên kết đến `warehouses(id)`.
+* **`current_stock`** (`integer`, Nullable): Số lượng tồn kho hiện tại. Mặc định: `0`.
+* **`reorder_level`** (`integer`, Nullable): Ngưỡng báo động cần nhập thêm hàng. Mặc định: `10`.
+* **`updated_at`** (`timestamptz`, Nullable): Thời điểm cập nhật số lượng tồn kho. Mặc định: `now()`.
+
+#### 6. Bảng `customers` (Thông tin khách hàng)
+*Lưu thông tin khách hàng phục vụ quản lý đơn hàng.*
+* **`id`** (`uuid`, Primary Key): Khóa chính tự sinh.
+* **`full_name`** (`text`): Tên khách hàng.
+* **`email`** (`text`, Nullable): Địa chỉ email.
+* **`phone`** (`text`, Nullable): Số điện thoại liên lạc.
+* **`created_at`** (`timestamptz`, Nullable): Mặc định: `now()`.
+
+#### 7. Bảng `orders` (Danh sách đơn bán hàng)
+*Thông tin tổng quát của mỗi đơn hàng.*
+* **`id`** (`uuid`, Primary Key): Khóa chính tự sinh.
+* **`order_number`** (`text`, Unique): Mã số đơn hàng (Ví dụ: DH-1002, duy nhất).
+* **`customer_id`** (`uuid`, Nullable, Foreign Key): Khách hàng đặt mua, liên kết đến `customers(id)`.
+* **`total_amount`** (`numeric`, Nullable): Tổng giá trị đơn hàng. Mặc định: `0`.
+* **`status`** (`text`, Nullable): Trạng thái đơn hàng. Mặc định: `'Pending'`.
+* **`created_at`** (`timestamptz`, Nullable): Mặc định: `now()`.
+
+#### 8. Bảng `order_items` (Chi tiết các mặt hàng trong đơn)
+*Lưu thông tin chi tiết từng sản phẩm và số lượng tương ứng cho mỗi đơn hàng.*
+* **`id`** (`uuid`, Primary Key): Khóa chính tự sinh.
+* **`order_id`** (`uuid`, Nullable, Foreign Key): Đơn hàng cha, liên kết đến `orders(id)`.
+* **`product_id`** (`uuid`, Nullable, Foreign Key): Sản phẩm được mua, liên kết đến `products(id)`.
+* **`quantity`** (`integer`, Nullable): Số lượng mua. Mặc định: `1`.
+* **`unit_price`** (`numeric`): Giá bán thực tế tại thời điểm mua của 1 sản phẩm.
+
 
 ## 5. Các quy ước Code
 - **Cấu hình:** Thông tin kết nối Supabase nằm tập trung tại `supabase-config.js`.
