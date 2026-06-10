@@ -1,7 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Order Management - Bitis's Management System</title>
@@ -10,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
+    <script src="assets/js/supabase-config.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -266,6 +267,7 @@
         }
         .filter-tag button:hover { color: #E30016; }
     </style>
+    <script src="assets/js/sidebar-preload.js"></script>
 </head>
 
 <body class="text-slate-800">
@@ -2609,8 +2611,8 @@
         // Initialize
         fetchOrders();
     </script>
-    <script src="sidebar-toggle.js"></script>
-    <script src="page-transition.js"></script>
+    <script src="assets/js/sidebar-toggle.js"></script>
+    <script src="assets/js/page-transition.js"></script>
 </body>
 
 </html>

@@ -253,6 +253,7 @@
 
     function setCollapsed(collapsed) {
         sidebar.classList.toggle('is-collapsed', collapsed);
+        document.documentElement.classList.toggle('bitis-sidebar-collapsed', collapsed);
         const toggle = document.getElementById('bitisSidebarToggle');
         if (!toggle) return;
         toggle.setAttribute('aria-expanded', String(!collapsed));

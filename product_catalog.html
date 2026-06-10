@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <!-- ================================================================
-     PRODUCT CATALOG — PRODUCTION VERSION
-     Kết nối Supabase thật. Yêu cầu supabase-config.js hợp lệ.
+     PRODUCT CATALOG â€” PRODUCTION VERSION
+     Káº¿t ná»‘i Supabase tháº­t. YÃªu cáº§u supabase-config.js há»£p lá»‡.
      ================================================================ -->
 
 <html lang="en">
 
 <head>
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Product Catalog - Bitis's Management System</title>
@@ -14,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
+    <script src="assets/js/supabase-config.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -52,6 +53,7 @@
             border: 1px solid rgba(241, 245, 249, 0.9);
         }
     </style>
+    <script src="assets/js/sidebar-preload.js"></script>
 </head>
 
 <body class="text-slate-800">
@@ -157,12 +159,12 @@
                                 <option value="">All Categories</option>
                                 <option value="Hunter">Hunter</option>
                                 <option value="Sandal">Sandal</option>
-                                <option value="Giày Thể Thao">Giày Thể Thao</option>
-                                <option value="Giày Chạy Bộ & Đi Bộ">Giày Chạy Bộ & Đi Bộ</option>
-                                <option value="Giày Tây">Giày Tây</option>
-                                <option value="Dép - Hài">Dép - Hài</option>
+                                <option value="GiÃ y Thá»ƒ Thao">GiÃ y Thá»ƒ Thao</option>
+                                <option value="GiÃ y Cháº¡y Bá»™ & Äi Bá»™">GiÃ y Cháº¡y Bá»™ & Äi Bá»™</option>
+                                <option value="GiÃ y TÃ¢y">GiÃ y TÃ¢y</option>
+                                <option value="DÃ©p - HÃ i">DÃ©p - HÃ i</option>
                                 <option value="Balo">Balo</option>
-                                <option value="Quần Áo">Quần Áo</option>
+                                <option value="Quáº§n Ão">Quáº§n Ão</option>
                             </select>
                         </div>
                         <!-- Status Filter -->
@@ -548,7 +550,7 @@
     </div>
 
     <script>
-        // ── Main app state ──────────────────────────────────────────
+        // â”€â”€ Main app state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         let productsData = []; // Full raw data
         let filteredProducts = []; // Filtered data
         let selectedProductIds = new Set();
@@ -908,7 +910,7 @@
             }, 300);
         }
 
-        // Submit product edit — write to Supabase
+        // Submit product edit â€” write to Supabase
         document.getElementById('editProductForm').onsubmit = async (e) => {
             e.preventDefault();
             const saveBtn = document.getElementById('saveBtn');
@@ -1070,7 +1072,7 @@
             }, 300);
         }
 
-        // Confirm single-row deletion — Supabase
+        // Confirm single-row deletion â€” Supabase
         document.getElementById('confirmRowDeleteBtn').onclick = async () => {
             if (!pendingDeleteProductId) return;
             const btn = document.getElementById('confirmRowDeleteBtn');
@@ -1098,7 +1100,7 @@
             }
         };
 
-        // Confirm batch deletion — Supabase
+        // Confirm batch deletion â€” Supabase
         document.getElementById('confirmDeleteBtn').onclick = async () => {
             const btn = document.getElementById('confirmDeleteBtn');
             btn.disabled = true;
@@ -1142,7 +1144,7 @@
         }
 
 
-        // Submit Add Product form — insert into Supabase
+        // Submit Add Product form â€” insert into Supabase
         document.getElementById('addProductForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('addSaveBtn');
@@ -1195,8 +1197,8 @@
         // Initialize application on load
         window.addEventListener('DOMContentLoaded', initApp);
     </script>
-    <script src="sidebar-toggle.js"></script>
-    <script src="page-transition.js"></script>
+    <script src="assets/js/sidebar-toggle.js"></script>
+    <script src="assets/js/page-transition.js"></script>
 </body>
 
 </html>

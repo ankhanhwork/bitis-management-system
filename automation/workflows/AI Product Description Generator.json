@@ -1,0 +1,344 @@
+{
+  "name": "AI Product Description Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-product-description-generator",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -800,
+        0
+      ],
+      "id": "4aac6f0e-bb09-4dd3-b837-dbc6d9f1c959",
+      "name": "Webhook",
+      "webhookId": "02be8324-bf94-4089-8fdb-564f08e2e7c7"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { description: $json.output.description } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        592,
+        -16
+      ],
+      "id": "1d82fd87-edb5-458d-b4ba-06be99ef629a",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "841baafd-fcf9-4737-8dec-17d756d703fc",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "3PMjCa6fYWoa0amu",
+          "name": "Groq account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.product.category }}",
+                    "rightValue": "Hunter",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1a0204f3-f60d-4518-8947-ef4fd9fab9eb"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Hunter"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b6a6a84a-2c61-47f7-8492-222b7b867166",
+                    "leftValue": "={{ $json.body.product.category }}",
+                    "rightValue": "Sandal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Sandal"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        0
+      ],
+      "id": "33dec8a4-1ebb-4461-8277-441d646ba1f6",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "https://docs.google.com/document/d/1r6ZaIbfTlNCBkm35gqxwtXnnfI_-BpBWVId36CdAKaU/edit?tab=t.j01dencuqnl3"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        -128
+      ],
+      "id": "56f8d666-7147-4696-81bf-bf1cd2b01433",
+      "name": "get_hunter_guideline",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "9ACSJUEidKVUIosT",
+          "name": "Google Docs account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "https://docs.google.com/document/d/1kS4L4qe4rft_pMVqIZN0i0xj1xKyTq2rvkbDPp21tZ0/edit?tab=t.j01dencuqnl3#heading=h.ub5wqihs2le2"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        128
+      ],
+      "id": "455becd8-1bcb-4362-945b-74781b06babe",
+      "name": "get_sandal_guideline",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "9ACSJUEidKVUIosT",
+          "name": "Google Docs account 4"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -80,
+        -16
+      ],
+      "id": "77faca51-3040-4315-9a70-146d451bfa1f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Bạn là Senior Ecommerce Copywriter của Biti's.\n\nNhiệm vụ của bạn là tạo hoặc chỉnh sửa Product Description chuẩn thương hiệu Biti's dựa trên thông tin sản phẩm và Brand Guidelines.\n\n==================================================\nQUY TẮC XỬ LÝ\n=============\n\nBiến action:\n\n* generate\n  → Tạo mô tả sản phẩm mới hoàn toàn.\n\n- revise\n\nĐầu vào đã có mô tả sản phẩm.\n\nNhiệm vụ:\nChỉnh sửa trực tiếp nội dung mô tả.\n\nKHÔNG:\n- giải thích đã chỉnh gì\n- mô tả quá trình chỉnh sửa\n- mở đầu bằng:\n\"Căn cứ vào...\"\n\"Dựa trên...\"\n\"Tôi đã...\"\n\"Đã chỉnh sửa...\"\n\nChỉ trả phiên bản mô tả cuối cùng.\n\nVí dụ SAI:\n\n{\n\"description\":\"Căn cứ vào yêu cầu...\"\n}\n\nVí dụ ĐÚNG:\n\n{\n\"description\":\"Giày...\"\n}\n\nNếu dữ liệu có giá trị null:\n→ Không đề cập.\n→ Không tự suy đoán.\n→ Không tạo thông tin không tồn tại.\n\nChỉ được sử dụng:\n\n* Dữ liệu sản phẩm\n* Current Description\n* Brand Guidelines\n\nKhông được:\n\n* Tự tạo công nghệ\n* Tự thêm thông số\n* Thêm lợi ích không có cơ sở\n* Viết claim tuyệt đối\n\nKhông dùng:\n\n* tốt nhất\n* hoàn hảo\n* 100%\n* duy nhất\n* đột phá\n* cách mạng\n* siêu cấp\n* thần kỳ\n\n==================================================\nTHÔNG TIN ĐẦU VÀO\n=================\n\nHành động:\n{{ $('Webhook').item.json.body.action }}\n\nTên:\n{{ $('Webhook').item.json.body.product.name }}\n\nDanh mục:\n{{ $('Webhook').item.json.body.product.category }}\n\nBộ sưu tập:\n{{ $('Webhook').item.json.body.product.collection }}\n\nGiá:\n{{ $('Webhook').item.json.body.product.price_vnd }} VND\n\nMàu:\n{{ $('Webhook').item.json.body.product.color }}\n\nCác tính năng:\n{{ $('Webhook').item.json.body.product.highlight_features }}\n\nSize:\n{{ $('Webhook').item.json.body.product.size.from }}\n---------------------------------------------------\n\n{{ $('Webhook').item.json.body.product.size.to }}\n\nMô tả hiện tại:\n{{ $('Webhook').item.json.body.current_description }}\n\nYêu cầu chỉnh sửa:\n{{ $('Webhook').item.json.body.revision_comment }}\n\nBrand Guidelines:\n{{ $json.content }}\n\n==================================================\nYÊU CẦU VIẾT\n============\n\nNgôn ngữ:\nTiếng Việt.\n\nTone:\n\n* Hiện đại\n* Gần gũi\n* Tự nhiên\n* Đáng tin\n* Premium nhưng không khoa trương\n\nĐộ dài:\n700–1200 từ.\n\nTập trung theo thứ tự:\n\nFeature\n→ Benefit\n→ Usage Scenario\n\nMỗi tính năng cần giải thích:\n\n1. Đây là gì\n2. Người dùng nhận được gì\n3. Khi nào hữu ích\n\nKhông lặp ý.\n\nKhông dùng bullet cho phần mô tả.\n\n==================================================\nCẤU TRÚC BẮT BUỘC\n=================\n\nMô tả luôn phải có ĐÚNG THỨ TỰ sau.\n\nKhông được đổi tên heading.\nKhông được bỏ phần.\nKhông được gộp phần.\n\n---\n\n[PHẦN 1]\n\n## [Tên sản phẩm]\n\n[2–3 lợi ích chính]\n\nVí dụ:\n\nGiày Thể Thao Biti's Hunter Nam Màu Xám –\nGọn Nhẹ, Thoáng Khí Cho Hoạt Động Hằng Ngày\n\n---\n\n[PHẦN 2]\n\nĐoạn giới thiệu\n\nViết 3–5 câu.\n\nNội dung:\n\n* Dành cho ai\n* Dùng khi nào\n* Cảm giác mang\n\nTemplate:\n\nNếu bạn đang tìm kiếm...\nthì...\nlà lựa chọn phù hợp.\n\n---\n\n[PHẦN 3]\n\nNhững Trải Nghiệm Thực Tế Từ Sản Phẩm\n\nBắt buộc có heading chính xác:\n\nNhững Trải Nghiệm Thực Tế Từ Sản Phẩm\n\nViết tối thiểu 4 đoạn.\n\nMỗi đoạn theo format:\n\n[Tên tính năng]:\n[Giải thích]\n[Lợi ích]\n[Tình huống sử dụng]\n\nƯu tiên:\n\nĐế\n→ nhẹ\n→ đàn hồi\n→ chống trượt\n\nQuai\n→ thoáng khí\n→ ôm chân\n\nLót\n→ êm\n\nMàu\n→ dễ phối\n\nKhông mô tả kỹ thuật khô khan.\n\n---\n\n[PHẦN 4]\n\nThông Số Kỹ Thuật Chi Tiết\n\nBắt buộc có heading chính xác:\n\nThông Số Kỹ Thuật Chi Tiết\n\nFormat:\n\nMã sản phẩm:\nThương hiệu:\nDòng sản phẩm:\nBộ sưu tập:\nMàu sắc:\nChất liệu quai:\nChất liệu đế:\nKích cỡ (Size):\nỨng dụng thực tế:\n\nNếu thiếu dữ liệu → bỏ dòng đó.\n\n---\n\n[PHẦN 5]\n\nMột Số Lưu Ý Khi Sử Dụng Và Bảo Quản\n\nBắt buộc có heading chính xác:\n\nMột Số Lưu Ý Khi Sử Dụng Và Bảo Quản\n\nViết 3 đoạn.\n\nƯu tiên:\n\n* vệ sinh nhẹ\n* tránh ngâm lâu\n* phơi nơi thoáng\n\nNếu có:\n\nNubuck\n→ tránh chà mạnh\n\nLưới\n→ tránh nhiệt cao\n\nCao su\n→ tránh nắng trực tiếp\n\n==================================================\nKIỂM TRA TRƯỚC KHI TRẢ KẾT QUẢ\n==============================\n\nĐảm bảo:\n\n✓ Có đủ 5 phần\n\n✓ Có heading:\nNhững Trải Nghiệm Thực Tế Từ Sản Phẩm\n\n✓ Có heading:\nThông Số Kỹ Thuật Chi Tiết\n\n✓ Có heading:\nMột Số Lưu Ý Khi Sử Dụng Và Bảo Quản\n\n✓ Không thiếu dòng trắng giữa các section\n\n✓ Không dùng markdown\n\n==================================================\nOUTPUT\n======\n\nChỉ trả về JSON hợp lệ.\n\n{\n\"description\":\"toàn bộ nội dung mô tả\"\n}\n\n\nKhông Markdown.\nKhông dấu **.\nKhông bullet.\nKhông heading markdown.\nKhông ký tự trang trí.\nKhông trả thêm text ngoài JSON.\n\n==================================================\nOUTPUT\n==================================================\n\nBẮT BUỘC:\n\nTrả về JSON hợp lệ duy nhất.\n\nSchema:\n\n{\n\"description\":\"...\"\n}\n\ndescription phải chứa trực tiếp nội dung mô tả.\n\nKHÔNG được trả:\n\n{\n\"description\":\"Căn cứ vào...\"\n}\n\nKHÔNG được trả:\n\nTôi đã chỉnh sửa...\n\nKHÔNG được trả:\n\nĐây là phiên bản mới...\n\nKHÔNG thêm text trước JSON.\n\nKHÔNG thêm text sau JSON.\n\nKý tự đầu tiên phải là {\n\nKý tự cuối cùng phải là }",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        192,
+        -16
+      ],
+      "id": "6a2263f9-fe03-4e93-9895-8b0a07babcbe",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"description\":\"toàn bộ nội dung mô tả\"\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        144
+      ],
+      "id": "84d6ea80-3ef5-445d-bb6d-bb7a8e60fc8d",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        432,
+        272
+      ],
+      "id": "01dacf8d-6a60-4a55-b100-158b4708bbe1",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "3PMjCa6fYWoa0amu",
+          "name": "Groq account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "get_hunter_guideline",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get_sandal_guideline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_sandal_guideline": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "get_hunter_guideline": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "85672084-c560-4034-8db2-7bebef3d9bad",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "66cb8e5d418c6a210ef48a853af67f56f4332a37b584b0adbd669b84af6ee70d"
+  },
+  "id": "32V74sW9W3H8Hcd0",
+  "tags": []
+}

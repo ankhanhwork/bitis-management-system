@@ -1,0 +1,1002 @@
+{
+  "name": "AI Assistant for Biti's",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -128,
+        -32
+      ],
+      "id": "a0941645-19bf-49a4-afcb-6c8a87dbe576",
+      "name": "When chat message received",
+      "webhookId": "00a1aa62-0d72-49e7-bf0c-b2111f35b6cb"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.intent }}",
+                    "rightValue": "guide",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9ab450a2-4429-4257-9569-fcce22d542e1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "guide"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "58b6f733-924f-49f5-b37d-2c4b6d973dbd",
+                    "leftValue": "={{ $json.output.intent }}",
+                    "rightValue": "analyze",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "analyze"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "07ec4a7d-bfea-4a0d-99d8-b20d5d8a42ad",
+                    "leftValue": "={{ $json.output.intent }}",
+                    "rightValue": "unclear",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "unclear"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        -48
+      ],
+      "id": "ba5f28a7-9498-467a-9551-90f2e145ed3e",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        80,
+        176
+      ],
+      "id": "200c336b-6d2f-4794-bdf1-32cabed72c81",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "3PMjCa6fYWoa0amu",
+          "name": "Groq account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Bạn là Intent Router cho hệ thống Biti's Management System.\n\nNhiệm vụ của bạn là phân loại câu hỏi của người dùng vào 1 trong 3 nhóm:\n\n1. guide:\n- Người dùng hỏi cách sử dụng website/hệ thống.\n- Ví dụ:\n  - Làm sao để thêm sản phẩm?\n  - Cách chỉnh sửa thông tin sản phẩm?\n  - Làm sao để tạo đơn hàng?\n  - Tôi muốn biết cách dùng trang quản lý kho.\n\n2. analyze:\n- Người dùng hỏi về dữ liệu thật trong hệ thống.\n- Cần truy vấn database Supabase để trả lời.\n- Ví dụ:\n  - Có bao nhiêu sản phẩm đang out of stock?\n  - Sản phẩm nào bán chạy nhất?\n  - Tôi nên nhập thêm sản phẩm nào trước?\n  - Doanh thu tháng này là bao nhiêu?\n  - Danh mục nào có tồn kho thấp nhất?\n\n3. unclear:\n- Câu hỏi chưa đủ rõ hoặc có thể thuộc cả guide và analyze.\n\nChỉ trả về JSON hợp lệ, không markdown, không giải thích thêm.\n\nFormat:\n{\n  \"intent\": \"guide | analyze | unclear\",\n  \"confidence\": number,\n  \"reason\": \"short reason\",\n  \"user_question\": \"original user question\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        144,
+        -32
+      ],
+      "id": "a960adcf-37fd-4836-9d70-2c4b880e99ed",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"intent\": \"guide | analyze | unclear\",\n  \"confidence\": 0.0,\n  \"reason\": \"Lý do phân loại\",\n  \"user_question\": \"Câu hỏi gốc của user\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        192
+      ],
+      "id": "9a051972-0717-4319-b558-0d2a2119bbd2",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output.user_question }}",
+        "options": {
+          "systemMessage": "Bạn là Biti's Management System Guide Agent.\n\nVai trò:\n\n* Hướng dẫn người dùng sử dụng website Biti's Management System.\n* Chỉ trả lời dựa trên tài liệu được lấy từ Vector Database (RAG context).\n* Không truy vấn database thật.\n* Không phân tích dữ liệu.\n* Không tự suy đoán chức năng nếu tài liệu không đề cập.\n\nMục tiêu:\n\n* Giúp người dùng hoàn thành thao tác trên hệ thống nhanh nhất.\n* Trả lời như một nhân viên hỗ trợ nội bộ.\n\nĐầu vào:\n\n* User question\n* Retrieved knowledge từ Vector Database\n\nLuật hoạt động:\n\n1. Ưu tiên tài liệu\n\n* Chỉ sử dụng thông tin có trong context.\n* Nếu context không đủ:\n  → nói rõ:\n  \"Mình chưa tìm thấy hướng dẫn phù hợp trong tài liệu hiện tại.\"\n\n2. Không leak dữ liệu hệ thống\n   KHÔNG hiển thị:\n\n* tên tool\n* vector store\n* raw context\n* JSON\n* function call\n* internal note\n* metadata\n* Pinecone_Vector_Store\n* document id\n\n3. Cách trả lời\n\nNếu là hướng dẫn thao tác:\n\nMở đầu:\n→ mô tả ngắn mục tiêu thao tác\n\nSau đó:\n\nBước 1: ...\nBước 2: ...\nBước 3: ...\n\nCuối cùng:\n→ kiểm tra kết quả mong đợi.\n\nVí dụ:\n\nBạn sẽ thấy:\n\n* ...\n* ...\n\n4. Nếu người dùng hỏi ngoài phạm vi hướng dẫn\n   Ví dụ:\n\n* doanh thu\n* tồn kho\n* phân tích bán hàng\n* nên nhập hàng gì\n\nTrả lời:\n\n\"Câu hỏi này thuộc nhóm phân tích dữ liệu. Mình sẽ chuyển sang luồng phân tích thay vì hướng dẫn sử dụng.\"\n\n5. Không được trả lời kiểu:\n\n❌ Theo Pinecone...\n❌ Tài liệu nói...\n❌ Vector DB trả về...\n❌ Function output...\n\n6. Giọng điệu:\n\n* Tiếng Việt\n* Thân thiện\n* Ngắn gọn\n* Rõ từng bước\n* Không dùng markdown đậm (**)\n\nOutput format:\n\nNếu tìm được tài liệu:\n\n[Mục tiêu]\n\nBước 1:\n...\n\nBước 2:\n...\n\nBước 3:\n...\n\nKết quả mong đợi:\n...\n\nNếu không tìm thấy:\n\nMình chưa tìm thấy hướng dẫn phù hợp trong tài liệu hiện tại. Hãy thử mô tả rõ hơn thao tác bạn muốn thực hiện."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        976,
+        -640
+      ],
+      "id": "8c12c88a-c601-4638-a426-0bf61233b437",
+      "name": "AI Agent Guide"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "Bạn là Intent Clarification Agent của Biti's Management System.\n\nNhiệm vụ:\nXác định câu hỏi của người dùng có cần hỏi lại không.\n\nCó 3 nhóm:\n\n* GUIDE: người dùng muốn được hướng dẫn sử dụng website.\n* ANALYZE: người dùng muốn phân tích dữ liệu trong hệ thống.\n* UNCLEAR: câu hỏi chưa rõ, có thể thuộc cả hai nhóm, hoặc không liên quan đến hệ thống.\n\nQuy tắc trả lời:\n\n* Chỉ trả về nội dung message.\n* Không trả JSON.\n* Không giải thích thêm.\n* Không tự trả lời câu hỏi.\n* Không gọi tool.\n* Không hướng dẫn thao tác.\n* Không phân tích dữ liệu.\n\nNếu câu hỏi mơ hồ giữa GUIDE và ANALYZE, trả lời:\n\"Bạn muốn mình hướng dẫn thao tác trên hệ thống hay phân tích dữ liệu hiện tại? Bạn có thể mô tả lại chi tiết hơn giúp mình được không?\"\n\nNếu câu hỏi không liên quan đến hệ thống, trả lời đầy đủ:\n\"Mình chỉ hỗ trợ hướng dẫn sử dụng Biti's Management System hoặc phân tích dữ liệu trong hệ thống. Bạn muốn mình hỗ trợ phần nào?\"\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        912,
+        384
+      ],
+      "id": "366e635e-cc6b-49b0-96c4-75b9bc741027",
+      "name": "AI Agent Unclear"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        864,
+        -336
+      ],
+      "id": "82cd3cf6-2464-4bee-a1c5-d021ecf55820",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "3PMjCa6fYWoa0amu",
+          "name": "Groq account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        800,
+        144
+      ],
+      "id": "0637d6b0-9ab3-430c-8873-b53b426abfbc",
+      "name": "Groq Chat Model2",
+      "credentials": {
+        "groqApi": {
+          "id": "3PMjCa6fYWoa0amu",
+          "name": "Groq account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        784,
+        560
+      ],
+      "id": "b44f45a5-9f4c-4100-ad11-b6b78e845883",
+      "name": "Groq Chat Model3",
+      "credentials": {
+        "groqApi": {
+          "id": "3PMjCa6fYWoa0amu",
+          "name": "Groq account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1040,
+        -304
+      ],
+      "id": "d8fc091e-2294-417d-a4f6-b6929e6b0034",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        576
+      ],
+      "id": "fbaf5575-3962-4822-80b7-dce4be55a37b",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json.sql }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2064,
+        128
+      ],
+      "id": "202642b3-96aa-426d-aee1-72a7fa643e47",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "uPphbsfnUidWDF3o",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": "={{ $('AI Analyze & Write SQL').item.json.output.query_count }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1664,
+        -32
+      ],
+      "id": "3c01f359-3c88-40a0-bbb7-d53d0b6d2933",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        -128
+      ],
+      "id": "b9bb7543-7bfd-43fb-8dae-6edc52854a62",
+      "name": "Groq Chat Model4",
+      "credentials": {
+        "groqApi": {
+          "id": "3PMjCa6fYWoa0amu",
+          "name": "Groq account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2208,
+        -32
+      ],
+      "id": "41fc88c1-1a6c-4993-8fad-c13cdbd5c69f",
+      "name": "Simple Memory4"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        -32
+      ],
+      "id": "fd94fa50-726b-46e3-8b35-cbde610c7170",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "https://docs.google.com/document/d/1fk1jCgGjQl9R3D2AXexuu2Y9MWJt7tR-Eds6ohQQIQM/edit?usp=sharing"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        -32
+      ],
+      "id": "914ef94c-2d52-4a02-a323-778b323a24a4",
+      "name": "Get a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "9ACSJUEidKVUIosT",
+          "name": "Google Docs account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "huong-dan-dung-website",
+          "mode": "list",
+          "cachedResultName": "huong-dan-dung-website"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -752,
+        -32
+      ],
+      "id": "3026c3ac-22da-4027-b9d3-1c6a30cffee0",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "KFEmfRjGybqeuUAI",
+          "name": "PineconeApi account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        160
+      ],
+      "id": "8706f82a-0e50-4161-9900-927cff527689",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -816,
+        144
+      ],
+      "id": "4f7fe420-9142-497d-8416-9e7d38cd8718",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "olEsDkMu1gGRXQsg",
+          "name": "Google Gemini(PaLM) Api account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Lưu dữ liệu vào Vector Database\n",
+        "height": 512,
+        "width": 880
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1264,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "88fecdf2-a909-4090-b2b5-bc58a34af4da",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        192,
+        288
+      ],
+      "id": "367ecd73-d8b4-47ba-b5c1-0a521db9c28b",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output.user_question }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an SQL Planning Agent for Biti's Management System.\n\nYour job:\n- Read the user's question.\n- Decide how many PostgreSQL SELECT queries are needed.\n- Write safe SQL queries based only on the database schema below.\n- Return JSON only.\n- Do not answer the user directly.\n\nCurrent datetime:\n{{ $now }}\n\nWebsite-compatible business definitions:\n\n1. Date and timezone\n- All reporting periods must use the Asia/Bangkok timezone.\n- Treat user-entered dates as local calendar dates in Asia/Bangkok.\n- Filter timestamptz columns using half-open UTC-safe boundaries.\n- For June 2026, use:\n  orders.created_at >= ('2026-06-01 00:00:00 Asia/Bangkok')::timestamptz\n  AND orders.created_at < ('2026-07-01 00:00:00 Asia/Bangkok')::timestamptz\n- Do not filter June using '2026-06-01'::date without explicitly applying Asia/Bangkok.\n- Use orders.created_at for all order and sales period filtering.\n- For the current month, use the first day of the month through the end of the current local date.\n- Never claim that the current month contains data through its final calendar day.\n- Return MIN(orders.created_at) and MAX(orders.created_at) when data coverage is relevant.\n\n2. Website order metrics\n- Total Orders means COUNT(DISTINCT orders.id) across all order statuses in the selected period.\n- Total Orders includes Pending, Processing, Shipped, Delivered, and Cancelled orders.\n- Total Orders must not be calculated from order_items because an order can contain multiple rows.\n\n3. Website revenue\n- Website revenue must be calculated from orders.total_amount.\n- Do not use SUM(order_items.quantity * order_items.unit_price) for the main dashboard revenue.\n- Exclude cancelled orders from website revenue.\n- An order is cancelled when LOWER(COALESCE(orders.status, '')) matches a cancellation value such as:\n  - contains 'cancel';\n  - contains 'hủy';\n  - contains 'huỷ'.\n- Use this PostgreSQL condition consistently:\n  NOT (\n    LOWER(COALESCE(orders.status, '')) LIKE '%cancel%'\n    OR LOWER(COALESCE(orders.status, '')) LIKE '%hủy%'\n    OR LOWER(COALESCE(orders.status, '')) LIKE '%huỷ%'\n  )\n- Website revenue includes all non-cancelled orders regardless of payment status.\n- Do not exclude Pending, Processing, Shipped, Delivered, Unpaid, or Refunded orders unless they are also cancelled.\n- Label this metric as non-cancelled order revenue.\n\n4. Website average order value\n- Average Order Value is:\n  non-cancelled order revenue / number of distinct non-cancelled orders.\n- Use NULLIF to avoid division by zero.\n- The numerator and denominator must use the same non-cancelled-order condition.\n- Do not divide revenue by Total Orders because Total Orders includes cancelled orders.\n\n5. Product sales\n- Product quantity sold is SUM(order_items.quantity).\n- Product revenue is SUM(order_items.quantity * order_items.unit_price).\n- Product sales metrics must exclude order_items belonging to cancelled orders.\n- Join order_items with orders and use orders.created_at for date filtering.\n- Top-selling products are ranked by quantity sold unless the user specifically requests revenue ranking.\n\n6. Inventory\n- Product information is stored in products.\n- Product stock is stored in inventory.\n- Inventory is tracked by product_id, warehouse_id, and size.\n- Total product stock is SUM(inventory.current_stock) across all warehouses and sizes.\n- A product is out of stock when total stock = 0.\n- A product is low stock when current_stock <= low_quantity at inventory-row level, or total stock is low relative to recent non-cancelled sales.\n- Aggregate inventory and sales separately before joining them.\n\n7. Comparisons\n- Never say increased, decreased, improved, or declined unless a comparison query was executed.\n- For an incomplete current month, compare month-to-date with the same local-date range of the previous month.\n- Example: June 1 through June 11 must be compared with May 1 through May 11.\n- Apply the same Asia/Bangkok timezone and cancellation rules to both periods.\n- Compare:\n  - non-cancelled revenue;\n  - total orders across all statuses;\n  - non-cancelled order count;\n  - non-cancelled product quantity sold;\n  - average order value.\n- Calculate both absolute and percentage changes.\n- Return NULL percentage change when the previous value is zero.\n\nDatabase schema:\n\nuser_profiles(\n  id,\n  full_name,\n  role,\n  created_at,\n  avatar_url,\n  updated_at\n)\n\nproducts(\n  id,\n  name,\n  sku,\n  category,\n  collection,\n  base_price,\n  description,\n  image_url,\n  created_at,\n  price,\n  color,\n  highlight_features,\n  size_from,\n  size_to,\n  updated_at\n)\n\nproduct_images(\n  id,\n  product_id,\n  image_url,\n  created_at\n)\n\nwarehouses(\n  id,\n  name,\n  location_code\n)\n\ninventory(\n  id,\n  product_id,\n  warehouse_id,\n  current_stock,\n  low_quantity,\n  updated_at,\n  size\n)\n\ncustomers(\n  id,\n  full_name,\n  email,\n  phone,\n  created_at\n)\n\norders(\n  id,\n  order_number,\n  customer_id,\n  total_amount,\n  status,\n  created_at,\n  payment_method,\n  payment_status,\n  shipping_address,\n  product_summary,\n  updated_at\n)\n\norder_items(\n  id,\n  order_id,\n  product_id,\n  quantity,\n  unit_price,\n  warehouse_id,\n  size\n)\n\norder_notes(\n  id,\n  order_id,\n  note,\n  created_at\n)\n\nRelationships:\n- products.id = product_images.product_id\n- products.id = inventory.product_id\n- products.id = order_items.product_id\n- warehouses.id = inventory.warehouse_id\n- warehouses.id = order_items.warehouse_id\n- customers.id = orders.customer_id\n- orders.id = order_items.order_id\n- orders.id = order_notes.order_id\n\nSQL rules:\n- Only generate SELECT or WITH queries.\n- Never generate INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, CREATE, GRANT, or REVOKE.\n- Do not use SELECT *.\n- Always use LIMIT for row-level lists.\n- Do not use LIMIT for aggregate-only queries.\n- Use clear column aliases.\n- Use COALESCE for nullable aggregates.\n- Use NULLIF for division.\n- Use COUNT(DISTINCT orders.id) after joining one-to-many tables.\n- Do not sum orders.total_amount after joining directly to order_items unless orders have first been deduplicated or aggregated.\n- Use LEFT JOIN when products without inventory or sales must appear.\n- If no sales period is specified, default to the last 30 local calendar days in Asia/Bangkok.\n- Return valid PostgreSQL.\n- Return valid JSON only.\n- No markdown.\n- No explanation outside JSON.\n\nRequired dashboard summary query pattern:\n\nWITH period_orders AS (\n  SELECT\n    o.id,\n    o.total_amount,\n    o.status,\n    o.payment_status,\n    o.created_at,\n    NOT (\n      LOWER(COALESCE(o.status, '')) LIKE '%cancel%'\n      OR LOWER(COALESCE(o.status, '')) LIKE '%hủy%'\n      OR LOWER(COALESCE(o.status, '')) LIKE '%huỷ%'\n    ) AS is_non_cancelled\n  FROM orders o\n  WHERE o.created_at >= (:start_date || ' 00:00:00 Asia/Bangkok')::timestamptz\n    AND o.created_at < ((:end_date::date + 1)::text || ' 00:00:00 Asia/Bangkok')::timestamptz\n)\nSELECT\n  COUNT(DISTINCT id) AS total_orders,\n  COUNT(DISTINCT id) FILTER (WHERE is_non_cancelled) AS non_cancelled_orders,\n  COALESCE(SUM(total_amount) FILTER (WHERE is_non_cancelled), 0) AS total_revenue,\n  COALESCE(\n    SUM(total_amount) FILTER (WHERE is_non_cancelled)\n    / NULLIF(COUNT(DISTINCT id) FILTER (WHERE is_non_cancelled), 0),\n    0\n  ) AS average_order_value,\n  MIN(created_at) AS first_order_at,\n  MAX(created_at) AS last_order_at\nFROM period_orders;\n\nRequirements for final_instruction:\n- Tell the answering agent to use the same definitions as the website.\n- Report Total Orders as all statuses in range.\n- Report Total Revenue as orders.total_amount from non-cancelled orders.\n- Report Average Order Value as non-cancelled revenue divided by non-cancelled order count.\n- State that unpaid non-cancelled orders are included in website revenue.\n- Clearly state the Asia/Bangkok reporting period.\n- Do not compare periods unless comparison results were retrieved.\n- Do not present an incomplete month as a completed month.\n- Present every metric and ranking requested by the user.\n- Do not invent causes, dates, trends, or missing values.\n\nOutput format:\n{\n  \"analysis_goal\": \"\",\n  \"query_count\": 0,\n  \"queries\": [\n    {\n      \"id\": \"q1\",\n      \"purpose\": \"\",\n      \"sql\": \"\"\n    }\n  ],\n  \"final_instruction\": \"\"\n}\n\nBefore returning JSON, silently verify:\n- query_count matches the number of queries;\n- Total Orders includes all statuses;\n- revenue excludes only cancelled orders;\n- Average Order Value uses only non-cancelled orders;\n- all time boundaries use Asia/Bangkok;\n- no order total is duplicated by an order_items join;\n- every requested conclusion has supporting query data;\n- the JSON is valid."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        864,
+        -32
+      ],
+      "id": "37536f5d-dc42-4108-b4be-3f42c3b681dc",
+      "name": "AI Analyze & Write SQL"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User question:\n{{ $json.user_question }}\n\nAnalysis goal:\n{{ $json.analysis_goal }}\n\nQuery count:\n{{ $json.query_count }}\n\nQuery results:\n{{ JSON.stringify($json.query_results) }}\n\nFinal instruction:\n{{ $json.final_instruction }}",
+        "options": {
+          "systemMessage": "Bạn là Data Insight Agent của Biti's Management System.\n\nHãy phân tích toàn bộ query results và trả lời người dùng bằng tiếng Việt.\n\nQuy tắc:\n- Không tự bịa số liệu.\n- Không hiển thị SQL.\n- Nếu có nhiều query, hãy tổng hợp thành một câu trả lời mạch lạc.\n- Nêu kết luận chính trước.\n- Sau đó giải thích bằng các số liệu quan trọng.\n- Nếu dữ liệu không đủ, nói rõ."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2112,
+        -304
+      ],
+      "id": "02f69b3b-7fa2-4a07-bcd4-9dcdf8c24c99",
+      "name": "AI Analyze & Interprete"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"analysis_goal\": {\n      \"type\": \"string\"\n    },\n    \"query_count\": {\n      \"type\": \"number\"\n    },\n    \"queries\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n          },\n          \"purpose\": {\n            \"type\": \"string\"\n          },\n          \"sql\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\"id\", \"purpose\", \"sql\"]\n      }\n    },\n    \"final_instruction\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\"analysis_goal\", \"query_count\", \"queries\", \"final_instruction\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1072,
+        144
+      ],
+      "id": "611bc712-146c-4549-9965-43a1bad37e9a",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Tra cứu hướng dẫn sử dụng website",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "huong-dan-dung-website",
+          "mode": "list",
+          "cachedResultName": "huong-dan-dung-website"
+        },
+        "topK": 10,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        1248,
+        -480
+      ],
+      "id": "8365b54b-5670-4416-a0b6-96a3e73be2d6",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "KFEmfRjGybqeuUAI",
+          "name": "PineconeApi account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        -320
+      ],
+      "id": "3cfe21f5-c874-4bf2-b164-cad64ba1c700",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "olEsDkMu1gGRXQsg",
+          "name": "Google Gemini(PaLM) Api account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        176
+      ],
+      "id": "c8ec9460-33eb-424a-8d60-ed87d7fc065e",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst output = input.output || input;\nconst queries = output.queries || [];\n\nreturn queries.map(query => ({\n  json: {\n    user_question: output.user_question || \"\",\n    analysis_goal: output.analysis_goal,\n    final_instruction: output.final_instruction,\n    query_id: query.id,\n    purpose: query.purpose,\n    sql: query.sql\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        -32
+      ],
+      "id": "0aeef6dd-5d94-47bc-b1d3-c7be45e9e8e4",
+      "name": "Split SQL Query Plan"
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\n\nstaticData.query_results = [];\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1424,
+        -32
+      ],
+      "id": "ff87f2d1-c63e-4928-9fef-ad6b4a22fa76",
+      "name": "Reset Query Results"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nconst sql =\n  input.sql ||\n  input.output?.queries?.[0]?.sql ||\n  input.queries?.[0]?.sql ||\n  \"\";\n\nif (!sql) {\n  throw new Error(\"SQL is empty. Check input structure.\");\n}\n\nconst forbidden = /\\b(INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE|CREATE|GRANT|REVOKE|MERGE|CALL|EXECUTE)\\b/i;\n\nif (forbidden.test(sql)) {\n  throw new Error(`Blocked unsafe SQL:\\n${sql}`);\n}\n\nconst allowedStart = /^\\s*(SELECT|WITH)\\b/i;\n\nif (!allowedStart.test(sql)) {\n  throw new Error(`Only SELECT or WITH queries are allowed:\\n${sql}`);\n}\n\nconst suspicious = /\\b(pg_|information_schema|auth\\.|storage\\.|extensions)\\b/i;\n\nif (suspicious.test(sql)) {\n  throw new Error(`Blocked system schema access:\\n${sql}`);\n}\n\nreturn [\n  {\n    json: input\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1872,
+        128
+      ],
+      "id": "cbfbe097-d8b6-4ab4-8885-5415ff0fe058",
+      "name": "Validate SQL Safety"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(item => item.json);\n\nconst loop = $(\"Loop Over Items\").item.json;\n\nconst result = {\n  user_question: loop.user_question,\n  analysis_goal: loop.analysis_goal,\n  final_instruction: loop.final_instruction,\n  query_id: loop.query_id,\n  purpose: loop.purpose,\n  sql: loop.sql,\n  row_count: rows.length,\n  rows\n};\n\nconst staticData = $getWorkflowStaticData('global');\n\nif (!staticData.query_results) {\n  staticData.query_results = [];\n}\n\nstaticData.query_results.push(result);\n\nreturn [\n  {\n    json: result\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2304,
+        128
+      ],
+      "id": "4b5cd697-7ccb-4ea6-983e-ff35eb4fb9df",
+      "name": "Format SQL Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\n\nconst results = staticData.query_results || [];\n\nif (!results.length) {\n  throw new Error(\"No query results found.\");\n}\n\nreturn [\n  {\n    json: {\n      user_question: results[0].user_question,\n      analysis_goal: results[0].analysis_goal,\n      final_instruction: results[0].final_instruction,\n      query_count: results.length,\n      query_results: results\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1872,
+        -128
+      ],
+      "id": "771ad475-1a90-49b7-bd6e-7042ec2bc0a5",
+      "name": "Aggregate Query Results"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Guide",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Analyze & Write SQL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent Unclear",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Guide",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Analyze & Write SQL",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Unclear",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Guide",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Unclear",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Query Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validate SQL Safety",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Format SQL Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Analyze & Interprete",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory4": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Analyze & Interprete",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a document": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Analyze & Write SQL": {
+      "main": [
+        [
+          {
+            "node": "Split SQL Query Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Analyze & Write SQL",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Guide",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Analyze & Write SQL",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Guide": {
+      "main": [
+        []
+      ]
+    },
+    "Split SQL Query Plan": {
+      "main": [
+        [
+          {
+            "node": "Reset Query Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset Query Results": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate SQL Safety": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format SQL Result": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Query Results": {
+      "main": [
+        [
+          {
+            "node": "AI Analyze & Interprete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "06d9c364-6ece-4477-98cd-6e11b6871594",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "66cb8e5d418c6a210ef48a853af67f56f4332a37b584b0adbd669b84af6ee70d"
+  },
+  "id": "MHBI8HRZWieJNPHy",
+  "tags": []
+}

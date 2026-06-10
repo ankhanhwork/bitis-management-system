@@ -1,0 +1,19 @@
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local tooling output
+node_modules/
+dist/
+coverage/
+*.log
+
+# Supabase local runtime
+supabase/.temp/

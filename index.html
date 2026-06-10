@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Bitis's Management System</title>
@@ -12,7 +13,7 @@
         rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="supabase-config.js"></script>
+    <script src="assets/js/supabase-config.js"></script>
     <style data-purpose="typography">
         body {
             font-family: 'Inter', sans-serif;
@@ -149,6 +150,7 @@
             }
         }
     </style>
+    <script src="assets/js/sidebar-preload.js"></script>
 </head>
 
 
@@ -290,7 +292,7 @@
                                     <svg class="absolute left-3 top-3 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z" stroke-linecap="round" stroke-width="2"></path>
                                     </svg>
-                                    <button id="clearProductBtn" type="button" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-[#E30016]" aria-label="Clear selected product">×</button>
+                                    <button id="clearProductBtn" type="button" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-[#E30016]" aria-label="Clear selected product">Ã—</button>
                                 </div>
                                 <div id="productDropdown" class="hidden absolute z-50 mt-2 max-h-72 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl"></div>
                             </div>
@@ -455,19 +457,19 @@
         }
 
         function isCancelled(status) {
-            return /cancel|hủy|huỷ/i.test(String(status || ''));
+            return /cancel|há»§y|huá»·/i.test(String(status || ''));
         }
 
         function normalizeStatus(status) {
             const value = String(status || '').trim().toLowerCase();
             if (!value) return 'Other';
-            if (/cancel|hủy|huỷ/.test(value)) return 'Cancelled';
-            if (/complete|hoàn tất|hoàn thành/.test(value)) return 'Completed';
-            if (/deliver|đã giao/.test(value)) return 'Delivered';
-            if (/shipped|đã gửi/.test(value)) return 'Shipped';
-            if (/shipping|đang giao/.test(value)) return 'Shipping';
-            if (/process|xử lý/.test(value)) return 'Processing';
-            if (/pending|chờ/.test(value)) return 'Pending';
+            if (/cancel|há»§y|huá»·/.test(value)) return 'Cancelled';
+            if (/complete|hoÃ n táº¥t|hoÃ n thÃ nh/.test(value)) return 'Completed';
+            if (/deliver|Ä‘Ã£ giao/.test(value)) return 'Delivered';
+            if (/shipped|Ä‘Ã£ gá»­i/.test(value)) return 'Shipped';
+            if (/shipping|Ä‘ang giao/.test(value)) return 'Shipping';
+            if (/process|xá»­ lÃ½/.test(value)) return 'Processing';
+            if (/pending|chá»/.test(value)) return 'Pending';
             return 'Other';
         }
 
@@ -1187,7 +1189,7 @@
             dropdown.innerHTML = matches.length ? matches.map(product => `
                 <button type="button" class="product-option w-full flex items-center gap-3 px-4 py-3 text-left border-b border-slate-100 last:border-0" data-product-id="${escapeHtml(product.id)}">
                     <span class="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0">${product.image_url ? `<img src="${escapeHtml(product.image_url)}" class="w-full h-full object-cover" alt="">` : ''}</span>
-                    <span class="min-w-0"><span class="block text-sm font-semibold text-slate-800 truncate">${escapeHtml(valueOrUnknown(product.name, 'Unnamed Product'))}</span><span class="block text-[11px] font-mono text-slate-400 truncate">${escapeHtml(valueOrUnknown(product.sku, 'N/A'))} · ${escapeHtml(valueOrUnknown(product.category, 'Uncategorized'))}</span></span>
+                    <span class="min-w-0"><span class="block text-sm font-semibold text-slate-800 truncate">${escapeHtml(valueOrUnknown(product.name, 'Unnamed Product'))}</span><span class="block text-[11px] font-mono text-slate-400 truncate">${escapeHtml(valueOrUnknown(product.sku, 'N/A'))} Â· ${escapeHtml(valueOrUnknown(product.category, 'Uncategorized'))}</span></span>
                 </button>`).join('') : '<p class="px-4 py-8 text-center text-sm text-slate-400">No matching products.</p>';
             dropdown.classList.remove('hidden');
         }
@@ -1271,8 +1273,8 @@
         }
         initializeDashboard();
     </script>
-    <script src="sidebar-toggle.js"></script>
-    <script src="page-transition.js"></script>
+    <script src="assets/js/sidebar-toggle.js"></script>
+    <script src="assets/js/page-transition.js"></script>
 </body>
 
 </html>

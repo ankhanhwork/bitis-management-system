@@ -2,6 +2,7 @@
 <html class="light" lang="en">
 
 <head>
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Login - Bitis's Management System</title>
@@ -12,7 +13,7 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
+    <script src="assets/js/supabase-config.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -76,7 +77,7 @@
                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">lock</span>
                         <input id="password" type="password" required
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#E30016] focus:bg-white outline-none transition-all"
-                            placeholder="••••••••">
+                            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
                     </div>
                 </div>
 
@@ -86,7 +87,8 @@
                             class="w-4 h-4 rounded border-slate-300 text-[#E30016] focus:ring-[#E30016]">
                         <span class="text-sm text-slate-600 font-medium">Remember terminal</span>
                     </label>
-                    <a href="#" class="text-sm text-[#E30016] font-bold hover:underline">Forgot?</a>
+                    <a href="forgot-password.html"
+                        class="text-sm text-[#E30016] font-bold hover:underline">Forgot password?</a>
                 </div>
 
                 <button type="submit" id="submitBtn"
@@ -102,7 +104,7 @@
         </div>
 
         <p class="text-center text-slate-400 text-[10px] mt-10 font-bold uppercase tracking-widest opacity-60">
-            &copy; 2024 Bitis's Footwear Group • Operational Integrity Guaranteed
+            &copy; 2024 Bitis's Footwear Group â€¢ Operational Integrity Guaranteed
         </p>
     </div>
 
@@ -128,8 +130,7 @@
 
                 if (error) throw error;
 
-                // Success! Redirect to index.html
-                window.location.href = 'index.html';
+                window.location.replace(getPostLoginDestination());
             } catch (error) {
                 errorMessage.innerText = error.message;
                 errorMessage.classList.remove('hidden');
@@ -139,15 +140,27 @@
         });
 
         // Check if already logged in
+        function getPostLoginDestination() {
+            const requestedPath = new URLSearchParams(window.location.search).get('next');
+            if (!requestedPath) return 'index.html';
+
+            const destination = new URL(requestedPath, window.location.href);
+            if (destination.origin !== window.location.origin || destination.pathname.endsWith('/login.html')) {
+                return 'index.html';
+            }
+
+            return destination.href;
+        }
+
         async function checkSession() {
             const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (session) {
-                window.location.href = 'index.html';
+                window.location.replace(getPostLoginDestination());
             }
         }
         checkSession();
     </script>
-    <script src="page-transition.js"></script>
+    <script src="assets/js/page-transition.js"></script>
 </body>
 
 </html>

@@ -102,7 +102,8 @@ Chức năng:
 
 - Tạo tài khoản nhân viên qua Supabase Auth.
 - Gán vai trò `EMPLOYEE` hoặc `MANAGER`.
-- Gửi thông tin tài khoản bằng EmailJS.
+- Gửi lời mời xác minh tài khoản bằng Supabase Auth.
+- Cho nhân viên tự đặt mật khẩu lần đầu từ liên kết bảo mật.
 - Xem danh sách nhân sự.
 - Cập nhật tên, vai trò và trạng thái.
 - Vô hiệu hóa mềm bằng vai trò `INACTIVE`.
@@ -138,8 +139,10 @@ Trang `chatbot.html` cung cấp giao diện trò chuyện với trợ lý nghi�
 | Xác thực | Supabase Auth |
 | Cơ sở dữ liệu | Supabase PostgreSQL |
 | Lưu trữ ảnh | Supabase Storage |
-| Workflow AI | n8n Webhook |
-| Gửi email | EmailJS Browser SDK |
+| Workflow AI | n8n, LangChain nodes |
+| Mô hình ngôn ngữ | Groq |
+| RAG hướng dẫn sử dụng | Pinecone, Google Gemini Embeddings, Google Docs |
+| Gửi email xác thực | Supabase Auth Email |
 
 Ứng dụng không sử dụng npm, framework frontend hoặc bundler.
 
@@ -153,7 +156,7 @@ flowchart LR
     H --> D[Supabase PostgreSQL]
     H --> S[Supabase Storage]
     H --> N[n8n AI Workflows]
-    H --> E[EmailJS]
+    H --> E[Supabase Auth Email]
     D --> R[Dashboard và báo cáo]
     D --> P[Sản phẩm và tồn kho]
     D --> O[Đơn hàng và khách hàng]
@@ -161,9 +164,9 @@ flowchart LR
 
 Mỗi trang HTML là một màn hình độc lập và tự chứa phần lớn giao diện cùng logic của màn hình đó. Ba tệp JavaScript dùng chung gồm:
 
-- `supabase-config.js`: khởi tạo Supabase client, kiểm tra phiên và hỗ trợ phân quyền.
-- `sidebar-toggle.js`: thêm biểu tượng, liên kết AI Assistant và chức năng thu gọn sidebar.
-- `page-transition.js`: hiển thị thanh tiến trình và hiệu ứng khi chuyển trang nội bộ.
+- `assets/js/supabase-config.js`: khởi tạo Supabase client, kiểm tra phiên và hỗ trợ phân quyền.
+- `assets/js/sidebar-toggle.js`: thêm biểu tượng, liên kết AI Assistant và chức năng thu gọn sidebar.
+- `assets/js/page-transition.js`: hiển thị thanh tiến trình và hiệu ứng khi chuyển trang nội bộ.
 
 ## Cấu trúc dự án
 
@@ -181,9 +184,23 @@ Bitis/
 ├── staff_management.html
 ├── profile.html
 ├── chatbot.html
-├── supabase-config.js
-├── sidebar-toggle.js
-└── page-transition.js
+├── assets/
+│   ├── images/
+│   │   └── favicon.svg
+│   └── js/
+│       ├── supabase-config.js
+│       ├── sidebar-preload.js
+│       ├── sidebar-toggle.js
+│       └── page-transition.js
+├── automation/
+│   └── workflows/
+│       ├── AI Product Description Generator.json
+│       └── AI Assistant for Biti's.json
+├── supabase/
+│   ├── functions/
+│   └── migrations/
+├── vercel.json
+└── .gitignore
 ```
 
 | Tệp | Vai trò |
@@ -199,16 +216,18 @@ Bitis/
 | `staff_management.html` | Tạo và quản lý tài khoản nhân sự |
 | `profile.html` | Hồ sơ, ảnh đại diện và mật khẩu |
 | `chatbot.html` | Trợ lý AI kết nối n8n |
-| `supabase-config.js` | Cấu hình Supabase và auth guard |
-| `sidebar-toggle.js` | Sidebar dùng chung |
-| `page-transition.js` | Hiệu ứng chuyển trang |
+| `automation/workflows/AI Product Description Generator.json` | Workflow n8n tạo và chỉnh sửa mô tả sản phẩm |
+| `automation/workflows/AI Assistant for Biti's.json` | Workflow n8n định tuyến câu hỏi, RAG hướng dẫn và phân tích dữ liệu |
+| `assets/js/supabase-config.js` | Cấu hình Supabase và auth guard |
+| `assets/js/sidebar-toggle.js` | Sidebar dùng chung |
+| `assets/js/page-transition.js` | Hiệu ứng chuyển trang |
 
 ## Hướng dẫn chạy dự án
 
 ### Yêu cầu
 
 - Trình duyệt hiện đại.
-- Kết nối Internet để tải CDN và gọi Supabase, n8n, EmailJS.
+- Kết nối Internet để tải CDN và gọi Supabase, n8n.
 - Python, Node.js hoặc một HTTP server tĩnh tương đương.
 - Một dự án Supabase có schema, Storage bucket, RPC và chính sách truy cập phù hợp.
 
@@ -244,7 +263,7 @@ Không nên mở trực tiếp các tệp bằng giao thức `file://`, vì mộ
 
 ## Cấu hình Supabase
 
-Thông tin kết nối nằm trong `supabase-config.js`:
+Thông tin kết nối nằm trong `assets/js/supabase-config.js`:
 
 ```javascript
 const SUPABASE_URL = "https://<project-ref>.supabase.co";
@@ -421,7 +440,11 @@ RPC cần đảm bảo toàn vẹn giao dịch: kiểm tra tồn, tạo hoặc l
 
 ## Tích hợp AI và dịch vụ ngoài
 
-### n8n tạo mô tả sản phẩm
+Hai file JSON trong repository là bản export workflow n8n. Có thể import trực tiếp vào n8n, sau đó gán lại credential tương ứng với môi trường triển khai. Các file chỉ mô tả node, prompt và connection; API key và mật khẩu thật phải được quản lý trong credential store của n8n.
+
+### Workflow 1: AI Product Description Generator
+
+File nguồn: `automation/workflows/AI Product Description Generator.json`.
 
 `add_product.html` và `edit_product.html` gửi dữ liệu sản phẩm đến webhook:
 
@@ -429,14 +452,85 @@ RPC cần đảm bảo toàn vẹn giao dịch: kiểm tra tồn, tạo hoặc l
 https://n8n.tomorrowmarketers.info/webhook/ai-product-description-generator
 ```
 
-Workflow nhận các hành động:
+Webhook nhận `POST` và chỉ trả response sau khi toàn bộ workflow hoàn tất. Payload có dạng:
+
+```json
+{
+  "action": "generate",
+  "source": "product_form",
+  "form_mode": "create",
+  "product_id": null,
+  "output_language": "vi",
+  "product": {
+    "name": "Tên sản phẩm",
+    "category": "Hunter",
+    "collection": "Bộ sưu tập",
+    "price_vnd": 1000000,
+    "color": "Màu sắc",
+    "highlight_features": "Đặc điểm nổi bật",
+    "size": {
+      "from": 35,
+      "to": 44
+    }
+  },
+  "current_description": null,
+  "revision_comment": null
+}
+```
+
+Workflow hỗ trợ hai hành động:
 
 - `generate`: tạo mô tả tiếng Việt từ dữ liệu sản phẩm.
-- `revise`: chỉnh mô tả hiện có theo nhận xét của người dùng.
+- `revise`: chỉnh trực tiếp `current_description` theo `revision_comment`, không giải thích quá trình chỉnh sửa.
+
+#### Kiến trúc và luồng xử lý
+
+```mermaid
+flowchart LR
+    W[POST Webhook] --> C{Switch category}
+    C -->|Hunter| GH[Google Docs: Hunter guideline]
+    C -->|Sandal| GS[Google Docs: Sandal guideline]
+    GH --> M[Merge]
+    GS --> M
+    M --> L[Basic LLM Chain]
+    G[Groq gpt-oss-120b] --> L
+    P[Structured Output Parser] --> L
+    F[Groq llama-3.1-8b-instant auto-fix] --> P
+    L --> R[Respond to Webhook]
+```
+
+1. `Webhook` nhận dữ liệu từ form sản phẩm.
+2. `Switch` đọc `body.product.category` và chọn tài liệu thương hiệu tương ứng:
+   - `Hunter` lấy guideline Hunter từ Google Docs.
+   - `Sandal` lấy guideline Sandal từ Google Docs.
+3. `Merge` chuẩn hóa hai nhánh guideline về cùng một luồng.
+4. `Basic LLM Chain` kết hợp dữ liệu sản phẩm, mô tả hiện tại, yêu cầu chỉnh sửa và nội dung guideline.
+5. Groq model `openai/gpt-oss-120b` tạo nội dung theo vai trò Senior Ecommerce Copywriter của Biti's.
+6. `Structured Output Parser` ép kết quả về JSON `{ "description": "..." }`. Chế độ auto-fix dùng `llama-3.1-8b-instant` khi output chưa đúng schema.
+7. `Respond to Webhook` trả:
+
+```json
+{
+  "description": "Nội dung mô tả hoàn chỉnh"
+}
+```
+
+Prompt yêu cầu nội dung tiếng Việt, giọng hiện đại và đáng tin, chỉ dùng dữ liệu đầu vào và guideline, không tự tạo công nghệ hoặc claim tuyệt đối. Mô tả phải gồm năm phần theo thứ tự: tên và lợi ích chính, giới thiệu, trải nghiệm thực tế, thông số kỹ thuật, lưu ý sử dụng và bảo quản.
 
 Response cần chứa một trong các trường `description`, `output`, `text` hoặc `data.description`.
 
-### n8n AI Assistant
+#### Credential cần cấu hình
+
+| Credential n8n | Mục đích |
+|---|---|
+| Groq API | Sinh nội dung và sửa output JSON |
+| Google Docs OAuth2 | Đọc guideline Hunter và Sandal |
+
+Hiện `Switch` chỉ khai báo hai category khớp chính xác là `Hunter` và `Sandal`. Category khác không có nhánh mặc định nên sẽ không đi tiếp đến LLM; khi mở rộng danh mục cần thêm rule hoặc fallback guideline.
+
+### Workflow 2: AI Assistant for Biti's
+
+File nguồn: `automation/workflows/AI Assistant for Biti's.json`.
 
 `chatbot.html` gửi request dạng:
 
@@ -450,14 +544,138 @@ Response cần chứa một trong các trường `description`, `output`, `text`
 
 Response có thể là chuỗi hoặc JSON chứa `output`, `text`, `response`, `message`, `data.output` hoặc `data.text`.
 
-### EmailJS
+Workflow dùng public n8n Chat Trigger ở chế độ webhook, trả kết quả của node cuối cùng. `sessionId` do frontend lưu trong `sessionStorage` và được các memory node dùng làm khóa hội thoại.
 
-`staff_management.html` dùng EmailJS để gửi email thông tin tài khoản sau khi tạo nhân sự. Cần cấu hình đúng:
+#### Kiến trúc tổng thể
 
-- Public key trong `emailjs.init(...)`.
-- `EMAILJS_SERVICE_ID`.
-- `EMAILJS_TEMPLATE_ID`.
-- Template variables: `to_email`, `to_name`, `temp_password`, `role`.
+```mermaid
+flowchart TD
+    CT[Chat Trigger] --> IR[Intent Router]
+    IR --> SW{guide / analyze / unclear}
+    SW -->|guide| GA[Guide Agent]
+    VS[Pinecone: huong-dan-dung-website] --> GA
+    SW -->|analyze| SQL[SQL Planning Agent]
+    SQL --> SP[Split query plan]
+    SP --> RS[Reset results]
+    RS --> LP[Loop queries]
+    LP --> V[Validate SQL safety]
+    V --> PG[(PostgreSQL)]
+    PG --> FR[Format result]
+    FR --> LP
+    LP --> AR[Aggregate results]
+    AR --> IA[Insight Agent]
+    SW -->|unclear| UA[Clarification Agent]
+
+    MT[Manual Trigger] --> GD[Google Docs guide]
+    GD --> DL[Default Data Loader]
+    DL --> PI[Pinecone insert]
+    GE[Gemini embedding-001] --> PI
+```
+
+Workflow gồm ba khối chức năng.
+
+#### 1. Intent Router
+
+`AI Agent` dùng Groq `openai/gpt-oss-120b` và Structured Output Parser để phân loại câu hỏi:
+
+| Intent | Khi sử dụng | Nhánh tiếp theo |
+|---|---|---|
+| `guide` | Hỏi cách thao tác trên website | Guide Agent và Pinecone RAG |
+| `analyze` | Hỏi số liệu thật, tồn kho, doanh thu, bán hàng | SQL Planning và PostgreSQL |
+| `unclear` | Câu hỏi mơ hồ hoặc ngoài phạm vi | Clarification Agent |
+
+Router trả object nội bộ gồm `intent`, `confidence`, `reason` và `user_question`. `Switch` dùng `intent` để chọn nhánh.
+
+#### 2. Nhánh hướng dẫn sử dụng bằng RAG
+
+`AI Agent Guide` dùng `llama-3.1-8b-instant` và Pinecone Vector Store như một tool tra cứu. Index đang cấu hình là `huong-dan-dung-website`, `topK = 10`; vector truy vấn được tạo bằng `models/gemini-embedding-001`.
+
+Agent chỉ được trả lời từ context tìm thấy, trình bày thao tác theo từng bước và không được lộ tên tool, raw context, metadata hay thông tin nội bộ. Nếu tài liệu không đủ, agent phải nói rõ chưa tìm thấy hướng dẫn phù hợp.
+
+Knowledge base được nạp bằng một pipeline độc lập trong cùng workflow:
+
+1. Chạy thủ công node `When clicking 'Execute workflow'`.
+2. `Get a document` đọc tài liệu hướng dẫn từ Google Docs.
+3. `Default Data Loader` chuyển nội dung thành document.
+4. Gemini Embeddings tạo vector.
+5. Pinecone Vector Store ghi vector vào index `huong-dan-dung-website`.
+
+Sau khi tài liệu Google Docs thay đổi, cần chạy lại pipeline này để cập nhật dữ liệu RAG.
+
+#### 3. Nhánh phân tích dữ liệu
+
+`AI Analyze & Write SQL` dùng Groq `openai/gpt-oss-120b` để chuyển câu hỏi thành một query plan có schema:
+
+```json
+{
+  "analysis_goal": "Mục tiêu phân tích",
+  "query_count": 1,
+  "queries": [
+    {
+      "id": "q1",
+      "purpose": "Mục đích câu truy vấn",
+      "sql": "SELECT ..."
+    }
+  ],
+  "final_instruction": "Yêu cầu tổng hợp kết quả"
+}
+```
+
+Luồng thực thi:
+
+1. `Split SQL Query Plan` tách từng query thành item.
+2. `Reset Query Results` xóa kết quả tạm trong workflow static data.
+3. `Loop Over Items` lần lượt đưa query qua lớp kiểm tra an toàn.
+4. `Validate SQL Safety` chỉ cho phép câu bắt đầu bằng `SELECT` hoặc `WITH`; chặn lệnh ghi DDL/DML và truy cập các schema hệ thống như `information_schema`, `auth` hoặc `storage`.
+5. `Execute a SQL query` chạy câu SQL bằng PostgreSQL credential.
+6. `Format SQL Result` gắn kết quả với `query_id`, mục đích, số dòng và lưu vào vùng tạm.
+7. `Aggregate Query Results` gom toàn bộ kết quả.
+8. `AI Analyze & Interprete` dùng `llama-3.1-8b-instant` để trả lời tiếng Việt, nêu kết luận trước và không hiển thị SQL.
+
+SQL Agent được ràng buộc theo định nghĩa báo cáo của website:
+
+- Múi giờ báo cáo là `Asia/Bangkok`.
+- Tổng số đơn dùng `COUNT(DISTINCT orders.id)` và gồm mọi trạng thái.
+- Doanh thu website lấy từ `orders.total_amount`, chỉ loại đơn bị hủy.
+- Giá trị đơn trung bình bằng doanh thu đơn không hủy chia số đơn không hủy.
+- Chỉ số bán sản phẩm lấy từ `order_items` nhưng phải loại item thuộc đơn bị hủy.
+- Không kết luận tăng hoặc giảm nếu chưa chạy query so sánh.
+- Mặc định dùng 30 ngày lịch gần nhất nếu người dùng không nêu thời gian.
+
+#### 4. Nhánh làm rõ câu hỏi
+
+`AI Agent Unclear` dùng Groq `openai/gpt-oss-20b`. Node này không truy vấn tool và không tự trả lời; nó chỉ yêu cầu người dùng xác định muốn được hướng dẫn thao tác hay phân tích dữ liệu, hoặc thông báo phạm vi hỗ trợ nếu câu hỏi không liên quan hệ thống.
+
+#### Memory và credential
+
+Các agent dùng Buffer Window Memory với `sessionId` từ Chat Trigger để giữ ngữ cảnh trong một phiên. Nút **New Chat** trên frontend tạo `sessionId` mới, tách lịch sử khỏi phiên trước.
+
+| Credential n8n | Mục đích |
+|---|---|
+| Groq API | Router, Guide Agent, SQL Agent, Clarification Agent và Insight Agent |
+| Pinecone API | Lưu và truy xuất tài liệu hướng dẫn |
+| Google Gemini API | Tạo embedding cho tài liệu và truy vấn |
+| Google Docs OAuth2 | Đọc tài liệu hướng dẫn website |
+| PostgreSQL | Chạy các truy vấn phân tích chỉ đọc |
+
+Nên dùng database user chỉ có quyền `SELECT` cho PostgreSQL credential. Bộ lọc regex trong workflow là lớp bảo vệ bổ sung, không thay thế quyền database, giới hạn statement timeout và giám sát truy vấn.
+
+`Reset Query Results`, `Format SQL Result` và `Aggregate Query Results` đang dùng workflow static data toàn cục. Nếu có nhiều request phân tích chạy đồng thời, kết quả giữa các execution có nguy cơ ghi đè hoặc trộn lẫn; production nên lưu kết quả trong dữ liệu riêng của từng execution thay vì global static data.
+
+### Email xác thực và khôi phục mật khẩu
+
+`staff_management.html` gọi Supabase Edge Function `invite-staff`. Function xác minh người gọi có vai trò
+`MANAGER`, sau đó dùng Supabase Admin Auth để gửi lời mời. Service role key chỉ tồn tại trong môi trường
+Edge Function và không được đưa vào mã frontend.
+
+- `set-password.html` nhận phiên đăng nhập từ liên kết Invite hoặc Recovery và cho người dùng đặt mật khẩu.
+- `forgot-password.html` gửi yêu cầu khôi phục bằng `resetPasswordForEmail`.
+- Cấu hình Site URL và Redirect URLs trong Supabase Auth phải cho phép URL tuyệt đối của `set-password.html`.
+- Khi deploy Vercel, đặt Site URL thành domain production, ví dụ `https://bitis-manager.vercel.app`.
+- Thêm redirect production chính xác `https://bitis-manager.vercel.app/set-password.html`.
+- Để hỗ trợ Vercel Preview, thêm `https://*.vercel.app/**` trong Redirect URLs; production vẫn nên dùng URL chính xác.
+- Tùy chỉnh template Invitation và Reset Password trong Supabase Dashboard nếu cần nhận diện thương hiệu.
+- Nên cấu hình Custom SMTP trước khi production để bảo đảm hạn mức và khả năng gửi email.
 
 ## Quy ước phát triển
 
@@ -472,7 +690,7 @@ Response có thể là chuỗi hoặc JSON chứa `output`, `text`, `response`, 
 
 ## Lưu ý triển khai
 
-- Dự án phụ thuộc CDN, do đó cần Internet để tải Tailwind CSS, Supabase JS, Chart.js, Google Fonts và EmailJS.
+- Dự án phụ thuộc CDN, do đó cần Internet để tải Tailwind CSS, Supabase JS, Chart.js và Google Fonts.
 - Không commit `service_role` key, mật khẩu, token quản trị hoặc bí mật webhook vào repository.
 - Webhook n8n đang được gọi trực tiếp từ trình duyệt; môi trường production nên có xác thực, giới hạn tần suất và kiểm tra CORS.
 - Cần cấu hình RLS cho toàn bộ bảng và Storage bucket trước khi đưa hệ thống lên production.
