@@ -149,6 +149,7 @@
         products: '<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>',
         inventory: '<path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>',
         orders: '<path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>',
+        assistant: '<path d="M8 10h.01M12 10h.01M16 10h.01M7 16l-3 3V7a4 4 0 014-4h8a4 4 0 014 4v5a4 4 0 01-4 4H7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>',
         staff: '<path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>',
         signout: '<path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>'
     };
@@ -160,6 +161,7 @@
         if (href.includes('product_catalog') || text === 'products') return 'products';
         if (href.includes('inventory_tracker') || text === 'inventory') return 'inventory';
         if (href.includes('order_management') || text === 'orders') return 'orders';
+        if (href.includes('chatbot') || text.includes('ai assistant')) return 'assistant';
         if (href.includes('staff_management') || text.includes('staff')) return 'staff';
         if (text.includes('sign out') || link.hasAttribute('onclick')) return 'signout';
         return null;
@@ -178,6 +180,24 @@
         icon.innerHTML = iconPaths[iconKey];
         link.prepend(icon);
     }
+
+    function ensureAssistantLink() {
+        const nav = sidebar.querySelector('nav');
+        if (!nav || nav.querySelector('a[href*="chatbot"]')) return;
+        const ordersLink = nav.querySelector('a[href*="order_management"]');
+        if (!ordersLink) return;
+
+        const assistantLink = document.createElement('a');
+        const isActive = /chatbot\.html$/i.test(window.location.pathname);
+        assistantLink.href = 'chatbot.html';
+        assistantLink.className = isActive
+            ? 'flex items-center px-6 py-3 text-sm font-semibold bg-white/10 border-l-4 border-[#E30016] text-white transition'
+            : 'flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition';
+        assistantLink.textContent = 'AI Assistant';
+        ordersLink.insertAdjacentElement('afterend', assistantLink);
+    }
+
+    ensureAssistantLink();
 
     const brand = sidebar.firstElementChild;
     if (brand) {

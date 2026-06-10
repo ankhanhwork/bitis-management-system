@@ -142,6 +142,76 @@
             border-color: #cbd5e1;
             cursor: text;
         }
+
+        /* Custom date range picker */
+        .date-range-field {
+            position: relative;
+            width: 112px;
+        }
+        .date-range-text {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            padding: 0 20px 0 0;
+            color: #475569;
+            font-size: 12px;
+        }
+        .date-range-text::placeholder { color: #94a3b8; }
+        .date-range-clear {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+            width: 18px;
+            height: 18px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1;
+        }
+        .date-range-clear:hover { background: #f1f5f9; color: #E30016; }
+        .date-range-clear.visible { display: flex; }
+        .date-picker-popup {
+            position: absolute;
+            z-index: 80;
+            top: calc(100% + 10px);
+            left: 0;
+            width: 308px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.25);
+        }
+        .date-picker-day {
+            position: relative;
+            height: 36px;
+            border-radius: 10px;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .date-picker-day:hover { background: #f8fafc; color: #E30016; }
+        .date-picker-day.outside { color: #cbd5e1; }
+        .date-picker-day.in-range {
+            border-radius: 0;
+            background: #fff1f2;
+            color: #be123c;
+        }
+        .date-picker-day.selected {
+            border-radius: 10px;
+            background: #E30016;
+            color: #fff;
+            font-weight: 700;
+        }
+        .date-picker-day.today:not(.selected) {
+            box-shadow: inset 0 0 0 1px #E30016;
+            color: #E30016;
+        }
         .modal-field:not(:disabled):focus {
             border-color: transparent;
         }
@@ -415,11 +485,36 @@
                             </button>
                         </div>
                         <!-- Date Range -->
-                        <div class="flex items-center gap-2 border border-slate-200 rounded-xl px-3 py-2 bg-white">
+                        <div id="dateRangePicker" class="relative flex items-center gap-2 border border-slate-200 rounded-xl px-3 py-2 bg-white focus-within:ring-2 focus-within:ring-[#E30016]">
                             <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                            <input type="date" id="dateFrom" onchange="applyFilters()" class="text-xs border-0 outline-none bg-transparent text-slate-600 w-[100px] date-input-no-icon" />
+                            <div class="date-range-field">
+                                <input type="text" id="dateFromText" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="dd/mm/yyyy" aria-label="From date" class="date-range-text" />
+                                <button type="button" id="clearDateFrom" class="date-range-clear" aria-label="Clear from date">&times;</button>
+                            </div>
                             <span class="text-slate-300 text-xs shrink-0">&rarr;</span>
-                            <input type="date" id="dateTo" onchange="applyFilters()" class="text-xs border-0 outline-none bg-transparent text-slate-600 w-[100px] date-input-no-icon" />
+                            <div class="date-range-field">
+                                <input type="text" id="dateToText" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="dd/mm/yyyy" aria-label="To date" class="date-range-text" />
+                                <button type="button" id="clearDateTo" class="date-range-clear" aria-label="Clear to date">&times;</button>
+                            </div>
+                            <input type="date" id="dateFrom" class="sr-only" tabindex="-1" aria-hidden="true" />
+                            <input type="date" id="dateTo" class="sr-only" tabindex="-1" aria-hidden="true" />
+                            <div id="datePickerPopup" class="date-picker-popup hidden" role="dialog" aria-label="Choose date range">
+                                <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+                                    <button type="button" id="datePrevMonth" class="w-8 h-8 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-[#E30016]" aria-label="Previous month">&#8249;</button>
+                                    <div id="datePickerMonth" class="text-sm font-bold text-slate-700"></div>
+                                    <button type="button" id="dateNextMonth" class="w-8 h-8 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-[#E30016]" aria-label="Next month">&#8250;</button>
+                                </div>
+                                <div class="px-3 pt-3">
+                                    <div class="grid grid-cols-7 text-center text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-1">
+                                        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                                    </div>
+                                    <div id="datePickerDays" class="grid grid-cols-7"></div>
+                                </div>
+                                <div class="flex items-center justify-between px-4 py-3 mt-2 border-t border-slate-100">
+                                    <button type="button" id="datePickerClear" class="text-xs font-semibold text-slate-500 hover:text-[#E30016]">Clear</button>
+                                    <button type="button" id="datePickerToday" class="text-xs font-semibold text-[#E30016] hover:bg-red-50 rounded-lg px-3 py-1.5">Today</button>
+                                </div>
+                            </div>
                         </div>
                         <!-- Payment Method Filter -->
                         <div class="relative">
@@ -898,8 +993,7 @@
         // ============================
         function buildStatusBadge(status) {
             const c = STATUS_COLORS[status] || STATUS_COLORS['Pending'];
-            return `<span class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full ${c.bg} ${c.text} border ${c.border}">
-                        <span class="w-1.5 h-1.5 rounded-full ${c.dot} ${status === 'Pending' ? 'status-pulse' : ''}"></span>
+            return `<span class="inline-flex items-center justify-center min-w-[108px] px-3.5 py-1.5 text-[11px] font-semibold rounded-full border ${c.bg} ${c.text} ${c.border}">
                         ${status}
                     </span>`;
         }
@@ -916,35 +1010,194 @@
         }
 
         // ============================
-        // INLINE STATUS DROPDOWN BUILDER
+        // TABLE STATUS DISPLAY
         // ============================
         function buildStatusDropdown(order) {
-            const currentStatus = order.status;
-            const allowedTransitions = STATUS_TRANSITIONS[currentStatus] || [];
-            const isTerminal = allowedTransitions.length === 0;
-            const c = STATUS_COLORS[currentStatus] || STATUS_COLORS['Pending'];
-
-            if (isTerminal) {
-                return buildStatusBadge(currentStatus);
-            }
-
-            let options = `<option value="${currentStatus}" selected>${currentStatus}</option>`;
-            allowedTransitions.forEach(s => {
-                options += `<option value="${s}">${s}</option>`;
-            });
-
-            return `<div class="inline-block">
-                        <select onchange="updateOrderStatusInline('${order.id}', this.value, this)"
-                            class="text-[11px] font-bold rounded-xl pl-3 pr-2 py-1.5 focus:ring-1 focus:ring-[#E30016] outline-none cursor-pointer transition border ${c.bg} ${c.text} ${c.border}"
-                            style="appearance: auto; -webkit-appearance: menulist; background-image: none;">
-                            ${options}
-                        </select>
-                    </div>`;
+            return buildStatusBadge(order.status);
         }
 
         // ============================
         // FILTER & SEARCH LOGIC
         // ============================
+        const datePickerState = {
+            activeField: 'from',
+            viewDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+        };
+
+        function dateToIso(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function isoToDate(value) {
+            if (!value) return null;
+            const [year, month, day] = value.split('-').map(Number);
+            const date = new Date(year, month - 1, day);
+            return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+        }
+
+        function isoToDisplay(value) {
+            const date = isoToDate(value);
+            return date ? `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}` : '';
+        }
+
+        function displayToIso(value) {
+            if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return '';
+            const [day, month, year] = value.split('/').map(Number);
+            const date = new Date(year, month - 1, day);
+            return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? dateToIso(date) : '';
+        }
+
+        function syncDatePickerUI() {
+            const fromValue = document.getElementById('dateFrom').value;
+            const toValue = document.getElementById('dateTo').value;
+            document.getElementById('dateFromText').value = isoToDisplay(fromValue);
+            document.getElementById('dateToText').value = isoToDisplay(toValue);
+            document.getElementById('clearDateFrom').classList.toggle('visible', Boolean(fromValue));
+            document.getElementById('clearDateTo').classList.toggle('visible', Boolean(toValue));
+            renderDatePicker();
+        }
+
+        function setDateValue(field, isoValue, shouldFilter = true) {
+            const hiddenInput = document.getElementById(field === 'from' ? 'dateFrom' : 'dateTo');
+            hiddenInput.value = isoValue;
+
+            const fromValue = document.getElementById('dateFrom').value;
+            const toValue = document.getElementById('dateTo').value;
+            if (fromValue && toValue && fromValue > toValue) {
+                if (field === 'from') document.getElementById('dateTo').value = '';
+                else document.getElementById('dateFrom').value = '';
+            }
+
+            syncDatePickerUI();
+            if (shouldFilter) {
+                currentPage = 1;
+                applyFilters();
+            }
+        }
+
+        function clearDateRange(shouldFilter = true) {
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            syncDatePickerUI();
+            if (shouldFilter) {
+                currentPage = 1;
+                applyFilters();
+            }
+        }
+
+        function openDatePicker(field) {
+            datePickerState.activeField = field;
+            const selected = isoToDate(document.getElementById(field === 'from' ? 'dateFrom' : 'dateTo').value);
+            if (selected) datePickerState.viewDate = new Date(selected.getFullYear(), selected.getMonth(), 1);
+            document.getElementById('datePickerPopup').classList.remove('hidden');
+            renderDatePicker();
+        }
+
+        function renderDatePicker() {
+            const monthLabel = document.getElementById('datePickerMonth');
+            const daysContainer = document.getElementById('datePickerDays');
+            if (!monthLabel || !daysContainer) return;
+
+            const viewYear = datePickerState.viewDate.getFullYear();
+            const viewMonth = datePickerState.viewDate.getMonth();
+            monthLabel.textContent = datePickerState.viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            daysContainer.innerHTML = '';
+
+            const firstVisible = new Date(viewYear, viewMonth, 1 - new Date(viewYear, viewMonth, 1).getDay());
+            const fromIso = document.getElementById('dateFrom').value;
+            const toIso = document.getElementById('dateTo').value;
+            const todayIso = dateToIso(new Date());
+
+            for (let index = 0; index < 42; index++) {
+                const date = new Date(firstVisible);
+                date.setDate(firstVisible.getDate() + index);
+                const iso = dateToIso(date);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = date.getDate();
+                button.className = 'date-picker-day';
+                if (date.getMonth() !== viewMonth) button.classList.add('outside');
+                if (fromIso && toIso && iso > fromIso && iso < toIso) button.classList.add('in-range');
+                if (iso === fromIso || iso === toIso) button.classList.add('selected');
+                if (iso === todayIso) button.classList.add('today');
+                button.setAttribute('aria-label', date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
+                button.addEventListener('click', () => selectCalendarDate(iso));
+                daysContainer.appendChild(button);
+            }
+        }
+
+        function selectCalendarDate(iso) {
+            const fromValue = document.getElementById('dateFrom').value;
+            const toValue = document.getElementById('dateTo').value;
+            if (datePickerState.activeField === 'from' || !fromValue || toValue) {
+                document.getElementById('dateFrom').value = iso;
+                document.getElementById('dateTo').value = '';
+                datePickerState.activeField = 'to';
+            } else if (iso < fromValue) {
+                document.getElementById('dateFrom').value = iso;
+            } else {
+                document.getElementById('dateTo').value = iso;
+                document.getElementById('datePickerPopup').classList.add('hidden');
+            }
+            syncDatePickerUI();
+            currentPage = 1;
+            applyFilters();
+        }
+
+        function handleDateTyping(event, field) {
+            const input = event.currentTarget;
+            const digits = input.value.replace(/\D/g, '').slice(0, 8);
+            input.value = digits.length <= 2
+                ? digits
+                : digits.length <= 4
+                    ? `${digits.slice(0, 2)}/${digits.slice(2)}`
+                    : `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+
+            if (input.value.length === 10) {
+                const iso = displayToIso(input.value);
+                if (iso) {
+                    input.setCustomValidity('');
+                    setDateValue(field, iso);
+                } else {
+                    input.setCustomValidity('Enter a valid date in dd/mm/yyyy format.');
+                    input.reportValidity();
+                }
+            } else {
+                input.setCustomValidity('');
+            }
+        }
+
+        document.getElementById('dateFromText').addEventListener('focus', () => openDatePicker('from'));
+        document.getElementById('dateToText').addEventListener('focus', () => openDatePicker('to'));
+        document.getElementById('dateFromText').addEventListener('input', event => handleDateTyping(event, 'from'));
+        document.getElementById('dateToText').addEventListener('input', event => handleDateTyping(event, 'to'));
+        document.getElementById('clearDateFrom').addEventListener('click', event => {
+            event.stopPropagation();
+            setDateValue('from', '');
+        });
+        document.getElementById('clearDateTo').addEventListener('click', event => {
+            event.stopPropagation();
+            setDateValue('to', '');
+        });
+        document.getElementById('datePrevMonth').addEventListener('click', () => {
+            datePickerState.viewDate.setMonth(datePickerState.viewDate.getMonth() - 1);
+            renderDatePicker();
+        });
+        document.getElementById('dateNextMonth').addEventListener('click', () => {
+            datePickerState.viewDate.setMonth(datePickerState.viewDate.getMonth() + 1);
+            renderDatePicker();
+        });
+        document.getElementById('datePickerToday').addEventListener('click', () => selectCalendarDate(dateToIso(new Date())));
+        document.getElementById('datePickerClear').addEventListener('click', () => clearDateRange());
+        document.addEventListener('click', event => {
+            if (!event.target.closest('#dateRangePicker')) {
+                document.getElementById('datePickerPopup').classList.add('hidden');
+            }
+        });
+
         function filterByStatus(status) {
             currentStatusFilter = status;
             // Update tab styling - new underline style
@@ -1066,7 +1319,7 @@
             if (dateFrom || dateTo) {
                 tags.push(`<span class="filter-tag">
                     <span aria-hidden="true">&#128197;</span> ${dateFrom || '...'} &rarr; ${dateTo || '...'}
-                    <button onclick="document.getElementById('dateFrom').value='';document.getElementById('dateTo').value='';applyFilters()">&times;</button>
+                    <button onclick="clearDateRange()">&times;</button>
                 </span>`);
             }
             if (paymentFilter) {
@@ -1090,6 +1343,7 @@
             document.getElementById('clearSearchBtn').classList.add('hidden');
             document.getElementById('dateFrom').value = '';
             document.getElementById('dateTo').value = '';
+            syncDatePickerUI();
             document.getElementById('paymentFilter').value = '';
             document.getElementById('sortBy').value = 'date-desc';
             // Reset sort icons

@@ -27,7 +27,53 @@
 
         .report-chart {
             position: relative;
-            height: 260px;
+            height: 280px;
+        }
+
+        .report-chart-tall {
+            position: relative;
+            height: 340px;
+        }
+
+        .dashboard-card {
+            border: 1px solid #eef2f7;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .section-anchor {
+            scroll-margin-top: 1rem;
+        }
+
+        .product-option:hover,
+        .product-option[aria-selected="true"] {
+            background: #f8fafc;
+        }
+
+        .matrix-cell {
+            min-width: 4rem;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .matrix-empty {
+            background: #fff1f2;
+            color: #be123c;
+        }
+
+        .matrix-low {
+            background: #fffbeb;
+            color: #b45309;
+        }
+
+        .matrix-good {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .print-only {
+            display: none;
         }
 
         .report-skeleton {
@@ -44,6 +90,62 @@
         @media (prefers-reduced-motion: reduce) {
             .report-skeleton {
                 animation: none;
+            }
+        }
+
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+
+            body {
+                background: #fff !important;
+                color: #0f172a;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            aside,
+            header,
+            #filterPanel,
+            #reportError,
+            #reportLoading,
+            .no-print {
+                display: none !important;
+            }
+
+            main,
+            main > div {
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            #dashboardScroll {
+                padding: 0 !important;
+                background: #fff !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .dashboard-card {
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+
+            .print-break {
+                break-before: page;
+            }
+
+            .report-chart,
+            .report-chart-tall {
+                height: 250px !important;
+            }
+
+            table {
+                font-size: 9px !important;
             }
         }
     </style>
@@ -146,34 +248,70 @@
                 </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
-                <div>
-                    <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between mb-8">
-                        <div>
-                            <h1 id="welcomeMessage" class="text-2xl font-bold text-slate-900">Sales Report</h1>
-                            <p id="reportPeriodLabel" class="text-sm text-slate-500 mt-1">Select a date range to view sales performance.</p>
-                        </div>
+            <div id="dashboardScroll" class="flex-1 overflow-y-auto p-5 lg:p-8 bg-slate-50/50">
+                <div class="max-w-[1680px] mx-auto">
+                    <div class="print-only mb-6 border-b-2 border-[#E30016] pb-4">
+                        <h1 id="printTitle" class="text-2xl font-bold">Biti's Dashboard Report</h1>
+                        <p id="printMeta" class="text-sm text-slate-500 mt-1"></p>
+                    </div>
 
-                        <form id="reportFilterForm" class="flex flex-col sm:flex-row sm:items-end gap-3">
+                    <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between mb-6">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <h1 class="text-2xl font-bold text-slate-900">Management Dashboard</h1>
+                                <span id="modeBadge" class="inline-flex items-center rounded-full bg-slate-200 px-3 py-1 text-[11px] font-bold text-slate-600">Global Dashboard</span>
+                            </div>
+                            <p id="reportPeriodLabel" class="text-sm text-slate-500 mt-1">Loading dashboard data...</p>
+                        </div>
+                        <button id="exportPdfBtn" type="button"
+                            class="no-print h-10 inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 hover:border-[#E30016] hover:text-[#E30016] disabled:opacity-50 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 10v6m0 0l-3-3m3 3l3-3M6 20h12a2 2 0 002-2V9.414a2 2 0 00-.586-1.414l-5.414-5.414A2 2 0 0012.586 2H6a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                            Export PDF
+                        </button>
+                    </div>
+
+                    <form id="reportFilterForm" class="dashboard-card p-5 mb-6 no-print">
+                        <div id="filterPanel" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[170px_170px_minmax(280px,1fr)_auto] gap-4 items-end">
                             <div>
-                                <label for="startDate" class="block text-[11px] font-bold uppercase text-slate-500 mb-1.5">Start Date</label>
-                                <input id="startDate" type="date" required
-                                    class="h-10 w-full sm:w-40 rounded-xl border-slate-200 bg-white text-sm focus:border-[#E30016] focus:ring-[#E30016]" />
+                                <label for="startDate" class="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1.5">Start Date</label>
+                                <input id="startDate" type="date" required class="h-10 w-full rounded-xl border-slate-200 bg-white text-sm focus:border-[#E30016] focus:ring-[#E30016]" />
                             </div>
                             <div>
-                                <label for="endDate" class="block text-[11px] font-bold uppercase text-slate-500 mb-1.5">End Date</label>
-                                <input id="endDate" type="date" required
-                                    class="h-10 w-full sm:w-40 rounded-xl border-slate-200 bg-white text-sm focus:border-[#E30016] focus:ring-[#E30016]" />
+                                <label for="endDate" class="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1.5">End Date</label>
+                                <input id="endDate" type="date" required class="h-10 w-full rounded-xl border-slate-200 bg-white text-sm focus:border-[#E30016] focus:ring-[#E30016]" />
+                            </div>
+                            <div class="relative">
+                                <label for="productSearch" class="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1.5">Product Search</label>
+                                <div class="relative">
+                                    <input id="productSearch" type="search" autocomplete="off" placeholder="Search name, SKU, category, collection or color"
+                                        class="h-10 w-full rounded-xl border-slate-200 bg-white pl-10 pr-10 text-sm focus:border-[#E30016] focus:ring-[#E30016]" />
+                                    <svg class="absolute left-3 top-3 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z" stroke-linecap="round" stroke-width="2"></path>
+                                    </svg>
+                                    <button id="clearProductBtn" type="button" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-[#E30016]" aria-label="Clear selected product">×</button>
+                                </div>
+                                <div id="productDropdown" class="hidden absolute z-50 mt-2 max-h-72 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl"></div>
                             </div>
                             <button id="generateReportBtn" type="submit"
-                                class="h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-[#E30016] px-4 text-xs font-bold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60 transition shadow-sm shadow-red-100">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                class="h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-[#E30016] px-5 text-xs font-bold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                                 </svg>
                                 <span id="generateReportLabel">Generate Report</span>
                             </button>
-                        </form>
-                    </div>
+                        </div>
+                        <div class="mt-4 flex flex-wrap items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase text-slate-400 mr-1">Quick range</span>
+                            <button type="button" data-range="today" class="quick-range rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-[#E30016] hover:text-[#E30016]">Today</button>
+                            <button type="button" data-range="7" class="quick-range rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-[#E30016] hover:text-[#E30016]">Last 7 days</button>
+                            <button type="button" data-range="30" class="quick-range rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-[#E30016] hover:text-[#E30016]">Last 30 days</button>
+                            <button type="button" data-range="month" class="quick-range rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-[#E30016] hover:text-[#E30016]">This month</button>
+                            <button type="button" data-range="year" class="quick-range rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-[#E30016] hover:text-[#E30016]">This year</button>
+                            <button id="resetFilterBtn" type="button" class="ml-auto text-xs font-bold text-slate-500 hover:text-[#E30016]">Reset filters</button>
+                        </div>
+                    </form>
 
                     <div id="reportError" class="hidden mb-6 border border-red-200 bg-red-50 px-4 py-3 rounded-xl text-sm text-red-700">
                         <div class="flex items-start justify-between gap-4">
@@ -182,127 +320,95 @@
                         </div>
                     </div>
 
-                    <section id="metricsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8" aria-label="Sales overview">
-                        <article class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <p class="text-xs font-bold uppercase text-slate-500">Total Orders</p>
-                                <span class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                                </span>
-                            </div>
-                            <p id="totalOrders" class="text-2xl font-bold text-slate-900 mt-4">0</p>
-                            <p class="text-xs text-slate-400 mt-1">All orders in range</p>
-                        </article>
-                        <article class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <p class="text-xs font-bold uppercase text-slate-500">Total Revenue</p>
-                                <span class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                                </span>
-                            </div>
-                            <p id="totalRevenue" class="text-2xl font-bold text-slate-900 mt-4">0 VND</p>
-                            <p class="text-xs text-slate-400 mt-1">Excludes cancelled orders</p>
-                        </article>
-                        <article class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <p class="text-xs font-bold uppercase text-slate-500">Average Order Value</p>
-                                <span class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.002 0L6 7zm0 0l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.002 0L18 6zm-3-2v16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                                </span>
-                            </div>
-                            <p id="avgOrderValue" class="text-2xl font-bold text-slate-900 mt-4">0 VND</p>
-                            <p class="text-xs text-slate-400 mt-1">Non-cancelled orders</p>
-                        </article>
-                        <article class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <p class="text-xs font-bold uppercase text-slate-500">Top-selling Product</p>
-                                <span class="w-10 h-10 rounded-xl bg-rose-50 text-[#E30016] flex items-center justify-center">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.801 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.539 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L4.977 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.072-3.292z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                                </span>
-                            </div>
-                            <p id="topProduct" class="text-base font-bold text-slate-900 mt-4 truncate" title="No sales">No sales</p>
-                            <p id="topProductMeta" class="text-xs text-slate-400 mt-1">0 units sold</p>
-                        </article>
-                    </section>
+                    <div id="reportWarnings" class="hidden mb-6 border border-amber-200 bg-amber-50 px-4 py-3 rounded-xl text-xs text-amber-800"></div>
 
                     <div id="reportLoading" class="hidden space-y-6" aria-live="polite">
+                        <div class="grid grid-cols-2 xl:grid-cols-6 gap-4">
+                            <div class="h-28 rounded-2xl report-skeleton"></div><div class="h-28 rounded-2xl report-skeleton"></div>
+                            <div class="h-28 rounded-2xl report-skeleton"></div><div class="h-28 rounded-2xl report-skeleton"></div>
+                            <div class="h-28 rounded-2xl report-skeleton"></div><div class="h-28 rounded-2xl report-skeleton"></div>
+                        </div>
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            <div class="h-80 rounded-2xl report-skeleton"></div>
-                            <div class="h-80 rounded-2xl report-skeleton"></div>
+                            <div class="h-80 rounded-2xl report-skeleton"></div><div class="h-80 rounded-2xl report-skeleton"></div>
                         </div>
-                        <div class="h-72 rounded-2xl report-skeleton"></div>
                     </div>
 
-                    <div id="reportContent" class="space-y-6">
-                        <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
-                                <div class="mb-5">
-                                    <h2 class="text-base font-bold text-slate-900">Revenue by Date</h2>
-                                    <p class="text-xs text-slate-400 mt-1">Daily revenue from non-cancelled orders</p>
-                                </div>
-                                <div class="report-chart"><canvas id="revenueChart"></canvas></div>
-                            </div>
-                            <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
-                                <div class="mb-5">
-                                    <h2 class="text-base font-bold text-slate-900">Top Products by Quantity</h2>
-                                    <p class="text-xs text-slate-400 mt-1">Five products with the most units sold</p>
-                                </div>
-                                <div class="report-chart"><canvas id="productsChart"></canvas></div>
-                            </div>
-                        </section>
+                    <div id="reportContent" class="hidden space-y-8">
+                        <section id="productIdentity" class="hidden dashboard-card p-5"></section>
+                        <section id="metricsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4" aria-label="Dashboard summary"></section>
 
-                        <section class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-                            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-                                <div>
-                                    <h2 class="text-base font-bold text-slate-900">Top-selling Products</h2>
-                                    <p class="text-xs text-slate-400 mt-1">Ranked by quantity sold</p>
+                        <div id="globalSections" class="space-y-8">
+                            <section class="section-anchor">
+                                <div class="mb-4"><h2 class="text-lg font-bold text-slate-900">Sales Performance</h2><p class="text-xs text-slate-500 mt-1">Revenue, order value and order timing for the selected period.</p></div>
+                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Revenue over time</h3><p class="text-xs text-slate-400 mt-1">Non-cancelled order revenue</p><div class="report-chart mt-4"><canvas id="revenueChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Average Order Value over time</h3><p class="text-xs text-slate-400 mt-1">Revenue divided by non-cancelled orders</p><div class="report-chart mt-4"><canvas id="aovChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5 xl:col-span-2"><h3 class="font-bold text-sm">Orders by hour of day</h3><p class="text-xs text-slate-400 mt-1">Orders grouped into two-hour intervals</p><div class="report-chart mt-4"><canvas id="ordersHourChart"></canvas></div></article>
                                 </div>
-                                <span id="productCountLabel" class="text-xs font-semibold text-slate-500">0 products</span>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full min-w-[760px] text-left">
-                                    <thead class="bg-slate-50 text-[10px] uppercase text-slate-500">
-                                        <tr>
-                                            <th class="px-5 py-3 font-bold">Product Name</th>
-                                            <th class="px-5 py-3 font-bold">SKU</th>
-                                            <th class="px-5 py-3 font-bold">Category</th>
-                                            <th class="px-5 py-3 font-bold text-right">Quantity Sold</th>
-                                            <th class="px-5 py-3 font-bold text-right">Revenue</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="topProductsTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
-                                </table>
-                            </div>
-                        </section>
+                            </section>
 
-                        <section class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-                            <div class="px-6 py-5 border-b border-slate-100">
-                                <h2 class="text-base font-bold text-slate-900">Recent Orders</h2>
-                                <p class="text-xs text-slate-400 mt-1">Latest orders in the selected period</p>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full min-w-[760px] text-left">
-                                    <thead class="bg-slate-50 text-[10px] uppercase text-slate-500">
-                                        <tr>
-                                            <th class="px-5 py-3 font-bold">Order ID</th>
-                                            <th class="px-5 py-3 font-bold">Customer</th>
-                                            <th class="px-5 py-3 font-bold">Date</th>
-                                            <th class="px-5 py-3 font-bold">Status</th>
-                                            <th class="px-5 py-3 font-bold text-right">Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="recentOrdersTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
-                                </table>
-                            </div>
-                        </section>
-                    </div>
+                            <section class="section-anchor print-break">
+                                <div class="mb-4"><h2 class="text-lg font-bold text-slate-900">Orders & Payments</h2><p class="text-xs text-slate-500 mt-1">Order status and recorded payment fields.</p></div>
+                                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Orders by status</h3><div class="report-chart mt-4"><canvas id="orderStatusChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Payment methods</h3><div class="report-chart mt-4"><canvas id="paymentMethodChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Payment statuses</h3><div class="report-chart mt-4"><canvas id="paymentStatusChart"></canvas></div></article>
+                                </div>
+                                <div id="recentOrdersTable" class="dashboard-card overflow-hidden mt-6"></div>
+                            </section>
 
-                    <div id="reportEmpty" class="hidden bg-white border border-slate-100 rounded-2xl shadow-sm py-16 px-6 text-center">
-                        <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l3.414 3.414A1 1 0 0117 7.414V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            <section class="section-anchor print-break">
+                                <div class="mb-4"><h2 class="text-lg font-bold text-slate-900">Product Performance</h2><p class="text-xs text-slate-500 mt-1">Sales grouped by product attributes stored in the product catalog.</p></div>
+                                <div id="topProductsTable" class="dashboard-card overflow-hidden mb-6"></div>
+                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Revenue by category</h3><div class="report-chart mt-4"><canvas id="categoryChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Revenue by collection</h3><div class="report-chart mt-4"><canvas id="collectionChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Revenue by product color</h3><div class="report-chart mt-4"><canvas id="colorChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Price band performance</h3><p class="text-xs text-slate-400 mt-1">Revenue and units sold by catalog price</p><div class="report-chart mt-4"><canvas id="priceBandChart"></canvas></div></article>
+                                </div>
+                            </section>
+
+                            <section class="section-anchor print-break">
+                                <div class="mb-4"><h2 class="text-lg font-bold text-slate-900">Size, Warehouse & Inventory</h2><p class="text-xs text-slate-500 mt-1">Current stock compared with fulfilled order-item quantities.</p></div>
+                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                    <article class="dashboard-card p-5 xl:col-span-2"><h3 class="font-bold text-sm">Sales vs inventory by size</h3><div class="report-chart-tall mt-4"><canvas id="sizeChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Inventory by warehouse</h3><div class="report-chart mt-4"><canvas id="inventoryWarehouseChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Warehouse fulfillment mix</h3><div class="report-chart mt-4"><canvas id="fulfillmentChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Low-stock inventory by category</h3><div class="report-chart mt-4"><canvas id="lowStockChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Sales vs stock by product</h3><div class="report-chart mt-4"><canvas id="salesStockChart"></canvas></div></article>
+                                </div>
+                                <div id="stockMatrix" class="dashboard-card overflow-hidden mt-6"></div>
+                            </section>
+
+                            <section class="section-anchor print-break">
+                                <div class="mb-4"><h2 class="text-lg font-bold text-slate-900">Customer Analytics</h2><p class="text-xs text-slate-500 mt-1">Customer value, acquisition and first-order classification.</p></div>
+                                <div id="topCustomersTable" class="dashboard-card overflow-hidden mb-6"></div>
+                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Customer acquisition over time</h3><div class="report-chart mt-4"><canvas id="customerAcquisitionChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">New vs returning customers</h3><div class="report-chart mt-4"><canvas id="customerTypeChart"></canvas></div></article>
+                                </div>
+                            </section>
                         </div>
-                        <h2 class="text-base font-bold text-slate-800 mt-4">No sales data found</h2>
-                        <p class="text-sm text-slate-400 mt-1">Try selecting a wider date range.</p>
+
+                        <div id="productSections" class="hidden space-y-8">
+                            <section>
+                                <div class="mb-4"><h2 class="text-lg font-bold text-slate-900">Product Sales & Stock</h2><p class="text-xs text-slate-500 mt-1">Performance for the selected product in the reporting period.</p></div>
+                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                    <article class="dashboard-card p-5 xl:col-span-2"><h3 class="font-bold text-sm">Product sales over time</h3><div class="report-chart-tall mt-4"><canvas id="productSalesChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Sales vs stock by size</h3><div class="report-chart mt-4"><canvas id="productSizeChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Stock by warehouse</h3><div class="report-chart mt-4"><canvas id="productWarehouseStockChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Warehouse fulfillment mix</h3><div class="report-chart mt-4"><canvas id="productFulfillmentChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5"><h3 class="font-bold text-sm">Orders by status</h3><div class="report-chart mt-4"><canvas id="productStatusChart"></canvas></div></article>
+                                    <article class="dashboard-card p-5 xl:col-span-2"><h3 class="font-bold text-sm">Payment status breakdown</h3><div class="report-chart mt-4"><canvas id="productPaymentChart"></canvas></div></article>
+                                </div>
+                            </section>
+                            <section class="print-break space-y-6">
+                                <div><h2 class="text-lg font-bold text-slate-900">Product Detail Tables</h2><p class="text-xs text-slate-500 mt-1">Order lines, size performance and warehouse stock.</p></div>
+                                <div id="productRecentOrdersTable" class="dashboard-card overflow-hidden"></div>
+                                <div id="productSizeTable" class="dashboard-card overflow-hidden"></div>
+                                <div id="productWarehouseTable" class="dashboard-card overflow-hidden"></div>
+                            </section>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -310,73 +416,132 @@
     </div>
 
     <script>
-        const currencyFormatter = new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-            maximumFractionDigits: 0
-        });
-        const compactCurrencyFormatter = new Intl.NumberFormat('vi-VN', {
-            notation: 'compact',
-            maximumFractionDigits: 1
-        });
-        const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-        let revenueChartInstance = null;
-        let productsChartInstance = null;
+        const dashboardState = {
+            products: [],
+            selectedProduct: null,
+            charts: {},
+            data: null,
+            startDate: '',
+            endDate: ''
+        };
+        const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
+        const compactFormatter = new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 1 });
+        const numberFormatter = new Intl.NumberFormat('en-US');
+        const dateFormatter = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const dateTimeFormatter = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const palette = ['#E30016', '#334155', '#0F766E', '#D97706', '#2563EB', '#7C3AED', '#0891B2', '#DB2777', '#65A30D', '#475569'];
 
         function toInputDate(date) {
-            const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-            return offsetDate.toISOString().slice(0, 10);
-        }
-
-        function initializeDateRange() {
-            const end = new Date();
-            const start = new Date(end);
-            start.setDate(start.getDate() - 30);
-            document.getElementById('startDate').value = toInputDate(start);
-            document.getElementById('endDate').value = toInputDate(end);
-            document.getElementById('endDate').max = toInputDate(end);
+            const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+            return local.toISOString().slice(0, 10);
         }
 
         function escapeHtml(value) {
-            return String(value ?? '')
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#039;');
+            return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
         }
 
         function formatCurrency(value) {
             return currencyFormatter.format(Number(value) || 0);
         }
 
+        function formatNumber(value) {
+            return numberFormatter.format(Number(value) || 0);
+        }
+
+        function valueOrUnknown(value, fallback = 'Unknown') {
+            const text = String(value ?? '').trim();
+            return text || fallback;
+        }
+
+        function isCancelled(status) {
+            return /cancel|hủy|huỷ/i.test(String(status || ''));
+        }
+
+        function normalizeStatus(status) {
+            const value = String(status || '').trim().toLowerCase();
+            if (!value) return 'Other';
+            if (/cancel|hủy|huỷ/.test(value)) return 'Cancelled';
+            if (/complete|hoàn tất|hoàn thành/.test(value)) return 'Completed';
+            if (/deliver|đã giao/.test(value)) return 'Delivered';
+            if (/shipped|đã gửi/.test(value)) return 'Shipped';
+            if (/shipping|đang giao/.test(value)) return 'Shipping';
+            if (/process|xử lý/.test(value)) return 'Processing';
+            if (/pending|chờ/.test(value)) return 'Pending';
+            return 'Other';
+        }
+
         function statusBadge(status) {
+            const normalized = normalizeStatus(status);
             const styles = {
                 Delivered: 'bg-emerald-50 text-emerald-700',
                 Completed: 'bg-emerald-50 text-emerald-700',
                 Shipped: 'bg-blue-50 text-blue-700',
-                Shipping: 'bg-blue-50 text-blue-700',
+                Shipping: 'bg-cyan-50 text-cyan-700',
                 Processing: 'bg-amber-50 text-amber-700',
                 Pending: 'bg-slate-100 text-slate-600',
-                Cancelled: 'bg-red-50 text-red-700'
+                Cancelled: 'bg-red-50 text-red-700',
+                Other: 'bg-violet-50 text-violet-700'
             };
-            return styles[status] || 'bg-slate-100 text-slate-600';
+            return styles[normalized];
+        }
+
+        function sum(rows, selector) {
+            return rows.reduce((total, row) => total + (Number(selector(row)) || 0), 0);
+        }
+
+        function unique(values) {
+            return [...new Set(values.filter(value => value !== null && value !== undefined && value !== ''))];
+        }
+
+        function mapBy(rows, key = 'id') {
+            return new Map(rows.map(row => [String(row[key]), row]));
+        }
+
+        function aggregate(rows, keySelector, valueSelector = () => 1) {
+            const result = new Map();
+            rows.forEach(row => {
+                const key = valueOrUnknown(keySelector(row));
+                result.set(key, (result.get(key) || 0) + (Number(valueSelector(row)) || 0));
+            });
+            return result;
+        }
+
+        function mapEntriesSorted(map, limit = Infinity) {
+            return [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit);
+        }
+
+        function initializeDateRange() {
+            const end = new Date();
+            const start = new Date(end);
+            start.setDate(start.getDate() - 29);
+            document.getElementById('startDate').value = toInputDate(start);
+            document.getElementById('endDate').value = toInputDate(end);
+            document.getElementById('endDate').max = toInputDate(end);
+        }
+
+        function setQuickRange(range) {
+            const end = new Date();
+            let start = new Date(end);
+            if (range === 'today') start = new Date(end);
+            else if (range === 'month') start = new Date(end.getFullYear(), end.getMonth(), 1);
+            else if (range === 'year') start = new Date(end.getFullYear(), 0, 1);
+            else start.setDate(start.getDate() - (Number(range) - 1));
+            document.getElementById('startDate').value = toInputDate(start);
+            document.getElementById('endDate').value = toInputDate(end);
+            document.getElementById('endDate').min = toInputDate(start);
+            generateReport();
         }
 
         function setLoading(isLoading) {
-            const button = document.getElementById('generateReportBtn');
-            button.disabled = isLoading;
-            document.getElementById('generateReportLabel').textContent =
-                isLoading ? 'Generating...' : 'Generate Report';
+            document.getElementById('generateReportBtn').disabled = isLoading;
+            document.getElementById('exportPdfBtn').disabled = isLoading || !dashboardState.data;
+            document.getElementById('generateReportLabel').textContent = isLoading ? 'Generating...' : 'Generate Report';
             document.getElementById('reportLoading').classList.toggle('hidden', !isLoading);
             if (isLoading) {
                 document.getElementById('reportContent').classList.add('hidden');
-                document.getElementById('reportEmpty').classList.add('hidden');
                 document.getElementById('reportError').classList.add('hidden');
+                document.getElementById('reportWarnings').classList.add('hidden');
             }
         }
 
@@ -384,293 +549,727 @@
             document.getElementById('reportErrorMessage').textContent = message;
             document.getElementById('reportError').classList.remove('hidden');
             document.getElementById('reportContent').classList.add('hidden');
-            document.getElementById('reportEmpty').classList.add('hidden');
         }
 
-        function resetMetrics() {
-            document.getElementById('totalOrders').textContent = '0';
-            document.getElementById('totalRevenue').textContent = formatCurrency(0);
-            document.getElementById('avgOrderValue').textContent = formatCurrency(0);
-            document.getElementById('topProduct').textContent = 'No sales';
-            document.getElementById('topProduct').title = 'No sales';
-            document.getElementById('topProductMeta').textContent = '0 units sold';
-        }
-
-        function aggregateProducts(orders) {
-            const products = new Map();
-            orders.forEach(order => {
-                if (order.status === 'Cancelled') return;
-                (order.items || []).forEach(item => {
-                    const product = item.products || {};
-                    const key = item.product_id || product.id || product.sku || 'unknown';
-                    const existing = products.get(key) || {
-                        name: product.name || 'Unknown Product',
-                        sku: product.sku || 'N/A',
-                        category: product.category || 'Uncategorized',
-                        quantity: 0,
-                        revenue: 0
-                    };
-                    existing.quantity += Number(item.quantity) || 0;
-                    existing.revenue += (Number(item.unit_price) || 0) * (Number(item.quantity) || 0);
-                    products.set(key, existing);
-                });
-            });
-            return Array.from(products.values()).sort((a, b) =>
-                b.quantity - a.quantity || b.revenue - a.revenue
-            );
-        }
-
-        function aggregateRevenueByDate(orders) {
-            const revenueByDate = new Map();
-            orders.forEach(order => {
-                if (order.status === 'Cancelled') return;
-                const key = order.created_at.slice(0, 10);
-                revenueByDate.set(key, (revenueByDate.get(key) || 0) + Number(order.total_amount || 0));
-            });
-            return Array.from(revenueByDate.entries()).sort(([a], [b]) => a.localeCompare(b));
-        }
-
-        function renderMetrics(orders, products) {
-            const salesOrders = orders.filter(order => order.status !== 'Cancelled');
-            const totalRevenue = salesOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
-            const averageOrderValue = salesOrders.length ? totalRevenue / salesOrders.length : 0;
-            const topProduct = products[0];
-
-            document.getElementById('totalOrders').textContent = orders.length.toLocaleString('en-US');
-            document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
-            document.getElementById('avgOrderValue').textContent = formatCurrency(averageOrderValue);
-            document.getElementById('topProduct').textContent = topProduct?.name || 'No sales';
-            document.getElementById('topProduct').title = topProduct?.name || 'No sales';
-            document.getElementById('topProductMeta').textContent = topProduct
-                ? `${topProduct.quantity.toLocaleString('en-US')} units sold`
-                : '0 units sold';
-        }
-
-        function renderTopProductsTable(products) {
-            const tbody = document.getElementById('topProductsTableBody');
-            document.getElementById('productCountLabel').textContent =
-                `${products.length.toLocaleString('en-US')} product${products.length === 1 ? '' : 's'}`;
-
-            if (!products.length) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-10 text-center text-sm text-slate-400">No product sales in this date range.</td></tr>';
+        function showWarnings(messages) {
+            const element = document.getElementById('reportWarnings');
+            if (!messages.length) {
+                element.classList.add('hidden');
                 return;
             }
-
-            tbody.innerHTML = products.map((product, index) => `
-                <tr class="hover:bg-slate-50/70 transition">
-                    <td class="px-5 py-3.5">
-                        <div class="flex items-center gap-3">
-                            <span class="w-7 h-7 shrink-0 rounded-md ${index < 3 ? 'bg-red-50 text-[#E30016]' : 'bg-slate-100 text-slate-500'} flex items-center justify-center text-xs font-bold">${index + 1}</span>
-                            <span class="font-semibold text-slate-800">${escapeHtml(product.name)}</span>
-                        </div>
-                    </td>
-                    <td class="px-5 py-3.5 font-mono text-xs text-slate-500">${escapeHtml(product.sku)}</td>
-                    <td class="px-5 py-3.5 text-slate-600">${escapeHtml(product.category)}</td>
-                    <td class="px-5 py-3.5 text-right font-bold text-slate-800">${product.quantity.toLocaleString('en-US')}</td>
-                    <td class="px-5 py-3.5 text-right font-bold text-slate-800">${formatCurrency(product.revenue)}</td>
-                </tr>
-            `).join('');
+            element.textContent = `Some sections could not be loaded: ${messages.join(' | ')}`;
+            element.classList.remove('hidden');
         }
 
-        function renderRecentOrders(orders) {
-            const tbody = document.getElementById('recentOrdersTableBody');
-            const recentOrders = orders.slice(0, 8);
-            if (!recentOrders.length) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-10 text-center text-sm text-slate-400">No orders in this date range.</td></tr>';
-                return;
+        async function waitForSupabaseClient() {
+            for (let attempt = 0; attempt < 50; attempt += 1) {
+                if (window.supabaseClient) return window.supabaseClient;
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
-
-            tbody.innerHTML = recentOrders.map(order => `
-                <tr class="hover:bg-slate-50/70 transition">
-                    <td class="px-5 py-3.5 font-semibold text-slate-800">#${escapeHtml(order.order_number)}</td>
-                    <td class="px-5 py-3.5 text-slate-600">${escapeHtml(order.customers?.full_name || 'Unknown')}</td>
-                    <td class="px-5 py-3.5 text-slate-500">${dateFormatter.format(new Date(order.created_at))}</td>
-                    <td class="px-5 py-3.5"><span class="inline-flex rounded px-2 py-1 text-[10px] font-bold ${statusBadge(order.status)}">${escapeHtml(order.status || 'Unknown')}</span></td>
-                    <td class="px-5 py-3.5 text-right font-bold text-slate-800">${formatCurrency(order.total_amount)}</td>
-                </tr>
-            `).join('');
+            throw new Error('Supabase client is unavailable.');
         }
 
-        function renderCharts(orders, products) {
-            const dailyRevenue = aggregateRevenueByDate(orders);
-            const topFiveProducts = products.slice(0, 5);
-            Chart.defaults.font.family = 'Inter, sans-serif';
-            Chart.defaults.color = '#64748b';
+        async function fetchAllRows(table, columns, configure) {
+            const pageSize = 1000;
+            const rows = [];
+            for (let from = 0; ; from += pageSize) {
+                let query = window.supabaseClient.from(table).select(columns);
+                if (configure) query = configure(query);
+                const { data, error } = await query.range(from, from + pageSize - 1);
+                if (error) throw error;
+                rows.push(...(data || []));
+                if (!data || data.length < pageSize) break;
+            }
+            return rows;
+        }
 
-            revenueChartInstance?.destroy();
-            productsChartInstance?.destroy();
+        async function fetchOrderItems(orderIds) {
+            if (!orderIds.length) return [];
+            const result = [];
+            for (let index = 0; index < orderIds.length; index += 200) {
+                const ids = orderIds.slice(index, index + 200);
+                const rows = await fetchAllRows(
+                    'order_items',
+                    'id,order_id,product_id,quantity,unit_price,warehouse_id,size',
+                    query => query.in('order_id', ids)
+                );
+                result.push(...rows);
+            }
+            return result;
+        }
 
-            revenueChartInstance = new Chart(document.getElementById('revenueChart'), {
-                type: 'line',
-                data: {
-                    labels: dailyRevenue.map(([date]) => dateFormatter.format(new Date(`${date}T00:00:00`))),
-                    datasets: [{
-                        label: 'Revenue',
-                        data: dailyRevenue.map(([, revenue]) => revenue),
-                        borderColor: '#E30016',
-                        backgroundColor: 'rgba(227, 0, 22, 0.08)',
-                        borderWidth: 2,
-                        pointRadius: dailyRevenue.length > 20 ? 0 : 3,
-                        pointHoverRadius: 5,
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { intersect: false, mode: 'index' },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: context => `Revenue: ${formatCurrency(context.parsed.y)}`
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#f1f5f9' },
-                            ticks: { callback: value => `${compactCurrencyFormatter.format(value)} VND` }
-                        }
-                    }
+        async function fetchDashboardData(startBoundary, endBoundary) {
+            const tasks = {
+                orders: fetchAllRows(
+                    'orders',
+                    'id,order_number,customer_id,total_amount,status,created_at,payment_method,payment_status,shipping_address,product_summary,updated_at',
+                    query => query.gte('created_at', startBoundary.toISOString()).lte('created_at', endBoundary.toISOString()).order('created_at', { ascending: false })
+                ),
+                products: fetchAllRows('products', 'id,name,sku,category,collection,base_price,image_url,price,color,size_from,size_to'),
+                inventory: fetchAllRows('inventory', 'id,product_id,warehouse_id,current_stock,low_quantity,updated_at,size'),
+                warehouses: fetchAllRows('warehouses', 'id,name,location_code'),
+                customers: fetchAllRows('customers', 'id,full_name,email,phone,created_at'),
+                orderHistory: fetchAllRows('orders', 'id,customer_id,created_at,status')
+            };
+            const names = Object.keys(tasks);
+            const settled = await Promise.allSettled(Object.values(tasks));
+            const data = {};
+            const warnings = [];
+            settled.forEach((result, index) => {
+                const name = names[index];
+                if (result.status === 'fulfilled') data[name] = result.value;
+                else {
+                    data[name] = [];
+                    warnings.push(`${name}: ${result.reason?.message || 'query failed'}`);
                 }
             });
+            if (settled[0].status === 'rejected') throw settled[0].reason;
+            try {
+                data.orderItems = await fetchOrderItems(data.orders.map(order => order.id));
+            } catch (error) {
+                data.orderItems = [];
+                warnings.push(`order_items: ${error.message}`);
+            }
+            return { ...data, warnings };
+        }
 
-            productsChartInstance = new Chart(document.getElementById('productsChart'), {
-                type: 'bar',
-                data: {
-                    labels: topFiveProducts.map(product => product.sku),
-                    datasets: [{
-                        label: 'Quantity Sold',
-                        data: topFiveProducts.map(product => product.quantity),
-                        backgroundColor: ['#E30016', '#334155', '#0f766e', '#d97706', '#2563eb'],
-                        borderRadius: 4,
-                        maxBarThickness: 42
-                    }]
+        function dateGrouping(startBoundary, endBoundary) {
+            const days = Math.ceil((endBoundary - startBoundary) / 86400000) + 1;
+            return days > 93 ? 'month' : 'day';
+        }
+
+        function dateKey(value, grouping) {
+            const date = new Date(value);
+            if (grouping === 'month') return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            return toInputDate(date);
+        }
+
+        function displayDateKey(key) {
+            if (key.length === 7) {
+                const [year, month] = key.split('-');
+                return `${month}/${year}`;
+            }
+            return dateFormatter.format(new Date(`${key}T00:00:00`));
+        }
+
+        function destroyCharts() {
+            Object.values(dashboardState.charts).forEach(chart => chart?.destroy());
+            dashboardState.charts = {};
+        }
+
+        function baseChartOptions(horizontal = false) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, padding: 16 } },
+                    tooltip: { displayColors: true }
                 },
+                scales: horizontal
+                    ? { x: { beginAtZero: true, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
+                    : { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#f1f5f9' } } }
+            };
+        }
+
+        function renderChart(id, config, hasData, emptyMessage = 'No data available.') {
+            const canvas = document.getElementById(id);
+            if (!canvas) return;
+            dashboardState.charts[id]?.destroy();
+            const parent = canvas.parentElement;
+            parent.querySelector('.chart-empty')?.remove();
+            canvas.classList.toggle('hidden', !hasData);
+            if (!hasData || !window.Chart) {
+                const message = document.createElement('div');
+                message.className = 'chart-empty h-full flex items-center justify-center text-center text-sm text-slate-400 px-6';
+                message.textContent = window.Chart ? emptyMessage : 'Chart.js is unavailable. Tables and metrics remain available.';
+                parent.appendChild(message);
+                return;
+            }
+            dashboardState.charts[id] = new Chart(canvas, config);
+        }
+
+        function doughnutConfig(labels, values) {
+            return {
+                type: 'doughnut',
+                data: { labels, datasets: [{ data: values, backgroundColor: palette, borderWidth: 0, hoverOffset: 4 }] },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                title: items => topFiveProducts[items[0]?.dataIndex]?.name || '',
-                                label: context => `${context.parsed.y} units sold`
-                            }
-                        }
-                    },
+                    cutout: '66%',
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true, padding: 14 } } }
+                }
+            };
+        }
+
+        function barConfig(labels, datasets, horizontal = false, currencyAxis = false) {
+            const options = baseChartOptions(horizontal);
+            options.indexAxis = horizontal ? 'y' : 'x';
+            const valueScale = horizontal ? options.scales.x : options.scales.y;
+            if (currencyAxis) valueScale.ticks = { callback: value => compactFormatter.format(value) };
+            return { type: 'bar', data: { labels, datasets }, options };
+        }
+
+        function lineConfig(labels, datasets, currencyAxis = true) {
+            const options = baseChartOptions(false);
+            options.scales.y.ticks = currencyAxis ? { callback: value => compactFormatter.format(value) } : { precision: 0 };
+            return { type: 'line', data: { labels, datasets }, options };
+        }
+
+        function chartDataset(label, data, color, extra = {}) {
+            return { label, data, borderColor: color, backgroundColor: color, borderWidth: 2, borderRadius: 5, tension: 0.3, ...extra };
+        }
+
+        function renderKpis(items) {
+            const colors = ['text-[#E30016] bg-red-50', 'text-emerald-700 bg-emerald-50', 'text-blue-700 bg-blue-50', 'text-amber-700 bg-amber-50', 'text-violet-700 bg-violet-50', 'text-slate-700 bg-slate-100'];
+            document.getElementById('metricsGrid').innerHTML = items.map((item, index) => `
+                <article class="dashboard-card p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-500">${escapeHtml(item.label)}</p>
+                            <p class="text-xl font-bold text-slate-900 mt-3 break-words">${escapeHtml(item.value)}</p>
+                            <p class="text-[11px] text-slate-400 mt-1">${escapeHtml(item.helper)}</p>
+                        </div>
+                        <span class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center font-bold ${colors[index % colors.length]}">${index + 1}</span>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function renderTable(containerId, title, subtitle, headers, rows, emptyMessage) {
+            const container = document.getElementById(containerId);
+            const body = rows.length
+                ? rows.map(row => `<tr class="hover:bg-slate-50/70">${row.map((cell, index) => `<td class="px-5 py-3.5 ${index === 0 ? 'font-semibold text-slate-800' : 'text-slate-600'}">${cell}</td>`).join('')}</tr>`).join('')
+                : `<tr><td colspan="${headers.length}" class="px-5 py-10 text-center text-sm text-slate-400">${escapeHtml(emptyMessage)}</td></tr>`;
+            container.innerHTML = `
+                <div class="px-5 py-4 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900">${escapeHtml(title)}</h3>
+                    <p class="text-xs text-slate-400 mt-1">${escapeHtml(subtitle)}</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[760px] text-left">
+                        <thead class="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500"><tr>${headers.map(header => `<th class="px-5 py-3 font-bold">${escapeHtml(header)}</th>`).join('')}</tr></thead>
+                        <tbody class="divide-y divide-slate-100 text-sm">${body}</tbody>
+                    </table>
+                </div>`;
+        }
+
+        function productSalesRows(data) {
+            const productMap = mapBy(data.products);
+            const orderMap = mapBy(data.orders);
+            const grouped = new Map();
+            data.orderItems.forEach(item => {
+                const order = orderMap.get(String(item.order_id));
+                if (!order || isCancelled(order.status)) return;
+                const product = productMap.get(String(item.product_id)) || {};
+                const current = grouped.get(String(item.product_id)) || {
+                    id: item.product_id,
+                    name: valueOrUnknown(product.name, 'Unknown Product'),
+                    sku: valueOrUnknown(product.sku, 'N/A'),
+                    category: valueOrUnknown(product.category, 'Uncategorized'),
+                    collection: valueOrUnknown(product.collection),
+                    color: valueOrUnknown(product.color),
+                    catalogPrice: Number(product.price ?? product.base_price),
+                    units: 0,
+                    revenue: 0
+                };
+                current.units += Number(item.quantity) || 0;
+                current.revenue += (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
+                grouped.set(String(item.product_id), current);
+            });
+            return [...grouped.values()].sort((a, b) => b.units - a.units || b.revenue - a.revenue);
+        }
+
+        function renderGlobalDashboard(data, startBoundary, endBoundary) {
+            const validOrders = data.orders.filter(order => !isCancelled(order.status));
+            const revenue = sum(validOrders, order => order.total_amount);
+            const inventoryUnits = sum(data.inventory, row => row.current_stock);
+            renderKpis([
+                { label: 'Total Revenue', value: formatCurrency(revenue), helper: 'Excludes cancelled orders' },
+                { label: 'Total Orders', value: formatNumber(data.orders.length), helper: 'All statuses in range' },
+                { label: 'Average Order Value', value: formatCurrency(validOrders.length ? revenue / validOrders.length : 0), helper: 'Non-cancelled orders' },
+                { label: 'Total Customers', value: formatNumber(data.customers.length), helper: 'Customer records' },
+                { label: 'Total Products', value: formatNumber(data.products.length), helper: 'Catalog records' },
+                { label: 'Inventory Units', value: formatNumber(inventoryUnits), helper: 'Current stock total' }
+            ]);
+
+            const grouping = dateGrouping(startBoundary, endBoundary);
+            const revenueMap = new Map();
+            const countMap = new Map();
+            validOrders.forEach(order => {
+                const key = dateKey(order.created_at, grouping);
+                revenueMap.set(key, (revenueMap.get(key) || 0) + Number(order.total_amount || 0));
+                countMap.set(key, (countMap.get(key) || 0) + 1);
+            });
+            const dateKeys = unique([...revenueMap.keys(), ...countMap.keys()]).sort();
+            renderChart('revenueChart', lineConfig(dateKeys.map(displayDateKey), [
+                chartDataset('Revenue', dateKeys.map(key => revenueMap.get(key) || 0), '#E30016', { fill: true, backgroundColor: 'rgba(227,0,22,.08)', pointRadius: dateKeys.length > 24 ? 0 : 3 })
+            ]), dateKeys.length > 0, 'No revenue found for this date range.');
+            renderChart('aovChart', lineConfig(dateKeys.map(displayDateKey), [
+                chartDataset('Average Order Value', dateKeys.map(key => (revenueMap.get(key) || 0) / (countMap.get(key) || 1)), '#334155', { pointRadius: dateKeys.length > 24 ? 0 : 3 })
+            ]), dateKeys.length > 0, 'No average order value data available.');
+
+            const hourLabels = Array.from({ length: 12 }, (_, index) => `${String(index * 2).padStart(2, '0')}:00-${String((index + 1) * 2).padStart(2, '0')}:00`);
+            const hourValues = Array(12).fill(0);
+            data.orders.forEach(order => { hourValues[Math.floor(new Date(order.created_at).getHours() / 2)] += 1; });
+            renderChart('ordersHourChart', barConfig(hourLabels, [chartDataset('Orders', hourValues, '#E30016')]), data.orders.length > 0, 'No orders found for this date range.');
+
+            const statuses = mapEntriesSorted(aggregate(data.orders, order => normalizeStatus(order.status)));
+            const paymentMethods = mapEntriesSorted(aggregate(data.orders, order => valueOrUnknown(order.payment_method)));
+            const paymentStatuses = mapEntriesSorted(aggregate(data.orders, order => valueOrUnknown(order.payment_status)));
+            renderChart('orderStatusChart', barConfig(statuses.map(([key]) => key), [chartDataset('Orders', statuses.map(([, value]) => value), '#E30016')], true), statuses.length > 0);
+            renderChart('paymentMethodChart', doughnutConfig(paymentMethods.map(([key]) => key), paymentMethods.map(([, value]) => value)), paymentMethods.length > 0, 'No payment method data available.');
+            renderChart('paymentStatusChart', doughnutConfig(paymentStatuses.map(([key]) => key), paymentStatuses.map(([, value]) => value)), paymentStatuses.length > 0, 'No payment status data available.');
+
+            const customerMap = mapBy(data.customers);
+            renderTable('recentOrdersTable', 'Recent Orders', 'Latest 10 orders in the selected period',
+                ['Order Number', 'Customer', 'Created Date', 'Total Amount', 'Order Status', 'Payment Method', 'Payment Status'],
+                data.orders.slice(0, 10).map(order => [
+                    `#${escapeHtml(valueOrUnknown(order.order_number, String(order.id).slice(0, 8)))}`,
+                    escapeHtml(customerMap.get(String(order.customer_id))?.full_name || 'Unknown'),
+                    escapeHtml(dateTimeFormatter.format(new Date(order.created_at))),
+                    `<strong>${escapeHtml(formatCurrency(order.total_amount))}</strong>`,
+                    `<span class="inline-flex rounded px-2 py-1 text-[10px] font-bold ${statusBadge(order.status)}">${escapeHtml(valueOrUnknown(order.status))}</span>`,
+                    escapeHtml(valueOrUnknown(order.payment_method)),
+                    escapeHtml(valueOrUnknown(order.payment_status))
+                ]), 'No orders found for this date range.');
+
+            const products = productSalesRows(data);
+            renderTable('topProductsTable', 'Top-selling Products', 'Ranked by units sold from non-cancelled orders',
+                ['Rank', 'Product Name', 'SKU', 'Units Sold', 'Revenue'],
+                products.slice(0, 10).map((product, index) => [
+                    `<span class="inline-flex w-7 h-7 items-center justify-center rounded-lg bg-red-50 text-[#E30016] font-bold">${index + 1}</span>`,
+                    escapeHtml(product.name),
+                    `<span class="font-mono text-xs">${escapeHtml(product.sku)}</span>`,
+                    `<strong>${formatNumber(product.units)}</strong>`,
+                    `<strong>${escapeHtml(formatCurrency(product.revenue))}</strong>`
+                ]), 'No order items found.');
+
+            const category = mapEntriesSorted(aggregate(products, product => product.category, product => product.revenue), 10);
+            const collection = mapEntriesSorted(aggregate(products, product => product.collection, product => product.revenue), 10);
+            const color = mapEntriesSorted(aggregate(products.filter(product => product.color !== 'Unknown'), product => product.color, product => product.revenue), 10);
+            renderChart('categoryChart', barConfig(category.map(([key]) => key), [chartDataset('Revenue', category.map(([, value]) => value), '#E30016')], true, true), category.length > 0);
+            renderChart('collectionChart', barConfig(collection.map(([key]) => key), [chartDataset('Revenue', collection.map(([, value]) => value), '#334155')], true, true), collection.length > 0);
+            renderChart('colorChart', barConfig(color.map(([key]) => key), [chartDataset('Revenue', color.map(([, value]) => value), '#0F766E')], true, true), color.length > 0, 'No product color sales data available.');
+
+            const bandNames = ['Under 500k', '500k-1M', '1M-1.5M', 'Over 1.5M', 'Unknown price'];
+            const bands = Object.fromEntries(bandNames.map(name => [name, { revenue: 0, units: 0 }]));
+            products.forEach(product => {
+                const price = product.catalogPrice;
+                const band = !Number.isFinite(price) ? 'Unknown price' : price < 500000 ? 'Under 500k' : price < 1000000 ? '500k-1M' : price < 1500000 ? '1M-1.5M' : 'Over 1.5M';
+                bands[band].revenue += product.revenue;
+                bands[band].units += product.units;
+            });
+            renderChart('priceBandChart', {
+                type: 'bar',
+                data: { labels: bandNames, datasets: [chartDataset('Revenue', bandNames.map(name => bands[name].revenue), '#E30016', { yAxisID: 'y' }), chartDataset('Units Sold', bandNames.map(name => bands[name].units), '#334155', { yAxisID: 'y1' })] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
                     scales: {
                         x: { grid: { display: false } },
-                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { precision: 0 } }
+                        y: { beginAtZero: true, ticks: { callback: value => compactFormatter.format(value) }, grid: { color: '#f1f5f9' } },
+                        y1: { beginAtZero: true, position: 'right', grid: { display: false }, ticks: { precision: 0 } }
                     }
                 }
+            }, products.length > 0);
+
+            renderInventoryAnalytics(data, products);
+            renderCustomerAnalytics(data, startBoundary, endBoundary, grouping);
+        }
+
+        function renderInventoryAnalytics(data, products) {
+            const productMap = mapBy(data.products);
+            const warehouseMap = mapBy(data.warehouses);
+            const orderMap = mapBy(data.orders);
+            const soldItems = data.orderItems.filter(item => {
+                const order = orderMap.get(String(item.order_id));
+                return order && !isCancelled(order.status);
             });
+            const soldBySize = aggregate(soldItems, item => valueOrUnknown(item.size), item => item.quantity);
+            const stockBySize = aggregate(data.inventory, row => valueOrUnknown(row.size), row => row.current_stock);
+            const sizes = unique([...soldBySize.keys(), ...stockBySize.keys()]).sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
+            renderChart('sizeChart', barConfig(sizes, [
+                chartDataset('Units Sold', sizes.map(size => soldBySize.get(size) || 0), '#E30016'),
+                chartDataset('Current Stock', sizes.map(size => stockBySize.get(size) || 0), '#334155')
+            ]), sizes.length > 0, 'No size data available.');
+
+            const inventoryWarehouse = mapEntriesSorted(aggregate(data.inventory, row => warehouseMap.get(String(row.warehouse_id))?.name || 'Unknown Warehouse', row => row.current_stock));
+            const fulfillment = mapEntriesSorted(aggregate(soldItems, item => warehouseMap.get(String(item.warehouse_id))?.name || 'Unknown Warehouse', item => item.quantity));
+            renderChart('inventoryWarehouseChart', barConfig(inventoryWarehouse.map(([key]) => key), [chartDataset('Current Stock', inventoryWarehouse.map(([, value]) => value), '#334155')], true), inventoryWarehouse.length > 0, 'No warehouse inventory data available.');
+            renderChart('fulfillmentChart', doughnutConfig(fulfillment.map(([key]) => key), fulfillment.map(([, value]) => value)), fulfillment.length > 0, 'No warehouse fulfillment data available.');
+
+            const lowRows = data.inventory.filter(row => row.low_quantity !== null && row.low_quantity !== undefined && Number(row.current_stock || 0) <= Number(row.low_quantity));
+            const lowByCategory = mapEntriesSorted(aggregate(lowRows, row => productMap.get(String(row.product_id))?.category || 'Uncategorized'));
+            renderChart('lowStockChart', barConfig(lowByCategory.map(([key]) => key), [chartDataset('Low-stock variants', lowByCategory.map(([, value]) => value), '#D97706')], true), lowByCategory.length > 0, 'No low-stock variants found.');
+
+            const stockByProduct = aggregate(data.inventory, row => String(row.product_id), row => row.current_stock);
+            const salesStockRows = products.map(product => ({ ...product, stock: stockByProduct.get(String(product.id)) || 0 })).slice(0, 10);
+            renderChart('salesStockChart', barConfig(salesStockRows.map(row => row.sku), [
+                chartDataset('Units Sold', salesStockRows.map(row => row.units), '#E30016'),
+                chartDataset('Current Stock', salesStockRows.map(row => row.stock), '#334155')
+            ], true), salesStockRows.length > 0, 'No sales and stock comparison available.');
+
+            renderStockMatrix(data, productMap);
+        }
+
+        function renderStockMatrix(data, productMap) {
+            const matrix = new Map();
+            data.inventory.forEach(row => {
+                const key = String(row.product_id);
+                if (!matrix.has(key)) matrix.set(key, { total: 0, sizes: new Map(), lows: new Map() });
+                const entry = matrix.get(key);
+                const size = valueOrUnknown(row.size, 'N/A');
+                entry.total += Number(row.current_stock) || 0;
+                entry.sizes.set(size, (entry.sizes.get(size) || 0) + (Number(row.current_stock) || 0));
+                if (row.low_quantity !== null && row.low_quantity !== undefined) entry.lows.set(size, (entry.lows.get(size) || 0) + Number(row.low_quantity || 0));
+            });
+            const productRows = [...matrix.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, 10);
+            const sizes = unique(productRows.flatMap(([, entry]) => [...entry.sizes.keys()])).sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
+            const container = document.getElementById('stockMatrix');
+            const rows = productRows.map(([productId, entry]) => {
+                const product = productMap.get(productId) || {};
+                const cells = sizes.map(size => {
+                    const stock = entry.sizes.get(size) || 0;
+                    const threshold = entry.lows.get(size);
+                    const className = stock === 0 ? 'matrix-empty' : threshold !== undefined && stock <= threshold ? 'matrix-low' : 'matrix-good';
+                    return `<td class="px-3 py-3 matrix-cell ${className}">${formatNumber(stock)}</td>`;
+                }).join('');
+                return `<tr><td class="sticky left-0 bg-white px-5 py-3 min-w-64"><p class="font-semibold text-slate-800">${escapeHtml(valueOrUnknown(product.name, 'Unknown Product'))}</p><p class="font-mono text-[10px] text-slate-400">${escapeHtml(valueOrUnknown(product.sku, 'N/A'))}</p></td>${cells}</tr>`;
+            }).join('');
+            container.innerHTML = `
+                <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-bold text-sm">Product Variant Stock Matrix</h3><p class="text-xs text-slate-400 mt-1">Top 10 products by current stock; cells are product-size totals</p></div>
+                <div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-slate-50 text-[10px] uppercase text-slate-500"><tr><th class="sticky left-0 bg-slate-50 px-5 py-3 text-left">Product</th>${sizes.map(size => `<th class="px-3 py-3">${escapeHtml(size)}</th>`).join('')}</tr></thead><tbody class="divide-y divide-slate-100">${rows || `<tr><td class="px-5 py-10 text-center text-slate-400" colspan="${sizes.length + 1}">No inventory data available.</td></tr>`}</tbody></table></div>`;
+        }
+
+        function renderCustomerAnalytics(data, startBoundary, endBoundary, grouping) {
+            const customerMap = mapBy(data.customers);
+            const validOrders = data.orders.filter(order => !isCancelled(order.status) && order.customer_id);
+            const groupedCustomers = new Map();
+            validOrders.forEach(order => {
+                const id = String(order.customer_id);
+                const customer = customerMap.get(id) || {};
+                const current = groupedCustomers.get(id) || { name: customer.full_name || 'Unknown', email: customer.email || 'N/A', orders: 0, spent: 0 };
+                current.orders += 1;
+                current.spent += Number(order.total_amount) || 0;
+                groupedCustomers.set(id, current);
+            });
+            const topCustomers = [...groupedCustomers.values()].sort((a, b) => b.spent - a.spent).slice(0, 10);
+            renderTable('topCustomersTable', 'Top Customers by Revenue', 'Non-cancelled orders in the selected period',
+                ['Rank', 'Customer Name', 'Email', 'Orders Count', 'Total Spent', 'Average Spend'],
+                topCustomers.map((customer, index) => [
+                    `<span class="inline-flex w-7 h-7 items-center justify-center rounded-lg bg-slate-100 font-bold">${index + 1}</span>`,
+                    escapeHtml(customer.name), escapeHtml(customer.email), `<strong>${formatNumber(customer.orders)}</strong>`,
+                    `<strong>${escapeHtml(formatCurrency(customer.spent))}</strong>`, escapeHtml(formatCurrency(customer.spent / customer.orders))
+                ]), 'No customer order data available.');
+
+            const acquired = data.customers.filter(customer => {
+                const created = new Date(customer.created_at);
+                return created >= startBoundary && created <= endBoundary;
+            });
+            const acquisitionMap = aggregate(acquired, customer => dateKey(customer.created_at, grouping));
+            const acquisitionEntries = [...acquisitionMap.entries()].sort(([a], [b]) => a.localeCompare(b));
+            renderChart('customerAcquisitionChart', barConfig(acquisitionEntries.map(([key]) => displayDateKey(key)), [chartDataset('New Customers', acquisitionEntries.map(([, value]) => value), '#E30016')]), acquisitionEntries.length > 0, 'No customers were created in this date range.');
+
+            const firstOrderByCustomer = new Map();
+            data.orderHistory.filter(order => order.customer_id).forEach(order => {
+                const id = String(order.customer_id);
+                const created = new Date(order.created_at);
+                if (!firstOrderByCustomer.has(id) || created < firstOrderByCustomer.get(id)) firstOrderByCustomer.set(id, created);
+            });
+            const customersInRange = unique(data.orders.filter(order => order.customer_id).map(order => String(order.customer_id)));
+            let newCustomers = 0;
+            let returningCustomers = 0;
+            customersInRange.forEach(id => {
+                const firstOrder = firstOrderByCustomer.get(id);
+                if (firstOrder && firstOrder >= startBoundary && firstOrder <= endBoundary) newCustomers += 1;
+                else if (firstOrder && firstOrder < startBoundary) returningCustomers += 1;
+            });
+            renderChart('customerTypeChart', doughnutConfig(['New Customers', 'Returning Customers'], [newCustomers, returningCustomers]), newCustomers + returningCustomers > 0, 'No customer order behavior data available.');
+        }
+
+        function renderProductDashboard(data, product, startBoundary, endBoundary) {
+            const orderMap = mapBy(data.orders);
+            const customerMap = mapBy(data.customers);
+            const warehouseMap = mapBy(data.warehouses);
+            const allProductItems = data.orderItems.filter(item => String(item.product_id) === String(product.id));
+            const salesItems = allProductItems.filter(item => !isCancelled(orderMap.get(String(item.order_id))?.status));
+            const inventoryRows = data.inventory.filter(row => String(row.product_id) === String(product.id));
+            const revenue = sum(salesItems, item => Number(item.quantity) * Number(item.unit_price));
+            const units = sum(salesItems, item => item.quantity);
+            const orderCount = unique(salesItems.map(item => item.order_id)).length;
+            const stock = sum(inventoryRows, row => row.current_stock);
+            const lowStock = inventoryRows.filter(row => row.low_quantity !== null && row.low_quantity !== undefined && Number(row.current_stock || 0) <= Number(row.low_quantity)).length;
+            renderProductIdentity(product);
+            renderKpis([
+                { label: 'Product Revenue', value: formatCurrency(revenue), helper: 'Excludes cancelled orders' },
+                { label: 'Units Sold', value: formatNumber(units), helper: 'Quantity from order items' },
+                { label: 'Orders Containing Product', value: formatNumber(orderCount), helper: 'Distinct non-cancelled orders' },
+                { label: 'Average Selling Price', value: formatCurrency(units ? revenue / units : 0), helper: 'Revenue divided by units' },
+                { label: 'Current Stock', value: formatNumber(stock), helper: 'Across all variants' },
+                { label: 'Low Stock Variants', value: formatNumber(lowStock), helper: 'Stock at or below low quantity' }
+            ]);
+
+            const grouping = dateGrouping(startBoundary, endBoundary);
+            const salesByDate = new Map();
+            salesItems.forEach(item => {
+                const order = orderMap.get(String(item.order_id));
+                if (!order) return;
+                const key = dateKey(order.created_at, grouping);
+                const current = salesByDate.get(key) || { revenue: 0, units: 0 };
+                current.revenue += Number(item.quantity || 0) * Number(item.unit_price || 0);
+                current.units += Number(item.quantity) || 0;
+                salesByDate.set(key, current);
+            });
+            const dateKeys = [...salesByDate.keys()].sort();
+            renderChart('productSalesChart', {
+                type: 'bar',
+                data: {
+                    labels: dateKeys.map(displayDateKey),
+                    datasets: [
+                        chartDataset('Product Revenue', dateKeys.map(key => salesByDate.get(key).revenue), '#E30016', { yAxisID: 'y' }),
+                        chartDataset('Units Sold', dateKeys.map(key => salesByDate.get(key).units), '#334155', { type: 'line', yAxisID: 'y1', pointRadius: 3 })
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, ticks: { callback: value => compactFormatter.format(value) }, grid: { color: '#f1f5f9' } },
+                        y1: { beginAtZero: true, position: 'right', grid: { display: false }, ticks: { precision: 0 } }
+                    }
+                }
+            }, dateKeys.length > 0, 'No sales found for this product in the selected date range.');
+
+            const soldBySize = aggregate(salesItems, item => valueOrUnknown(item.size), item => item.quantity);
+            const stockBySize = aggregate(inventoryRows, row => valueOrUnknown(row.size), row => row.current_stock);
+            const sizes = unique([...soldBySize.keys(), ...stockBySize.keys()]).sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
+            renderChart('productSizeChart', barConfig(sizes, [
+                chartDataset('Units Sold', sizes.map(size => soldBySize.get(size) || 0), '#E30016'),
+                chartDataset('Current Stock', sizes.map(size => stockBySize.get(size) || 0), '#334155')
+            ]), sizes.length > 0, 'No size data available for this product.');
+
+            const stockWarehouse = mapEntriesSorted(aggregate(inventoryRows, row => warehouseMap.get(String(row.warehouse_id))?.name || 'Unknown Warehouse', row => row.current_stock));
+            const fulfillment = mapEntriesSorted(aggregate(salesItems, item => warehouseMap.get(String(item.warehouse_id))?.name || 'Unknown Warehouse', item => item.quantity));
+            renderChart('productWarehouseStockChart', barConfig(stockWarehouse.map(([key]) => key), [chartDataset('Current Stock', stockWarehouse.map(([, value]) => value), '#334155')], true), stockWarehouse.length > 0, 'No warehouse stock data available.');
+            renderChart('productFulfillmentChart', doughnutConfig(fulfillment.map(([key]) => key), fulfillment.map(([, value]) => value)), fulfillment.length > 0, 'No fulfillment data available.');
+
+            const productOrders = unique(allProductItems.map(item => item.order_id)).map(id => orderMap.get(String(id))).filter(Boolean);
+            const statuses = mapEntriesSorted(aggregate(productOrders, order => normalizeStatus(order.status)));
+            const paymentStatuses = mapEntriesSorted(aggregate(productOrders, order => valueOrUnknown(order.payment_status)));
+            renderChart('productStatusChart', barConfig(statuses.map(([key]) => key), [chartDataset('Orders', statuses.map(([, value]) => value), '#E30016')], true), statuses.length > 0);
+            renderChart('productPaymentChart', doughnutConfig(paymentStatuses.map(([key]) => key), paymentStatuses.map(([, value]) => value)), paymentStatuses.length > 0, 'No payment status data available.');
+
+            const recentLines = [...allProductItems].sort((a, b) => new Date(orderMap.get(String(b.order_id))?.created_at || 0) - new Date(orderMap.get(String(a.order_id))?.created_at || 0)).slice(0, 10);
+            renderTable('productRecentOrdersTable', 'Recent Orders Containing This Product', 'Latest 10 product order lines in the selected period',
+                ['Order Number', 'Customer', 'Date', 'Quantity', 'Size', 'Unit Price', 'Line Revenue', 'Order Status', 'Payment Status'],
+                recentLines.map(item => {
+                    const order = orderMap.get(String(item.order_id)) || {};
+                    return [
+                        `#${escapeHtml(valueOrUnknown(order.order_number, String(order.id || '').slice(0, 8)))}`,
+                        escapeHtml(customerMap.get(String(order.customer_id))?.full_name || 'Unknown'),
+                        order.created_at ? escapeHtml(dateTimeFormatter.format(new Date(order.created_at))) : 'N/A',
+                        `<strong>${formatNumber(item.quantity)}</strong>`, escapeHtml(valueOrUnknown(item.size, 'N/A')),
+                        escapeHtml(formatCurrency(item.unit_price)), `<strong>${escapeHtml(formatCurrency(Number(item.quantity || 0) * Number(item.unit_price || 0)))}</strong>`,
+                        `<span class="inline-flex rounded px-2 py-1 text-[10px] font-bold ${statusBadge(order.status)}">${escapeHtml(valueOrUnknown(order.status))}</span>`,
+                        escapeHtml(valueOrUnknown(order.payment_status))
+                    ];
+                }), 'No sales found for this product in the selected date range.');
+
+            const sizeRevenue = aggregate(salesItems, item => valueOrUnknown(item.size), item => Number(item.quantity) * Number(item.unit_price));
+            const lowBySize = new Map();
+            inventoryRows.forEach(row => {
+                const key = valueOrUnknown(row.size, 'N/A');
+                if (row.low_quantity !== null && row.low_quantity !== undefined) lowBySize.set(key, (lowBySize.get(key) || 0) + Number(row.low_quantity || 0));
+            });
+            renderTable('productSizeTable', 'Product Size Performance', 'Sales and current inventory combined by size',
+                ['Size', 'Units Sold', 'Product Revenue', 'Current Stock', 'Low Quantity', 'Stock Status'],
+                sizes.map(size => {
+                    const currentStock = stockBySize.get(size) || 0;
+                    const threshold = lowBySize.get(size);
+                    const status = currentStock === 0 ? 'Out of stock' : threshold !== undefined && currentStock <= threshold ? 'Low stock' : 'Sufficient';
+                    return [escapeHtml(size), `<strong>${formatNumber(soldBySize.get(size) || 0)}</strong>`, escapeHtml(formatCurrency(sizeRevenue.get(size) || 0)), `<strong>${formatNumber(currentStock)}</strong>`, threshold === undefined ? 'N/A' : formatNumber(threshold), escapeHtml(status)];
+                }), 'No size data available for this product.');
+
+            renderTable('productWarehouseTable', 'Product Warehouse Stock', 'Variant-level stock records for the selected product',
+                ['Warehouse', 'Location Code', 'Size', 'Current Stock', 'Low Quantity'],
+                inventoryRows.map(row => {
+                    const warehouse = warehouseMap.get(String(row.warehouse_id)) || {};
+                    return [escapeHtml(valueOrUnknown(warehouse.name, 'Unknown Warehouse')), escapeHtml(valueOrUnknown(warehouse.location_code, 'N/A')), escapeHtml(valueOrUnknown(row.size, 'N/A')), `<strong>${formatNumber(row.current_stock)}</strong>`, row.low_quantity === null || row.low_quantity === undefined ? 'N/A' : formatNumber(row.low_quantity)];
+                }), 'No inventory data available for this product.');
+        }
+
+        function renderProductIdentity(product) {
+            const price = product.price ?? product.base_price;
+            const sizeRange = product.size_from || product.size_to ? `${valueOrUnknown(product.size_from, '?')} - ${valueOrUnknown(product.size_to, '?')}` : 'N/A';
+            document.getElementById('productIdentity').innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center gap-5">
+                    <div class="w-28 h-28 shrink-0 rounded-2xl bg-slate-100 overflow-hidden border border-slate-200">
+                        ${product.image_url ? `<img src="${escapeHtml(product.image_url)}" alt="${escapeHtml(product.name)}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : '<div class="w-full h-full flex items-center justify-center text-xs text-slate-400">No image</div>'}
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-[10px] uppercase font-bold tracking-wide text-[#E30016]">Selected Product</p>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-1">${escapeHtml(valueOrUnknown(product.name, 'Unnamed Product'))}</h2>
+                        <p class="font-mono text-xs text-slate-400 mt-1">${escapeHtml(valueOrUnknown(product.sku, 'N/A'))}</p>
+                        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-5 text-sm">
+                            <div><p class="text-[10px] uppercase font-bold text-slate-400">Category</p><p class="font-semibold mt-1">${escapeHtml(valueOrUnknown(product.category))}</p></div>
+                            <div><p class="text-[10px] uppercase font-bold text-slate-400">Collection</p><p class="font-semibold mt-1">${escapeHtml(valueOrUnknown(product.collection))}</p></div>
+                            <div><p class="text-[10px] uppercase font-bold text-slate-400">Color</p><p class="font-semibold mt-1">${escapeHtml(valueOrUnknown(product.color))}</p></div>
+                            <div><p class="text-[10px] uppercase font-bold text-slate-400">Price</p><p class="font-semibold mt-1">${price === null || price === undefined ? 'N/A' : escapeHtml(formatCurrency(price))}</p></div>
+                            <div><p class="text-[10px] uppercase font-bold text-slate-400">Size Range</p><p class="font-semibold mt-1">${escapeHtml(sizeRange)}</p></div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function updateModeUi(product) {
+            const productMode = Boolean(product);
+            document.getElementById('globalSections').classList.toggle('hidden', productMode);
+            document.getElementById('productSections').classList.toggle('hidden', !productMode);
+            document.getElementById('productIdentity').classList.toggle('hidden', !productMode);
+            document.getElementById('modeBadge').textContent = productMode ? `Product Report: ${product.name}` : 'Global Dashboard';
+            document.getElementById('modeBadge').className = productMode
+                ? 'inline-flex items-center rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold text-[#E30016]'
+                : 'inline-flex items-center rounded-full bg-slate-200 px-3 py-1 text-[11px] font-bold text-slate-600';
+        }
+
+        function updatePeriodLabels(startBoundary, endBoundary) {
+            const period = `${dateFormatter.format(startBoundary)} - ${dateFormatter.format(endBoundary)}`;
+            document.getElementById('reportPeriodLabel').textContent = `Report period: ${period}`;
+            document.getElementById('printTitle').textContent = dashboardState.selectedProduct ? "Biti's Product Performance Report" : "Biti's Dashboard Report";
+            document.getElementById('printMeta').textContent = `${dashboardState.selectedProduct ? `${dashboardState.selectedProduct.name} (${valueOrUnknown(dashboardState.selectedProduct.sku, 'N/A')}) | ` : ''}Period: ${period} | Generated: ${dateTimeFormatter.format(new Date())}`;
         }
 
         async function generateReport() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
-
-            if (!startDate || !endDate) {
-                showError('Please select both Start Date and End Date.');
-                return;
-            }
-            if (startDate > endDate) {
-                showError('Start Date must be before or equal to End Date.');
-                return;
-            }
-
+            if (!startDate || !endDate) return showError('Please select both Start Date and End Date.');
+            if (startDate > endDate) return showError('Start Date must be before or equal to End Date.');
             const startBoundary = new Date(`${startDate}T00:00:00`);
             const endBoundary = new Date(`${endDate}T23:59:59.999`);
+            dashboardState.startDate = startDate;
+            dashboardState.endDate = endDate;
             setLoading(true);
-
+            destroyCharts();
             try {
-                const { data, error } = await window.supabaseClient
-                    .from('orders')
-                    .select(`
-                        id,
-                        order_number,
-                        total_amount,
-                        status,
-                        created_at,
-                        customers(full_name),
-                        items:order_items(
-                            product_id,
-                            quantity,
-                            unit_price,
-                            products(id,name,sku,category)
-                        )
-                    `)
-                    .gte('created_at', startBoundary.toISOString())
-                    .lte('created_at', endBoundary.toISOString())
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                const orders = data || [];
-                const products = aggregateProducts(orders);
-                const formattedStart = dateFormatter.format(startBoundary);
-                const formattedEnd = dateFormatter.format(endBoundary);
-                document.getElementById('reportPeriodLabel').textContent =
-                    `Report period: ${formattedStart} - ${formattedEnd}`;
-
-                if (!orders.length) {
-                    resetMetrics();
-                    revenueChartInstance?.destroy();
-                    productsChartInstance?.destroy();
-                    document.getElementById('reportContent').classList.add('hidden');
-                    document.getElementById('reportEmpty').classList.remove('hidden');
-                    return;
+                await waitForSupabaseClient();
+                const data = await fetchDashboardData(startBoundary, endBoundary);
+                dashboardState.data = data;
+                dashboardState.products = data.products;
+                if (dashboardState.selectedProduct) {
+                    dashboardState.selectedProduct = data.products.find(product => String(product.id) === String(dashboardState.selectedProduct.id)) || dashboardState.selectedProduct;
                 }
-
-                renderMetrics(orders, products);
-                renderTopProductsTable(products);
-                renderRecentOrders(orders);
+                updateModeUi(dashboardState.selectedProduct);
+                updatePeriodLabels(startBoundary, endBoundary);
+                showWarnings(data.warnings);
                 document.getElementById('reportContent').classList.remove('hidden');
-                requestAnimationFrame(() => renderCharts(orders, products));
+                if (dashboardState.selectedProduct) renderProductDashboard(data, dashboardState.selectedProduct, startBoundary, endBoundary);
+                else renderGlobalDashboard(data, startBoundary, endBoundary);
+                document.getElementById('exportPdfBtn').disabled = false;
             } catch (error) {
-                console.error('Sales report error:', error);
-                showError(`Could not generate the sales report: ${error.message}`);
+                console.error('Dashboard error:', error);
+                dashboardState.data = null;
+                showError(`Could not generate the dashboard: ${error.message}`);
             } finally {
                 setLoading(false);
             }
         }
 
+        function productSearchText(product) {
+            return [product.name, product.sku, product.category, product.collection, product.color].filter(Boolean).join(' ').toLowerCase();
+        }
+
+        function renderProductDropdown(query = '') {
+            const dropdown = document.getElementById('productDropdown');
+            const normalized = query.trim().toLowerCase();
+            const matches = dashboardState.products.filter(product => productSearchText(product).includes(normalized)).slice(0, 20);
+            dropdown.innerHTML = matches.length ? matches.map(product => `
+                <button type="button" class="product-option w-full flex items-center gap-3 px-4 py-3 text-left border-b border-slate-100 last:border-0" data-product-id="${escapeHtml(product.id)}">
+                    <span class="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0">${product.image_url ? `<img src="${escapeHtml(product.image_url)}" class="w-full h-full object-cover" alt="">` : ''}</span>
+                    <span class="min-w-0"><span class="block text-sm font-semibold text-slate-800 truncate">${escapeHtml(valueOrUnknown(product.name, 'Unnamed Product'))}</span><span class="block text-[11px] font-mono text-slate-400 truncate">${escapeHtml(valueOrUnknown(product.sku, 'N/A'))} · ${escapeHtml(valueOrUnknown(product.category, 'Uncategorized'))}</span></span>
+                </button>`).join('') : '<p class="px-4 py-8 text-center text-sm text-slate-400">No matching products.</p>';
+            dropdown.classList.remove('hidden');
+        }
+
+        function selectProduct(product) {
+            dashboardState.selectedProduct = product;
+            document.getElementById('productSearch').value = product ? `${product.name} (${valueOrUnknown(product.sku, 'N/A')})` : '';
+            document.getElementById('clearProductBtn').classList.toggle('hidden', !product);
+            document.getElementById('productDropdown').classList.add('hidden');
+        }
+
         async function loadUserProfile() {
             try {
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                if (!session) return;
+                const auth = window.authGuard ? await window.authGuard() : null;
+                const session = auth?.session || (await window.supabaseClient.auth.getSession()).data.session;
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
                 document.getElementById('adminEmail').textContent = session.user.email;
-
-                const { data: profile } = await window.supabaseClient
-                    .from('user_profiles')
-                    .select('full_name,avatar_url')
-                    .eq('id', session.user.id)
-                    .maybeSingle();
-
-                if (!profile) return;
-                document.getElementById('adminName').textContent = profile.full_name || 'Admin User';
-                if (profile.avatar_url) document.getElementById('adminAvatar').src = profile.avatar_url;
+                const profile = auth?.profile || (await window.supabaseClient.from('user_profiles').select('full_name,avatar_url').eq('id', session.user.id).maybeSingle()).data;
+                if (profile?.full_name) document.getElementById('adminName').textContent = profile.full_name;
+                if (profile?.avatar_url) document.getElementById('adminAvatar').src = profile.avatar_url;
             } catch (error) {
                 console.warn('Could not load user profile:', error);
             }
+        }
+
+        function exportPdfReport() {
+            if (!dashboardState.data) return;
+            updatePeriodLabels(new Date(`${dashboardState.startDate}T00:00:00`), new Date(`${dashboardState.endDate}T23:59:59.999`));
+            document.title = dashboardState.selectedProduct
+                ? `bitis-product-report-${valueOrUnknown(dashboardState.selectedProduct.sku, 'product')}-${dashboardState.startDate}-to-${dashboardState.endDate}`
+                : `bitis-dashboard-report-${dashboardState.startDate}-to-${dashboardState.endDate}`;
+            window.print();
+            setTimeout(() => { document.title = "Bitis's Management System"; }, 500);
         }
 
         document.getElementById('reportFilterForm').addEventListener('submit', event => {
             event.preventDefault();
             generateReport();
         });
-        document.getElementById('startDate').addEventListener('change', event => {
-            document.getElementById('endDate').min = event.target.value;
+        document.querySelectorAll('.quick-range').forEach(button => button.addEventListener('click', () => setQuickRange(button.dataset.range)));
+        document.getElementById('startDate').addEventListener('change', event => { document.getElementById('endDate').min = event.target.value; });
+        document.getElementById('productSearch').addEventListener('focus', event => renderProductDropdown(dashboardState.selectedProduct ? '' : event.target.value));
+        document.getElementById('productSearch').addEventListener('input', event => {
+            if (dashboardState.selectedProduct) {
+                dashboardState.selectedProduct = null;
+                document.getElementById('clearProductBtn').classList.add('hidden');
+            }
+            renderProductDropdown(event.target.value);
+        });
+        document.getElementById('productDropdown').addEventListener('click', event => {
+            const button = event.target.closest('[data-product-id]');
+            if (!button) return;
+            selectProduct(dashboardState.products.find(product => String(product.id) === button.dataset.productId));
+        });
+        document.getElementById('clearProductBtn').addEventListener('click', () => {
+            selectProduct(null);
+            generateReport();
+        });
+        document.getElementById('resetFilterBtn').addEventListener('click', () => {
+            selectProduct(null);
+            initializeDateRange();
+            generateReport();
+        });
+        document.getElementById('exportPdfBtn').addEventListener('click', exportPdfReport);
+        document.addEventListener('click', event => {
+            if (!event.target.closest('#productSearch') && !event.target.closest('#productDropdown')) document.getElementById('productDropdown').classList.add('hidden');
         });
 
-        initializeDateRange();
-        loadUserProfile();
-        generateReport();
+        async function initializeDashboard() {
+            initializeDateRange();
+            try {
+                await waitForSupabaseClient();
+                await loadUserProfile();
+                await generateReport();
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+        initializeDashboard();
     </script>
     <script src="sidebar-toggle.js"></script>
     <script src="page-transition.js"></script>
