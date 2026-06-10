@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!-- ================================================================
+     PRODUCT CATALOG — PRODUCTION VERSION
+     Kết nối Supabase thật. Yêu cầu supabase-config.js hợp lệ.
+     ================================================================ -->
+
 <html lang="en">
 
 <head>
@@ -6,14 +11,45 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Product Catalog - Bitis's Management System</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #F8F9FA;
+        }
+
+        /* Micro-interactions & animations */
+        .action-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .action-btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn:not(:disabled):active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        tr.table-row {
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Show Actions pencil icon clearly on row hover */
+        tr.table-row:hover .row-edit-icon {
+            color: #E30016;
+            transform: scale(1.1);
+        }
+
+        /* Glassmorphism filters styling */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(241, 245, 249, 0.9);
         }
     </style>
 </head>
@@ -26,9 +62,7 @@
                 <div class="flex items-start">
                     <div class="mr-3 mt-1">
                         <svg class="w-5 h-5 text-[#FF7043]" fill="currentColor" viewbox="0 0 24 24">
-                            <path
-                                d="M11 5v11.17l-4.88-4.88c-.39-.39-1.03-.39-1.42 0-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0l6.59-6.59c.39-.39.39-1.02 0-1.41-.39-.39-1.03-.39-1.42 0L13 16.17V5c0-.55-.45-1-1-1s-1 .45-1 1z">
-                            </path>
+                            <path d="M11 5v11.17l-4.88-4.88c-.39-.39-1.03-.39-1.42 0-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0l6.59-6.59c.39-.39.39-1.02 0-1.41-.39-.39-1.03-.39-1.42 0L13 16.17V5c0-.55-.45-1-1-1s-1 .45-1 1z"></path>
                         </svg>
                     </div>
                     <div>
@@ -40,57 +74,34 @@
             <nav class="flex-1 px-0 space-y-0.5">
                 <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
                     href="index.html">
-                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                        <path
-                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     Dashboard
                 </a>
                 <a class="flex items-center px-6 py-3 text-sm font-semibold bg-white/10 border-l-4 border-[#E30016] text-white transition"
                     href="product_catalog.html">
-                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round"
-                            stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     Products
                 </a>
                 <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
                     href="inventory_tracker.html">
-                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                        <path
-                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     Inventory
                 </a>
                 <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
                     href="order_management.html">
-                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                        <path
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     Orders
                 </a>
             </nav>
             <div class="px-0 py-4 space-y-0.5 border-t border-slate-700/30">
                 <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
                     href="staff_management.html">
-                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                        <path
-                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     Staff Management
                 </a>
                 <a onclick="window.supabaseClient.auth.signOut().then(() => window.location.href='login.html')"
                     class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                        <path
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     Sign Out
                 </a>
             </div>
@@ -98,11 +109,11 @@
 
         <!-- Main Content -->
         <main class="flex-1 flex flex-col h-screen overflow-hidden">
-            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+            <!-- Header -->
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-40">
                 <div></div>
                 <div class="flex items-center space-x-6">
-
-                    <a href="profile.html" class="flex items-center space-x-3 border-l border-slate-100 pl-6 hover:bg-slate-50 p-1 rounded-lg transition">
+                    <a href="profile.html" class="flex items-center space-x-3 hover:bg-slate-50 p-1 rounded-lg transition">
                         <img id="adminAvatar" alt="Admin" class="w-10 h-10 rounded-full border border-slate-200 object-cover"
                             src="https://via.placeholder.com/40" />
                         <div class="text-left">
@@ -114,30 +125,128 @@
             </header>
 
             <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
-                <div class="flex justify-between items-center mb-8">
+                <!-- Page Title Only (No Add Button on the Right) -->
+                <div class="flex justify-between items-center mb-4">
                     <div>
                         <h1 class="text-2xl font-bold text-slate-900">Product Catalog</h1>
-                        <p class="text-slate-500 text-sm mt-1">Manage and view your entire shoe inventory.</p>
+                        <p class="text-slate-500 text-sm mt-0.5">Manage and view your entire shoe inventory.</p>
                     </div>
-                    <a href="add_product.html"
-                        class="bg-[#E30016] text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-red-100 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                        </svg>
-                        Add New Product
-                    </a>
                 </div>
 
+                <!-- Compact Filters Panel (Reduced size and margins) -->
+                <div class="glass-card rounded-xl p-4 shadow-sm mb-3">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filter Products</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <!-- SKU Filter -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">SKU</label>
+                            <input type="text" id="filterSku" placeholder="Search SKU..."
+                                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#E30016] focus:border-[#E30016] outline-none transition-all">
+                        </div>
+                        <!-- Product Name Filter -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Product Name</label>
+                            <input type="text" id="filterName" placeholder="Search product name..."
+                                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#E30016] focus:border-[#E30016] outline-none transition-all">
+                        </div>
+                        <!-- Category Filter -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Category</label>
+                            <select id="filterCategory"
+                                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#E30016] focus:border-[#E30016] outline-none cursor-pointer transition-all">
+                                <option value="">All Categories</option>
+                                <option value="Hunter">Hunter</option>
+                                <option value="Sandal">Sandal</option>
+                                <option value="Giày Thể Thao">Giày Thể Thao</option>
+                                <option value="Giày Chạy Bộ & Đi Bộ">Giày Chạy Bộ & Đi Bộ</option>
+                                <option value="Giày Tây">Giày Tây</option>
+                                <option value="Dép - Hài">Dép - Hài</option>
+                                <option value="Balo">Balo</option>
+                                <option value="Quần Áo">Quần Áo</option>
+                            </select>
+                        </div>
+                        <!-- Status Filter -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Status</label>
+                            <select id="filterStatus"
+                                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#E30016] focus:border-[#E30016] outline-none cursor-pointer transition-all">
+                                <option value="">All Statuses</option>
+                                <option value="Enabled">Enabled</option>
+                                <option value="Disabled">Disabled</option>
+                            </select>
+                        </div>
+                        <!-- Price Range Filter -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Price Range</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" id="filterPriceMin" min="0" placeholder="Min"
+                                    class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#E30016] focus:border-[#E30016] outline-none transition-all">
+                                <input type="number" id="filterPriceMax" min="0" placeholder="Max"
+                                    class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#E30016] focus:border-[#E30016] outline-none transition-all">
+                            </div>
+                        </div>
+                        <!-- Created At Filter -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Created At</label>
+                            <input type="date" id="filterCreatedAt"
+                                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#E30016] focus:border-[#E30016] outline-none transition-all">
+                        </div>
+                        <!-- Updated At Filter -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Updated At</label>
+                            <input type="date" id="filterUpdatedAt"
+                                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#E30016] focus:border-[#E30016] outline-none transition-all">
+                        </div>
+                        <!-- Reset Filter Button -->
+                        <div class="flex items-end">
+                            <button id="resetFiltersBtn" onclick="resetFilters()"
+                                class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-1.5 rounded-lg text-xs transition flex items-center justify-center gap-1.5">
+                                <span class="material-symbols-outlined text-sm">restart_alt</span>
+                                Reset Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Operations Toolbar -->
+                <div class="flex items-center justify-between mb-3">
+                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-widest px-2" id="selectionCount">
+                        0 items selected
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <!-- Add Product Button -->
+                        <a id="squareAddBtn" href="add_product.html" title="Add New Product"
+                            class="action-btn h-10 px-4 rounded-lg flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold shadow-md shadow-emerald-100 transition disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed disabled:shadow-none">
+                            <span class="material-symbols-outlined text-lg">add</span>
+                            Add Product
+                        </a>
+                        <!-- Delete Product Button (Enabled when >=1 checkboxes are selected) -->
+                        <button id="squareDeleteBtn" onclick="openProductActions()" title="Change status of selected products"
+                            class="action-btn h-10 px-4 rounded-lg flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold shadow-md shadow-rose-100 transition disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed disabled:shadow-none">
+                            <span class="material-symbols-outlined text-lg">block</span>
+                            Change Status
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product Catalog Table -->
                 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                    <table class="w-full text-left">
+                    <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr
-                                class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-50 bg-slate-50/30">
-                                <th class="px-6 py-4 font-semibold">Product Info</th>
-                                <th class="px-6 py-4 font-semibold">SKU</th>
-                                <th class="px-6 py-4 font-semibold">Category</th>
-                                <th class="px-6 py-4 font-semibold">Price</th>
-                                <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                            <tr class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-100 bg-slate-50/40">
+                                <th class="w-12 px-6 py-4">
+                                    <input type="checkbox" id="masterCheckbox" onclick="toggleAllCheckboxes()"
+                                        class="w-4 h-4 rounded border-slate-300 text-[#E30016] focus:ring-[#E30016] cursor-pointer transition-all">
+                                </th>
+                                <th class="px-6 py-4 font-bold">SKU</th>
+                                <th class="px-6 py-4 font-bold">Image</th>
+                                <th class="px-6 py-4 font-bold">Product</th>
+                                <th class="px-6 py-4 font-bold">Price</th>
+                                <th class="px-6 py-4 font-bold">Category</th>
+                                <th class="px-6 py-4 font-bold">Status</th>
+                                <th class="px-6 py-4 font-bold">Created At</th>
+                                <th class="px-6 py-4 font-bold">Updated At</th>
+                                <th class="px-6 py-4 font-bold text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="productTableBody" class="text-sm">
@@ -145,101 +254,648 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination Bar -->
+                <div class="flex items-center justify-between mt-4 px-1">
+                    <!-- Page info + navigation -->
+                    <div class="flex items-center gap-2 text-sm text-slate-600">
+                        <span class="font-medium">Page:</span>
+                        <div class="flex items-center gap-1">
+                            <button id="prevPageBtn" onclick="goToPage(currentPage - 1)"
+                                class="w-7 h-7 flex items-center justify-center rounded-md border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition text-slate-500">
+                                <span class="material-symbols-outlined text-base">chevron_left</span>
+                            </button>
+                            <span id="currentPageDisplay" class="w-8 text-center font-bold text-slate-800">1</span>
+                            <button id="nextPageBtn" onclick="goToPage(currentPage + 1)"
+                                class="w-7 h-7 flex items-center justify-center rounded-md border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition text-slate-500">
+                                <span class="material-symbols-outlined text-base">chevron_right</span>
+                            </button>
+                        </div>
+                        <span class="text-slate-400">of</span>
+                        <span id="totalPagesDisplay" class="font-semibold text-slate-700">1</span>
+                        <span class="text-slate-300 mx-1">|</span>
+                        <span id="totalRecordsDisplay" class="text-slate-500">0 records</span>
+                    </div>
+
+                    <!-- View per page -->
+                    <div class="flex items-center gap-2 text-sm text-slate-600">
+                        <span class="font-medium">View per page:</span>
+                        <div class="relative inline-flex items-center border border-slate-200 bg-white rounded-lg shadow-sm overflow-hidden">
+                            <select id="pageSizeSelect" onchange="changePageSize(this.value)"
+                                style="-webkit-appearance:none;-moz-appearance:none;appearance:none;"
+                                class="pl-3 pr-8 py-1.5 text-sm font-semibold text-slate-700 bg-transparent border-none outline-none cursor-pointer focus:ring-0 focus:border-none">
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                            </select>
+                            <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
 
-    <!-- Edit Product Modal -->
-    <div id="editModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[100] p-4 transition-opacity duration-300 opacity-0">
-        <div class="bg-white w-full max-w-lg rounded-2xl p-8 shadow-2xl transform transition-all duration-300 scale-95" id="modalCard">
+    <!-- Add Product Modal -->
+    <div id="addModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[100] p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white w-full max-w-2xl rounded-3xl p-8 shadow-2xl transform transition-all duration-300 scale-95" id="addModalCard">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-900">Edit Product</h2>
-                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <div class="flex items-center gap-2 text-slate-800">
+                    <span class="material-symbols-outlined text-emerald-500">add_circle</span>
+                    <h2 class="text-xl font-bold">Add New Product</h2>
+                </div>
+                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
-            
-            <form id="editProductForm" class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
+
+            <form id="addProductForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="col-span-2">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Product Name</label>
-                        <input type="text" id="editProductName" required class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Product Name</label>
+                        <input type="text" id="addProductName" required placeholder="e.g. Biti's Hunter Street Pro"
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Brand</label>
-                        <input type="text" id="editProductBrand" class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">SKU</label>
+                        <input type="text" id="addProductSku" required placeholder="e.g. HSW-101"
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
-                        <select id="editProductCategory" class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Category</label>
+                        <select id="addProductCategory" required
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all cursor-pointer">
                             <option value="Lifestyle">Lifestyle</option>
                             <option value="Running">Running</option>
                             <option value="Basketball">Basketball</option>
                             <option value="Training">Training</option>
                             <option value="Sandals">Sandals</option>
+                            <option value="Casual">Casual</option>
+                            <option value="Sneakers">Sneakers</option>
+                            <option value="Sport Shoes">Sport Shoes</option>
+                            <option value="Hunter Series">Hunter Series</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">SKU</label>
-                        <input type="text" id="editProductSku" required class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Family (Collection)</label>
+                        <select id="addProductCollection" required
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all cursor-pointer">
+                            <option value="Sneakers">Sneakers</option>
+                            <option value="Sandals">Sandals</option>
+                            <option value="Boots">Boots</option>
+                            <option value="Heels">Heels</option>
+                            <option value="Shirts">Shirts</option>
+                            <option value="Pants">Pants</option>
+                            <option value="Dresses">Dresses</option>
+                            <option value="Jackets">Jackets</option>
+                            <option value="Bags">Bags</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Hunter Street">Hunter Street</option>
+                            <option value="Hunter X">Hunter X</option>
+                            <option value="Hunter Core">Hunter Core</option>
+                            <option value="Biti's GUM">Biti's GUM</option>
+                        </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Price (VND)</label>
-                        <input type="number" id="editProductPrice" required class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Price (VND)</label>
+                        <input type="number" id="addProductPrice" required min="0" placeholder="e.g. 850000"
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Stock Unit</label>
+                        <input type="number" id="addProductStock" required min="0" placeholder="e.g. 100"
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Status</label>
+                        <select id="addProductStatus"
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all cursor-pointer">
+                            <option value="Enabled">Enabled</option>
+                            <option value="Disabled">Disabled</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Image URL</label>
+                        <input type="url" id="addProductImageUrl" placeholder="https://..."
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all">
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label>
-                        <input type="url" id="editProductImageUrl" class="w-full border-slate-200 rounded-lg text-sm focus:ring-[#E30016] focus:border-[#E30016]">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Description</label>
+                        <textarea id="addProductDescription" rows="3" placeholder="Product description..."
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all"></textarea>
                     </div>
                 </div>
-                
+
                 <div class="pt-6 flex gap-3">
-                    <button type="button" onclick="closeEditModal()" class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
-                    <button type="submit" id="saveBtn" class="flex-1 px-4 py-3 bg-[#E30016] text-white rounded-xl text-sm font-bold hover:bg-red-700 transition shadow-lg shadow-red-100">Update Product</button>
+                    <button type="button" onclick="closeAddModal()"
+                        class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
+                    <button type="submit" id="addSaveBtn"
+                        class="flex-1 px-4 py-3 bg-emerald-500 text-white rounded-xl text-sm font-bold hover:bg-emerald-600 transition shadow-lg shadow-emerald-100">Add Product</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[110] p-4 transition-opacity duration-300 opacity-0">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl transform transition-all duration-300 scale-95 text-center" id="deleteCard">
-            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+    <!-- Edit Product Modal -->
+    <div id="editModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[100] p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white w-full max-w-2xl rounded-3xl p-8 shadow-2xl transform transition-all duration-300 scale-95" id="modalCard">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-2 text-slate-800">
+                    <span class="material-symbols-outlined text-[#E30016]">edit</span>
+                    <h2 class="text-xl font-bold">Edit Product</h2>
+                </div>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
             </div>
-            <h2 class="text-xl font-bold text-slate-900 mb-2">Delete Product?</h2>
-            <p class="text-slate-500 text-sm mb-8">This action cannot be undone. This product and all associated inventory records will be removed.</p>
-            
+
+            <form id="editProductForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Product Name</label>
+                        <input type="text" id="editProductName" required
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">SKU</label>
+                        <input type="text" id="editProductSku" required
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Category</label>
+                        <select id="editProductCategory" required
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all cursor-pointer">
+                            <option value="Lifestyle">Lifestyle</option>
+                            <option value="Running">Running</option>
+                            <option value="Basketball">Basketball</option>
+                            <option value="Training">Training</option>
+                            <option value="Sandals">Sandals</option>
+                            <option value="Casual">Casual</option>
+                            <option value="Sneakers">Sneakers</option>
+                            <option value="Sport Shoes">Sport Shoes</option>
+                            <option value="Hunter Series">Hunter Series</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Family (Collection)</label>
+                        <select id="editProductCollection" required
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all cursor-pointer">
+                            <option value="Sneakers">Sneakers</option>
+                            <option value="Sandals">Sandals</option>
+                            <option value="Boots">Boots</option>
+                            <option value="Heels">Heels</option>
+                            <option value="Shirts">Shirts</option>
+                            <option value="Pants">Pants</option>
+                            <option value="Dresses">Dresses</option>
+                            <option value="Jackets">Jackets</option>
+                            <option value="Bags">Bags</option>
+                            <option value="Accessories">Accessories</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Price (VND)</label>
+                        <input type="number" id="editProductPrice" required min="0"
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Stock Unit</label>
+                        <input type="number" id="editProductStock" required min="0"
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Status</label>
+                        <select id="editProductStatus" required
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all cursor-pointer">
+                            <option value="Enabled">Enabled</option>
+                            <option value="Disabled">Disabled</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Image URL</label>
+                        <input type="url" id="editProductImageUrl"
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Description</label>
+                        <textarea id="editProductDescription" rows="3"
+                            class="w-full border-slate-200 rounded-xl text-sm focus:ring-[#E30016] focus:border-[#E30016] transition-all"></textarea>
+                    </div>
+                </div>
+
+                <div class="pt-6 flex gap-3">
+                    <button type="button" onclick="closeEditModal()"
+                        class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
+                    <button type="submit" id="saveBtn"
+                        class="flex-1 px-4 py-3 bg-[#E30016] text-white rounded-xl text-sm font-bold hover:bg-red-700 transition shadow-lg shadow-red-100">Update Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Actions Modal -->
+    <div id="productActionsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[105] p-4 transition-opacity duration-300 opacity-0">
+        <div id="productActionsCard" class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl transform transition-all duration-300 scale-95">
+            <h2 class="text-lg font-bold text-slate-900">Selected Product Actions</h2>
+            <p id="productActionsDescription" class="text-sm text-slate-500 mt-2 mb-6"></p>
+            <div class="space-y-3">
+                <button type="button" onclick="chooseDeleteAction()" class="w-full px-4 py-3 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 transition">Delete</button>
+                <button type="button" onclick="disableSelectedProducts()" class="w-full px-4 py-3 bg-slate-800 text-white rounded-lg text-sm font-bold hover:bg-slate-900 transition">Disable</button>
+                <button type="button" onclick="enableSelectedProducts()" class="w-full px-4 py-3 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition">Enable</button>
+                <button type="button" onclick="closeProductActions()" class="w-full px-4 py-3 border border-slate-200 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-50 transition">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[110] p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl transform transition-all duration-300 scale-95 text-center" id="deleteCard">
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-3xl font-bold">delete_forever</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-2" id="deleteModalTitle">Delete Products?</h2>
+            <p class="text-slate-500 text-sm mb-8" id="deleteModalDescription">Are you sure you want to delete the selected products? This action cannot be undone and will permanently remove associated records.</p>
+
             <div class="flex gap-3">
-                <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Keep it</button>
-                <button id="confirmDeleteBtn" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition shadow-lg shadow-red-100">Delete</button>
+                <button onclick="closeDeleteModal()"
+                    class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition">No, Keep Them</button>
+                <button id="confirmDeleteBtn"
+                    class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition shadow-lg shadow-red-100">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single Row Delete Confirmation Modal -->
+    <div id="rowDeleteModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[120] p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl transform transition-all duration-300 scale-95 text-center" id="rowDeleteCard">
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-3xl font-bold">delete_forever</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-2">Delete This Product?</h2>
+            <p class="text-slate-500 text-sm mb-8">Are you sure you want to delete this product? This action cannot be undone and will permanently remove all associated records.</p>
+
+            <div class="flex gap-3">
+                <button onclick="closeRowDeleteModal()"
+                    class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition">No, Keep It</button>
+                <button id="confirmRowDeleteBtn"
+                    class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition shadow-lg shadow-red-100">Yes, Delete</button>
             </div>
         </div>
     </div>
 
     <script>
+        // ── Main app state ──────────────────────────────────────────
+        let productsData = []; // Full raw data
+        let filteredProducts = []; // Filtered data
+        let selectedProductIds = new Set();
         let currentEditProduct = null;
-        let currentDeleteId = null;
+        let currentPage = 1;
+        let pageSize = 25;
 
-        function openEditModal(product) {
-            currentEditProduct = product;
-            document.getElementById('editProductName').value = product.name;
-            document.getElementById('editProductBrand').value = product.brand || '';
-            document.getElementById('editProductCategory').value = product.category;
-            document.getElementById('editProductSku').value = product.sku;
-            document.getElementById('editProductPrice').value = product.price;
-            document.getElementById('editProductImageUrl').value = product.image_url || '';
-            
-            const modal = document.getElementById('editModal');
+        // Open Add Product modal
+        function navigateToAddProduct() {
+            document.getElementById('addProductName').value = '';
+            document.getElementById('addProductSku').value = '';
+            document.getElementById('addProductCategory').value = 'Lifestyle';
+            document.getElementById('addProductCollection').value = 'Sneakers';
+            document.getElementById('addProductPrice').value = '';
+            document.getElementById('addProductStock').value = '';
+            document.getElementById('addProductStatus').value = 'Enabled';
+            document.getElementById('addProductImageUrl').value = '';
+            document.getElementById('addProductDescription').value = '';
+
+            const modal = document.getElementById('addModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
-                document.getElementById('modalCard').classList.remove('scale-95');
-                document.getElementById('modalCard').classList.add('scale-100');
+                document.getElementById('addModalCard').classList.remove('scale-95');
+                document.getElementById('addModalCard').classList.add('scale-100');
             }, 10);
         }
 
+        function closeAddModal() {
+            const modal = document.getElementById('addModal');
+            modal.classList.add('opacity-0');
+            document.getElementById('addModalCard').classList.remove('scale-100');
+            document.getElementById('addModalCard').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        // Initialize application
+        async function initApp() {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (session) {
+                    const { data: profile } = await window.supabaseClient
+                        .from('user_profiles')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single();
+                    if (profile) {
+                        document.getElementById('adminName').innerText = profile.full_name || 'Admin';
+                        document.getElementById('adminEmail').innerText = session.user.email;
+                        if (profile.avatar_url) {
+                            document.getElementById('adminAvatar').src = profile.avatar_url;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading profile:', e);
+            }
+            await fetchProducts();
+        }
+
+        // Fetch products joined with inventory from Supabase
+        async function fetchProducts() {
+            const tableBody = document.getElementById('productTableBody');
+            tableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-12 text-center text-slate-400">Loading products...</td></tr>';
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('products')
+                    .select('*, inventory(*)')
+                    .order('created_at', { ascending: false });
+                if (error) throw error;
+                productsData = data || [];
+                selectedProductIds.clear();
+                applyFilters();
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                tableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-8 text-center text-red-500 font-medium">Failed to retrieve product records. Please check Supabase schema.</td></tr>';
+            }
+        }
+
+        // Calculate completeness % based on 8 fields (12.5% each)
+        // Fields: SKU, Image, Product (name), Price, Stock Unit, Category, Family, Status
+        function getProductCompleteness(product) {
+            const stock = getStockUnit(product);
+            const status = getProductStatus(product);
+            const fields = [
+                !!product.sku?.trim(),
+                !!product.image_url?.trim(),
+                !!product.name?.trim(),
+                !!((product.price ?? product.base_price) > 0),
+                !!(stock > 0),
+                !!product.category?.trim(),
+                !!product.collection?.trim(),
+                !!(status === 'Enabled' || status === 'Disabled')
+            ];
+            const filled = fields.filter(Boolean).length;
+            const pct = (filled / 8) * 100;
+            return Math.round(pct * 10) / 10;
+        }
+
+        // Legacy boolean check used for filter
+        function isProductComplete(product) {
+            return getProductCompleteness(product) >= 100;
+        }
+
+        // Retrieve current Stock Unit from product join relation
+        function getStockUnit(product) {
+            if (!product.inventory || product.inventory.length === 0) return 0;
+            return product.inventory.reduce((sum, item) => sum + (item.current_stock || 0), 0);
+        }
+
+        // Retrieve Reorder Level limit
+        function getReorderLevel(product) {
+            if (!product.inventory || product.inventory.length === 0) return 10;
+            return product.inventory[0].reorder_level || 10;
+        }
+
+        // Retrieve Updated At timestamp
+        function getUpdatedAtDate(product) {
+            if (!product.inventory || product.inventory.length === 0) return product.created_at;
+            return product.inventory[0].updated_at || product.created_at;
+        }
+
+        // Compute Stock Status string
+        function getProductStatus(product) {
+            const statuses = JSON.parse(localStorage.getItem('product_statuses') || '{}');
+            if (statuses[product.id]) return statuses[product.id];
+            const stock = getStockUnit(product);
+            return stock > 0 ? 'Enabled' : 'Disabled';
+        }
+
+        // Save Status override
+        function setProductStatus(productId, status) {
+            const statuses = JSON.parse(localStorage.getItem('product_statuses') || '{}');
+            statuses[productId] = status;
+            localStorage.setItem('product_statuses', JSON.stringify(statuses));
+        }
+
+        // Render rows into HTML Table (paginated)
+        function renderTable(products) {
+            const tableBody = document.getElementById('productTableBody');
+            const masterCheckbox = document.getElementById('masterCheckbox');
+
+            // Update pagination UI
+            const totalRecords = products.length;
+            const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startIdx = (currentPage - 1) * pageSize;
+            const endIdx = startIdx + pageSize;
+            const pageProducts = products.slice(startIdx, endIdx);
+
+            document.getElementById('currentPageDisplay').innerText = currentPage;
+            document.getElementById('totalPagesDisplay').innerText = totalPages;
+            document.getElementById('totalRecordsDisplay').innerText = totalRecords.toLocaleString() + ' records';
+            document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+            document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+
+            if (products.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-12 text-center text-slate-400">No matching products found. Try modifying your filter criteria.</td></tr>';
+                masterCheckbox.checked = false;
+                updateToolbarStates();
+                return;
+            }
+
+            // Sync master checkbox against current page only
+            const allVisibleSelected = pageProducts.every(p => selectedProductIds.has(p.id));
+            masterCheckbox.checked = allVisibleSelected;
+
+            tableBody.innerHTML = '';
+            pageProducts.forEach(product => {
+                const isChecked = selectedProductIds.has(product.id) ? 'checked' : '';
+                const status = getProductStatus(product);
+                const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price ?? product.base_price ?? 0);
+
+                // Date formats (YYYY-MM-DD)
+                const createdAt = product.created_at ? product.created_at.substring(0, 10) : 'N/A';
+                const updatedAt = getUpdatedAtDate(product).substring(0, 10);
+
+                // Badges classes
+                const statusClass = status === 'Enabled' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : status === 'Disabled' ? 'bg-slate-100 text-slate-500 border border-slate-200' : 'bg-orange-50 text-orange-400 border border-orange-100';
+                const tr = document.createElement('tr');
+                tr.className = `table-row border-b border-slate-100 hover:bg-slate-50/50 ${isChecked ? 'bg-slate-50/30' : ''}`;
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <input type="checkbox" data-id="${product.id}" ${isChecked} onchange="handleRowCheckboxChange(this, '${product.id}')"
+                            class="row-checkbox w-4 h-4 rounded border-slate-300 text-[#E30016] focus:ring-[#E30016] cursor-pointer transition-all">
+                    </td>
+                    <td class="px-6 py-4 font-mono text-xs font-semibold text-slate-600">${product.sku}</td>
+                    <td class="px-6 py-4">
+                        <div class="w-12 h-12 bg-slate-100 rounded-xl overflow-hidden border border-slate-200/60 shadow-sm flex items-center justify-center">
+                            <img src="${product.image_url || 'https://via.placeholder.com/48'}" alt="${product.name}" class="w-full h-full object-cover">
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-slate-900 leading-snug">${product.name}</div>
+                        <div class="text-xs text-slate-400 mt-0.5">${product.category}</div>
+                    </td>
+                    <td class="px-6 py-4 font-bold text-slate-900">${formattedPrice}</td>
+                    <td class="px-6 py-4 font-medium text-slate-600">${product.category || 'N/A'}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 ${statusClass} text-[10px] font-bold rounded-full uppercase tracking-wider">${status}</span>
+                    </td>
+                    <td class="px-6 py-4 text-xs font-medium text-slate-400">${createdAt}</td>
+                    <td class="px-6 py-4 text-xs font-medium text-slate-400">${updatedAt}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                            <button onclick="openEditModalById('${product.id}')" class="row-edit-icon text-slate-300 hover:text-[#E30016] transition-all duration-200 p-1" title="Edit Product">
+                                <span class="material-symbols-outlined text-lg">edit</span>
+                            </button>
+                            <button onclick="openRowDeleteModal('${product.id}')" class="text-slate-300 hover:text-red-600 transition-all duration-200 p-1" title="Delete Product">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            updateToolbarStates();
+        }
+
+        // Handle check/uncheck on single product row
+        function handleRowCheckboxChange(checkbox, productId) {
+            if (checkbox.checked) {
+                selectedProductIds.add(productId);
+                checkbox.closest('tr').classList.add('bg-slate-50/30');
+            } else {
+                selectedProductIds.delete(productId);
+                checkbox.closest('tr').classList.remove('bg-slate-50/30');
+            }
+
+            // Re-sync master checkbox
+            const masterCheckbox = document.getElementById('masterCheckbox');
+            const allVisibleSelected = filteredProducts.every(p => selectedProductIds.has(p.id));
+            masterCheckbox.checked = allVisibleSelected;
+
+            updateToolbarStates();
+        }
+
+        // Handle check/uncheck all visible filtered rows
+        function toggleAllCheckboxes() {
+            const master = document.getElementById('masterCheckbox');
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+
+            rowCheckboxes.forEach(cb => {
+                const id = cb.getAttribute('data-id');
+                cb.checked = master.checked;
+                if (master.checked) {
+                    selectedProductIds.add(id);
+                    cb.closest('tr').classList.add('bg-slate-50/30');
+                } else {
+                    selectedProductIds.delete(id);
+                    cb.closest('tr').classList.remove('bg-slate-50/30');
+                }
+            });
+
+            updateToolbarStates();
+        }
+
+        // Enable or Disable toolbar buttons based on selection count
+        function updateToolbarStates() {
+            const count = selectedProductIds.size;
+            document.getElementById('selectionCount').innerText = `${count} item${count !== 1 ? 's' : ''} selected`;
+
+            const squareDeleteBtn = document.getElementById('squareDeleteBtn');
+
+            // Delete Product: active when >= 1 checkbox selected
+            squareDeleteBtn.disabled = count < 1;
+        }
+
+        // Filter functionality
+        function applyFilters() {
+            const skuFilter = document.getElementById('filterSku').value.trim().toLowerCase();
+            const nameFilter = document.getElementById('filterName').value.trim().toLowerCase();
+            const categoryFilter = document.getElementById('filterCategory').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const priceMin = Number(document.getElementById('filterPriceMin').value);
+            const priceMax = Number(document.getElementById('filterPriceMax').value);
+            const hasPriceMin = document.getElementById('filterPriceMin').value !== '';
+            const hasPriceMax = document.getElementById('filterPriceMax').value !== '';
+            const createdFilter = document.getElementById('filterCreatedAt').value;
+            const updatedFilter = document.getElementById('filterUpdatedAt').value;
+
+            filteredProducts = productsData.filter(product => {
+                const status = getProductStatus(product);
+                const price = Number(product.price ?? product.base_price ?? 0);
+                const createdAtStr = product.created_at ? product.created_at.substring(0, 10) : '';
+                const updatedAtStr = getUpdatedAtDate(product).substring(0, 10);
+
+                // Filter check flags
+                const matchesSku = !skuFilter || product.sku?.toLowerCase().includes(skuFilter);
+                const matchesName = !nameFilter || product.name?.toLowerCase().includes(nameFilter);
+                const matchesCategory = !categoryFilter || product.category === categoryFilter;
+                const matchesStatus = !statusFilter || status === statusFilter;
+                const matchesPriceMin = !hasPriceMin || price >= priceMin;
+                const matchesPriceMax = !hasPriceMax || price <= priceMax;
+                const matchesCreated = !createdFilter || createdAtStr === createdFilter;
+                const matchesUpdated = !updatedFilter || updatedAtStr === updatedFilter;
+
+                return matchesSku && matchesName && matchesCategory && matchesStatus &&
+                    matchesPriceMin && matchesPriceMax && matchesCreated && matchesUpdated;
+            });
+
+            currentPage = 1; // Reset to first page on filter change
+            renderTable(filteredProducts);
+        }
+
+        // Attach event listeners to filters to perform search instantly
+        document.getElementById('filterSku').addEventListener('input', applyFilters);
+        document.getElementById('filterName').addEventListener('input', applyFilters);
+        document.getElementById('filterCategory').addEventListener('change', applyFilters);
+        document.getElementById('filterStatus').addEventListener('change', applyFilters);
+        document.getElementById('filterPriceMin').addEventListener('input', applyFilters);
+        document.getElementById('filterPriceMax').addEventListener('input', applyFilters);
+        document.getElementById('filterCreatedAt').addEventListener('change', applyFilters);
+        document.getElementById('filterUpdatedAt').addEventListener('change', applyFilters);
+
+        // Reset all filter inputs
+        function resetFilters() {
+            document.getElementById('filterSku').value = '';
+            document.getElementById('filterName').value = '';
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterPriceMin').value = '';
+            document.getElementById('filterPriceMax').value = '';
+            document.getElementById('filterCreatedAt').value = '';
+            document.getElementById('filterUpdatedAt').value = '';
+
+            applyFilters();
+        }
+
+        // Open edit modal for the currently selected product (from square button)
+        function editSelectedProduct() {
+            if (selectedProductIds.size !== 1) return;
+            const selectedId = Array.from(selectedProductIds)[0];
+            openEditModalById(selectedId);
+        }
+
+        // Open edit modal dialog by Product ID
+        function openEditModalById(productId) {
+            window.location.href = `edit_product.html?id=${encodeURIComponent(productId)}`;
+        }
+
+        // Close edit modal
         function closeEditModal() {
             const modal = document.getElementById('editModal');
             modal.classList.add('opacity-0');
@@ -252,8 +908,119 @@
             }, 300);
         }
 
-        function openDeleteModal(id) {
-            currentDeleteId = id;
+        // Submit product edit — write to Supabase
+        document.getElementById('editProductForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = 'Updating...';
+
+            const newName        = document.getElementById('editProductName').value.trim() || null;
+            const newSku         = document.getElementById('editProductSku').value.trim() || null;
+            const newCategory    = document.getElementById('editProductCategory').value || null;
+            const newCollection  = document.getElementById('editProductCollection').value || null;
+            const newPrice       = parseInt(document.getElementById('editProductPrice').value) || 0;
+            const newStock       = parseInt(document.getElementById('editProductStock').value) || 0;
+            const newStatus      = document.getElementById('editProductStatus').value;
+            const newImageUrl    = document.getElementById('editProductImageUrl').value.trim() || null;
+            const newDescription = document.getElementById('editProductDescription').value.trim() || null;
+
+            try {
+                // 1. Update products table
+                const { error: prodError } = await window.supabaseClient
+                    .from('products')
+                    .update({ name: newName, sku: newSku, category: newCategory,
+                              collection: newCollection, base_price: newPrice,
+                              image_url: newImageUrl, description: newDescription })
+                    .eq('id', currentEditProduct.id);
+                if (prodError) throw prodError;
+
+                // 2. Update or insert inventory
+                const { data: invRecords } = await window.supabaseClient
+                    .from('inventory')
+                    .select('*')
+                    .eq('product_id', currentEditProduct.id);
+
+                if (invRecords && invRecords.length > 0) {
+                    const { error: invError } = await window.supabaseClient
+                        .from('inventory')
+                        .update({ current_stock: newStock, updated_at: new Date().toISOString() })
+                        .eq('product_id', currentEditProduct.id);
+                    if (invError) throw invError;
+                } else {
+                    const { data: wh } = await window.supabaseClient.from('warehouses').select('id').limit(1);
+                    const { error: invError } = await window.supabaseClient
+                        .from('inventory')
+                        .insert({ product_id: currentEditProduct.id,
+                                  warehouse_id: wh?.[0]?.id || null,
+                                  current_stock: newStock, reorder_level: 10,
+                                  updated_at: new Date().toISOString() });
+                    if (invError) throw invError;
+                }
+
+                closeEditModal();
+                await fetchProducts();
+            } catch (error) {
+                console.error('Error updating product:', error);
+                alert('Update failed: ' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = 'Update Product';
+            }
+        };
+
+        function openProductActions() {
+            if (selectedProductIds.size === 0) return;
+            const modal = document.getElementById('productActionsModal');
+            document.getElementById('productActionsDescription').textContent =
+                `${selectedProductIds.size} product${selectedProductIds.size === 1 ? '' : 's'} selected. Choose an action.`;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('productActionsCard').classList.remove('scale-95');
+                document.getElementById('productActionsCard').classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeProductActions() {
+            const modal = document.getElementById('productActionsModal');
+            modal.classList.add('opacity-0');
+            document.getElementById('productActionsCard').classList.remove('scale-100');
+            document.getElementById('productActionsCard').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function chooseDeleteAction() {
+            closeProductActions();
+            setTimeout(deleteSelectedProducts, 250);
+        }
+
+        function disableSelectedProducts() {
+            selectedProductIds.forEach(id => setProductStatus(id, 'Disabled'));
+            selectedProductIds.clear();
+            closeProductActions();
+            applyFilters();
+        }
+
+        function enableSelectedProducts() {
+            selectedProductIds.forEach(id => setProductStatus(id, 'Enabled'));
+            selectedProductIds.clear();
+            closeProductActions();
+            applyFilters();
+        }
+
+        // Open confirm delete modal
+        function deleteSelectedProducts() {
+            if (selectedProductIds.size === 0) return;
+
+            const count = selectedProductIds.size;
+            document.getElementById('deleteModalTitle').innerText = `Delete ${count} Product${count !== 1 ? 's' : ''}?`;
+            document.getElementById('deleteModalDescription').innerText = `Are you sure you want to delete ${count} selected product${count !== 1 ? 's' : ''}? This operation will remove all associated database records and cannot be undone.`;
+
             const modal = document.getElementById('deleteModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -264,6 +1031,7 @@
             }, 10);
         }
 
+        // Close delete confirmation modal
         function closeDeleteModal() {
             const modal = document.getElementById('deleteModal');
             modal.classList.add('opacity-0');
@@ -272,149 +1040,162 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
-                currentDeleteId = null;
             }, 300);
         }
 
-        document.getElementById('editProductForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const saveBtn = document.getElementById('saveBtn');
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = 'Updating...';
+        // Open single-row delete modal
+        let pendingDeleteProductId = null;
+        function openRowDeleteModal(productId) {
+            pendingDeleteProductId = productId;
+            const modal = document.getElementById('rowDeleteModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('rowDeleteCard').classList.remove('scale-95');
+                document.getElementById('rowDeleteCard').classList.add('scale-100');
+            }, 10);
+        }
 
-            const updates = {
-                name: document.getElementById('editProductName').value,
-                brand: document.getElementById('editProductBrand').value,
-                category: document.getElementById('editProductCategory').value,
-                sku: document.getElementById('editProductSku').value,
-                price: parseInt(document.getElementById('editProductPrice').value),
-                image_url: document.getElementById('editProductImageUrl').value
-            };
+        // Close single-row delete modal
+        function closeRowDeleteModal() {
+            const modal = document.getElementById('rowDeleteModal');
+            modal.classList.add('opacity-0');
+            document.getElementById('rowDeleteCard').classList.remove('scale-100');
+            document.getElementById('rowDeleteCard').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                pendingDeleteProductId = null;
+            }, 300);
+        }
 
+        // Confirm single-row deletion — Supabase
+        document.getElementById('confirmRowDeleteBtn').onclick = async () => {
+            if (!pendingDeleteProductId) return;
+            const btn = document.getElementById('confirmRowDeleteBtn');
+            btn.disabled = true;
+            btn.innerText = 'Deleting...';
             try {
-                const { error } = await window.supabaseClient
-                    .from('products')
-                    .update(updates)
-                    .eq('id', currentEditProduct.id);
-
-                if (error) throw error;
-                closeEditModal();
-                fetchProducts();
+                const { error: invErr } = await window.supabaseClient
+                    .from('inventory').delete().eq('product_id', pendingDeleteProductId);
+                if (invErr) throw invErr;
+                const { error: imagesErr } = await window.supabaseClient
+                    .from('product_images').delete().eq('product_id', pendingDeleteProductId);
+                if (imagesErr) throw imagesErr;
+                const { error: prodErr } = await window.supabaseClient
+                    .from('products').delete().eq('id', pendingDeleteProductId);
+                if (prodErr) throw prodErr;
+                selectedProductIds.delete(pendingDeleteProductId);
+                closeRowDeleteModal();
+                await fetchProducts();
             } catch (error) {
-                console.error('Error updating product:', error);
-                alert('Update failed: ' + error.message);
+                console.error('Error deleting product:', error);
+                alert('Deletion failed: ' + error.message);
             } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerText = 'Update Product';
+                btn.disabled = false;
+                btn.innerText = 'Yes, Delete';
             }
         };
 
+        // Confirm batch deletion — Supabase
         document.getElementById('confirmDeleteBtn').onclick = async () => {
             const btn = document.getElementById('confirmDeleteBtn');
             btn.disabled = true;
             btn.innerText = 'Deleting...';
-
+            const idsToDelete = Array.from(selectedProductIds);
             try {
-                // Delete inventory first (manual cascade)
-                await window.supabaseClient.from('inventory').delete().eq('product_id', currentDeleteId);
-                
-                const { error } = await window.supabaseClient
-                    .from('products')
-                    .delete()
-                    .eq('id', currentDeleteId);
-
-                if (error) throw error;
+                const { error: invErr } = await window.supabaseClient
+                    .from('inventory').delete().in('product_id', idsToDelete);
+                if (invErr) throw invErr;
+                const { error: imagesErr } = await window.supabaseClient
+                    .from('product_images').delete().in('product_id', idsToDelete);
+                if (imagesErr) throw imagesErr;
+                const { error: prodErr } = await window.supabaseClient
+                    .from('products').delete().in('id', idsToDelete);
+                if (prodErr) throw prodErr;
+                selectedProductIds.clear();
                 closeDeleteModal();
-                fetchProducts();
+                await fetchProducts();
             } catch (error) {
-                console.error('Error deleting product:', error);
-                alert('Delete failed: ' + error.message);
+                console.error('Error in batch deletion:', error);
+                alert('Deletion failed: ' + error.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = 'Delete';
+                btn.innerText = 'Yes, Delete';
             }
         };
 
-        async function fetchProducts() {
-            // Load user profile first
-            try {
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                if (session) {
-                    const { data: profile } = await window.supabaseClient
-                        .from('user_profiles')
-                        .select('*')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    if (profile) {
-                        document.getElementById('adminName').innerText = profile.full_name;
-                        document.getElementById('adminEmail').innerText = session.user.email;
-                        if (profile.avatar_url) {
-                            document.getElementById('adminAvatar').src = profile.avatar_url;
-                        }
-                    }
-                }
-            } catch (e) { console.error("Error loading profile", e); }
-
-            const tableBody = document.getElementById('productTableBody');
-            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">Loading products...</td></tr>';
-
-            try {
-                const { data, error } = await window.supabaseClient
-                    .from('products')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                if (!data || data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">No products found.</td></tr>';
-                    return;
-                }
-
-                tableBody.innerHTML = '';
-                data.forEach(product => {
-                    const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price);
-                    const tr = document.createElement('tr');
-                    tr.className = 'border-b border-slate-50 hover:bg-slate-50 transition-colors';
-                    tr.innerHTML = `
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-                                    <img src="${product.image_url || 'https://via.placeholder.com/48'}" alt="${product.name}" class="w-full h-full object-cover">
-                                </div>
-                                <div>
-                                    <div class="font-bold text-slate-800">${product.name}</div>
-                                    <div class="text-xs text-slate-400">${product.brand || 'Biti\'s'}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 font-mono text-xs text-slate-500">${product.sku}</td>
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-full uppercase tracking-tighter">${product.category}</span>
-                        </td>
-                        <td class="px-6 py-4 font-bold text-slate-900">${price}</td>
-                        <td class="px-6 py-4 text-right">
-                            <button class="edit-btn text-slate-400 hover:text-slate-600 transition p-1">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                            </button>
-                            <button class="delete-btn text-slate-400 hover:text-red-500 transition p-1 ml-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                            </button>
-                        </td>
-                    `;
-                    tr.querySelector('.edit-btn').onclick = () => openEditModal(product);
-                    tr.querySelector('.delete-btn').onclick = () => openDeleteModal(product.id);
-                    tableBody.appendChild(tr);
-                });
-            } catch (error) {
-                console.error('Error fetching products:', error);
-                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Error loading products.</td></tr>';
-            }
+        // Go to specific page
+        function goToPage(page) {
+            const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable(filteredProducts);
         }
 
-        fetchProducts();
+        // Change page size
+        function changePageSize(val) {
+            pageSize = parseInt(val);
+            currentPage = 1;
+            renderTable(filteredProducts);
+        }
+
+
+        // Submit Add Product form — insert into Supabase
+        document.getElementById('addProductForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('addSaveBtn');
+            btn.disabled = true;
+            btn.innerText = 'Adding...';
+
+            const newStock = parseInt(document.getElementById('addProductStock').value) || 0;
+
+            try {
+                // 1. Insert product
+                const { data: inserted, error: prodErr } = await window.supabaseClient
+                    .from('products')
+                    .insert({
+                        sku:         document.getElementById('addProductSku').value.trim() || null,
+                        name:        document.getElementById('addProductName').value.trim() || null,
+                        category:    document.getElementById('addProductCategory').value || null,
+                        collection:  document.getElementById('addProductCollection').value || null,
+                        base_price:  parseInt(document.getElementById('addProductPrice').value) || 0,
+                        image_url:   document.getElementById('addProductImageUrl').value.trim() || null,
+                        description: document.getElementById('addProductDescription').value.trim() || null,
+                    })
+                    .select()
+                    .single();
+                if (prodErr) throw prodErr;
+
+                // 2. Insert inventory for the new product
+                const { data: wh } = await window.supabaseClient.from('warehouses').select('id').limit(1);
+                const { error: invErr } = await window.supabaseClient
+                    .from('inventory')
+                    .insert({
+                        product_id:    inserted.id,
+                        warehouse_id:  wh?.[0]?.id || null,
+                        current_stock: newStock,
+                        reorder_level: 10,
+                        updated_at:    new Date().toISOString()
+                    });
+                if (invErr) throw invErr;
+
+                closeAddModal();
+                await fetchProducts();
+            } catch (error) {
+                console.error('Error adding product:', error);
+                alert('Failed to add product: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Add Product';
+            }
+        };
+
+        // Initialize application on load
+        window.addEventListener('DOMContentLoaded', initApp);
     </script>
+    <script src="page-transition.js"></script>
 </body>
 
 </html>

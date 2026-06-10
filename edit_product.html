@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Add New Product - Bitis's Management System</title>
+    <title>Edit Product - Bitis's Management System</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
         rel="stylesheet" />
@@ -112,7 +112,7 @@
                             </path>
                         </svg>
                     </a>
-                    <h1 class="text-lg font-bold text-slate-800">Add New Product</h1>
+                    <h1 class="text-lg font-bold text-slate-800">Edit Product</h1>
                 </div>
                 <a href="profile.html" class="flex items-center space-x-3 border-l border-slate-100 pl-6 hover:bg-slate-50 p-1 rounded-lg transition">
                     <img id="adminAvatar" alt="Admin" class="w-10 h-10 rounded-full border border-slate-200 object-cover"
@@ -305,7 +305,7 @@
                                     <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"
                                         stroke-width="2"></path>
                                 </svg>
-                                Publish Product
+                                Save Changes
                             </button>
                             <button type="button" onclick="window.location.href='product_catalog.html'"
                                 class="px-8 py-4 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition">
@@ -348,21 +348,25 @@
         const additionalImageInput = document.getElementById('additionalImageInput');
         const additionalMediaRow = document.getElementById('additionalMediaRow');
         const additionalCount = document.getElementById('additionalCount');
-        let mainImageFile = null;
-        let additionalImageFiles = [];
+        const productId = new URLSearchParams(window.location.search).get('id');
+        let mainImage = null;
+        let additionalImages = [];
+        let removedImageIds = [];
 
-        function fileKey(file) {
-            return `${file.name}-${file.size}-${file.lastModified}`;
+        function itemKey(item) {
+            return item.file
+                ? `${item.file.name}-${item.file.size}-${item.file.lastModified}`
+                : item.url;
         }
 
-        function imageTile(file, onRemove, label = '') {
+        function imageTile(item, onRemove, label = '') {
             const tile = document.createElement('div');
             tile.className = 'relative w-24 aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-50 group';
             const image = document.createElement('img');
             image.className = 'w-full h-full object-cover';
-            image.alt = label || file.name;
-            image.src = URL.createObjectURL(file);
-            image.onload = () => URL.revokeObjectURL(image.src);
+            image.alt = label || item.file?.name || 'Product image';
+            image.src = item.file ? URL.createObjectURL(item.file) : item.url;
+            if (item.file) image.onload = () => URL.revokeObjectURL(image.src);
 
             const removeButton = document.createElement('button');
             removeButton.type = 'button';
@@ -377,13 +381,14 @@
 
         function renderMainImage() {
             mainImageSlot.innerHTML = '';
-            if (!mainImageFile) {
+            if (!mainImage) {
                 mainImageSlot.innerHTML = '<span class="text-2xl text-slate-400">+</span><span class="text-xs font-semibold text-slate-500 mt-1">Add main image</span>';
                 return;
             }
-            const tile = imageTile(mainImageFile, (event) => {
+            const tile = imageTile(mainImage, (event) => {
                 event.stopPropagation();
-                mainImageFile = null;
+                if (mainImage.id) removedImageIds.push(mainImage.id);
+                mainImage = null;
                 mainImageInput.value = '';
                 renderMainImage();
             }, 'Main product image');
@@ -393,14 +398,15 @@
 
         function renderAdditionalMedia() {
             additionalMediaRow.innerHTML = '';
-            additionalImageFiles.forEach((file, index) => {
-                additionalMediaRow.appendChild(imageTile(file, () => {
-                    additionalImageFiles.splice(index, 1);
+            additionalImages.forEach((item, index) => {
+                additionalMediaRow.appendChild(imageTile(item, () => {
+                    if (item.id) removedImageIds.push(item.id);
+                    additionalImages.splice(index, 1);
                     renderAdditionalMedia();
                 }));
             });
 
-            if (additionalImageFiles.length < 7) {
+            if (additionalImages.length < 7) {
                 const addButton = document.createElement('button');
                 addButton.type = 'button';
                 addButton.className = 'w-24 aspect-square border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 hover:border-blue-500 transition flex flex-col items-center justify-center';
@@ -408,31 +414,87 @@
                 addButton.addEventListener('click', () => additionalImageInput.click());
                 additionalMediaRow.appendChild(addButton);
             }
-            additionalCount.textContent = `${additionalImageFiles.length} / 7`;
+            additionalCount.textContent = `${additionalImages.length} / 7`;
         }
 
         mainImageSlot.addEventListener('click', () => mainImageInput.click());
         mainImageInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file && file.type.startsWith('image/')) {
-                mainImageFile = file;
+                if (mainImage?.id) removedImageIds.push(mainImage.id);
+                mainImage = { file };
                 renderMainImage();
             }
         });
 
         additionalImageInput.addEventListener('change', (event) => {
-            const existingKeys = new Set(additionalImageFiles.map(fileKey));
-            const availableSlots = 7 - additionalImageFiles.length;
+            const existingKeys = new Set(additionalImages.map(itemKey));
+            const availableSlots = 7 - additionalImages.length;
             const newFiles = Array.from(event.target.files)
-                .filter(file => file.type.startsWith('image/') && !existingKeys.has(fileKey(file)))
-                .slice(0, availableSlots);
-            additionalImageFiles.push(...newFiles);
+                .filter(file => file.type.startsWith('image/') && !existingKeys.has(itemKey({ file })))
+                .slice(0, availableSlots)
+                .map(file => ({ file }));
+            additionalImages.push(...newFiles);
             additionalImageInput.value = '';
             renderAdditionalMedia();
         });
 
-        renderMainImage();
-        renderAdditionalMedia();
+        async function loadProduct() {
+            if (!productId) {
+                alert('Missing product ID.');
+                window.location.href = 'product_catalog.html';
+                return;
+            }
+
+            try {
+                const [
+                    { data: product, error: productError },
+                    { data: imageRecords, error: imagesError }
+                ] = await Promise.all([
+                    window.supabaseClient.from('products').select('*').eq('id', productId).single(),
+                    window.supabaseClient.from('product_images').select('*').eq('product_id', productId).order('created_at')
+                ]);
+
+                if (productError) throw productError;
+                if (imagesError) throw imagesError;
+
+                document.getElementById('productName').value = product.name || '';
+                document.getElementById('productSku').value = product.sku || '';
+                document.getElementById('productCollection').value = product.collection || '';
+                document.getElementById('productPrice').value = product.price ?? product.base_price ?? '';
+                document.getElementById('productColor').value = product.color || '';
+                document.getElementById('highlightFeatures').value = product.highlight_features || '';
+                document.getElementById('sizeFrom').value = product.size_from ?? '';
+                document.getElementById('sizeTo').value = product.size_to ?? '';
+                document.getElementById('productDescription').value = product.description || '';
+                document.getElementById('reviseDescriptionBtn').disabled = !product.description;
+
+                const categorySelect = document.getElementById('productCategory');
+                if (product.category && !Array.from(categorySelect.options).some(option => option.value === product.category)) {
+                    categorySelect.add(new Option(product.category, product.category));
+                }
+                categorySelect.value = product.category || '';
+
+                const records = imageRecords || [];
+                const mainRecordIndex = records.findIndex(record => record.image_url === product.image_url);
+                const mainRecord = mainRecordIndex >= 0 ? records[mainRecordIndex] : null;
+                mainImage = product.image_url
+                    ? { id: mainRecord?.id || null, url: product.image_url }
+                    : null;
+                additionalImages = records
+                    .filter((_, index) => index !== mainRecordIndex)
+                    .slice(0, 7)
+                    .map(record => ({ id: record.id, url: record.image_url }));
+
+                renderMainImage();
+                renderAdditionalMedia();
+            } catch (error) {
+                alert('Unable to load product: ' + error.message);
+                window.location.href = 'product_catalog.html';
+            }
+        }
+
+        loadProduct();
 
         // n8n test URL: the workflow must be listening for a test event.
         const N8N_DESCRIPTION_WEBHOOK_URL = 'https://n8n.tomorrowmarketers.info/webhook-test/ai-product-description-generator';
@@ -486,7 +548,7 @@
 
         async function requestAiDescription(action) {
             if (!N8N_DESCRIPTION_WEBHOOK_URL) {
-                throw new Error('Add your n8n Production Webhook URL to N8N_DESCRIPTION_WEBHOOK_URL in add_product.html.');
+                throw new Error('Add your n8n Production Webhook URL to N8N_DESCRIPTION_WEBHOOK_URL in edit_product.html.');
             }
 
             const description = document.getElementById('productDescription').value.trim();
@@ -501,8 +563,8 @@
                 body: JSON.stringify({
                     action,
                     source: 'product_form',
-                    form_mode: 'create',
-                    product_id: null,
+                    form_mode: 'edit',
+                    product_id: productId,
                     output_language: 'vi',
                     product: validateDescriptionContext(),
                     current_description: action === 'revise' ? description : null,
@@ -566,46 +628,69 @@
 
             try {
                 validateDescriptionContext();
-                if (!mainImageFile) throw new Error('Please select a main product image.');
+                if (!mainImage) throw new Error('Please select a main product image.');
                 if (hasCorruptedVietnameseText(name) || hasCorruptedVietnameseText(description) ||
                     hasCorruptedVietnameseText(highlightFeatures)) {
-                    throw new Error('Some Vietnamese text appears corrupted and contains multiple ? characters. Please correct it before publishing.');
+                    throw new Error('Some Vietnamese text appears corrupted and contains multiple ? characters. Please correct it before saving.');
                 }
 
-                const selectedFiles = [mainImageFile, ...additionalImageFiles];
-                const uploadedUrls = [];
-                for (const file of selectedFiles) {
+                async function uploadImage(item) {
+                    if (!item.file) return item;
+                    const file = item.file;
                     const fileExt = file.name.split('.').pop();
                     const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
                     const filePath = `products/${fileName}`;
                     const { error: uploadError } = await window.supabaseClient.storage.from('product-media').upload(filePath, file);
                     if (uploadError) throw uploadError;
                     const { data: { publicUrl } } = window.supabaseClient.storage.from('product-media').getPublicUrl(filePath);
-                    uploadedUrls.push(publicUrl);
+                    return { ...item, url: publicUrl };
                 }
 
-                const { data: productData, error: productError } = await window.supabaseClient.from('products').insert([{
-                    name,
-                    sku,
-                    category,
-                    collection: collection || null,
-                    price,
-                    base_price: price,
-                    color,
-                    highlight_features: highlightFeatures,
-                    size_from: sizeFrom,
-                    size_to: sizeTo,
-                    description,
-                    image_url: uploadedUrls[0],
-                    updated_at: new Date().toISOString()
-                }]).select();
+                const uploadedMain = await uploadImage(mainImage);
+                const uploadedAdditional = [];
+                for (const item of additionalImages) {
+                    uploadedAdditional.push(await uploadImage(item));
+                }
+
+                const { error: productError } = await window.supabaseClient
+                    .from('products')
+                    .update({
+                        name,
+                        sku,
+                        category,
+                        collection: collection || null,
+                        price,
+                        base_price: price,
+                        color,
+                        highlight_features: highlightFeatures,
+                        size_from: sizeFrom,
+                        size_to: sizeTo,
+                        description,
+                        image_url: uploadedMain.url,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', productId);
                 if (productError) throw productError;
 
-                const productId = productData[0].id;
-                const { error: imagesError } = await window.supabaseClient.from('product_images').insert(uploadedUrls.map(url => ({ product_id: productId, image_url: url })));
-                if (imagesError) throw imagesError;
+                if (removedImageIds.length) {
+                    const { error: deleteImagesError } = await window.supabaseClient
+                        .from('product_images')
+                        .delete()
+                        .in('id', [...new Set(removedImageIds)]);
+                    if (deleteImagesError) throw deleteImagesError;
+                }
 
-                alert('Product added successfully!');
+                const newImages = [uploadedMain, ...uploadedAdditional]
+                    .filter(item => item.file)
+                    .map(item => ({ product_id: productId, image_url: item.url }));
+                if (newImages.length) {
+                    const { error: insertImagesError } = await window.supabaseClient
+                        .from('product_images')
+                        .insert(newImages);
+                    if (insertImagesError) throw insertImagesError;
+                }
+
+                alert('Product updated successfully!');
                 window.location.href = 'product_catalog.html';
             } catch (error) {
                 alert('Error: ' + error.message);

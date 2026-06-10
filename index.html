@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
         rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="supabase-config.js"></script>
     <style data-purpose="typography">
         body {
@@ -24,11 +25,30 @@
             border-left: 4px solid #E30016;
         }
 
-        .chart-container {
-            height: 300px;
+        .report-chart {
+            position: relative;
+            height: 260px;
+        }
+
+        .report-skeleton {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: reportShimmer 1.4s infinite;
+        }
+
+        @keyframes reportShimmer {
+            from { background-position: 200% 0; }
+            to { background-position: -200% 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .report-skeleton {
+                animation: none;
+            }
         }
     </style>
 </head>
+
 
 <body class="text-slate-800">
     <div class="flex min-h-screen">
@@ -110,11 +130,13 @@
 
         <!-- Main Content -->
         <main class="flex-1 flex flex-col h-screen overflow-hidden">
-            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-40">
                 <div></div>
                 <div class="flex items-center space-x-6">
-                    <a href="profile.html" class="flex items-center space-x-3 hover:bg-slate-50 p-1 rounded-lg transition">
-                        <img id="adminAvatar" alt="Admin" class="w-10 h-10 rounded-full border border-slate-200 object-cover"
+                    <a href="profile.html"
+                        class="flex items-center space-x-3 border-l border-slate-100 pl-6 hover:bg-slate-50 p-1 rounded-lg transition">
+                        <img id="adminAvatar" alt="Admin"
+                            class="w-10 h-10 rounded-full border border-slate-200 object-cover"
                             src="https://via.placeholder.com/40" />
                         <div class="text-left">
                             <p id="adminName" class="text-sm font-bold text-slate-800 leading-tight">Admin User</p>
@@ -125,43 +147,162 @@
             </header>
 
             <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
-                <h1 id="welcomeMessage" class="text-2xl font-bold text-slate-900 mb-8">Welcome Back, Admin</h1>
+                <div>
+                    <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between mb-8">
+                        <div>
+                            <h1 id="welcomeMessage" class="text-2xl font-bold text-slate-900">Sales Report</h1>
+                            <p id="reportPeriodLabel" class="text-sm text-slate-500 mt-1">Select a date range to view sales performance.</p>
+                        </div>
 
-                <div class="grid grid-cols-12 gap-6">
-                    <!-- Stats Section -->
-                    <div class="col-span-12 grid grid-cols-3 gap-6">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                            <p class="text-slate-400 text-sm font-medium">Total Orders</p>
-                            <h3 id="totalOrders" class="text-3xl font-bold mt-2">0</h3>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                            <p class="text-slate-400 text-sm font-medium">Total Revenue</p>
-                            <h3 id="totalRevenue" class="text-3xl font-bold mt-2">0 VND</h3>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                            <p class="text-slate-400 text-sm font-medium">Avg. Order Value</p>
-                            <h3 id="avgOrderValue" class="text-3xl font-bold mt-2">0 VND</h3>
+                        <form id="reportFilterForm" class="flex flex-col sm:flex-row sm:items-end gap-3">
+                            <div>
+                                <label for="startDate" class="block text-[11px] font-bold uppercase text-slate-500 mb-1.5">Start Date</label>
+                                <input id="startDate" type="date" required
+                                    class="h-10 w-full sm:w-40 rounded-xl border-slate-200 bg-white text-sm focus:border-[#E30016] focus:ring-[#E30016]" />
+                            </div>
+                            <div>
+                                <label for="endDate" class="block text-[11px] font-bold uppercase text-slate-500 mb-1.5">End Date</label>
+                                <input id="endDate" type="date" required
+                                    class="h-10 w-full sm:w-40 rounded-xl border-slate-200 bg-white text-sm focus:border-[#E30016] focus:ring-[#E30016]" />
+                            </div>
+                            <button id="generateReportBtn" type="submit"
+                                class="h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-[#E30016] px-4 text-xs font-bold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60 transition shadow-sm shadow-red-100">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                                </svg>
+                                <span id="generateReportLabel">Generate Report</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div id="reportError" class="hidden mb-6 border border-red-200 bg-red-50 px-4 py-3 rounded-xl text-sm text-red-700">
+                        <div class="flex items-start justify-between gap-4">
+                            <span id="reportErrorMessage"></span>
+                            <button type="button" onclick="generateReport()" class="font-bold hover:underline">Try again</button>
                         </div>
                     </div>
 
-                    <!-- Recent Orders Table -->
-                    <div class="col-span-12 bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
-                        <h4 class="text-lg font-bold mb-6">Recent Operations</h4>
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr
-                                    class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-50">
-                                    <th class="pb-4 font-semibold">Order ID</th>
-                                    <th class="pb-4 font-semibold">Customer</th>
-                                    <th class="pb-4 font-semibold">Date</th>
-                                    <th class="pb-4 font-semibold">Status</th>
-                                    <th class="pb-4 font-semibold">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentOpsTableBody" class="text-sm">
-                                <!-- Dynamic rows -->
-                            </tbody>
-                        </table>
+                    <section id="metricsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8" aria-label="Sales overview">
+                        <article class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-bold uppercase text-slate-500">Total Orders</p>
+                                <span class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                                </span>
+                            </div>
+                            <p id="totalOrders" class="text-2xl font-bold text-slate-900 mt-4">0</p>
+                            <p class="text-xs text-slate-400 mt-1">All orders in range</p>
+                        </article>
+                        <article class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-bold uppercase text-slate-500">Total Revenue</p>
+                                <span class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                                </span>
+                            </div>
+                            <p id="totalRevenue" class="text-2xl font-bold text-slate-900 mt-4">0 VND</p>
+                            <p class="text-xs text-slate-400 mt-1">Excludes cancelled orders</p>
+                        </article>
+                        <article class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-bold uppercase text-slate-500">Average Order Value</p>
+                                <span class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.002 0L6 7zm0 0l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.002 0L18 6zm-3-2v16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                                </span>
+                            </div>
+                            <p id="avgOrderValue" class="text-2xl font-bold text-slate-900 mt-4">0 VND</p>
+                            <p class="text-xs text-slate-400 mt-1">Non-cancelled orders</p>
+                        </article>
+                        <article class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-bold uppercase text-slate-500">Top-selling Product</p>
+                                <span class="w-10 h-10 rounded-xl bg-rose-50 text-[#E30016] flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.801 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.539 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L4.977 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.072-3.292z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                                </span>
+                            </div>
+                            <p id="topProduct" class="text-base font-bold text-slate-900 mt-4 truncate" title="No sales">No sales</p>
+                            <p id="topProductMeta" class="text-xs text-slate-400 mt-1">0 units sold</p>
+                        </article>
+                    </section>
+
+                    <div id="reportLoading" class="hidden space-y-6" aria-live="polite">
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                            <div class="h-80 rounded-2xl report-skeleton"></div>
+                            <div class="h-80 rounded-2xl report-skeleton"></div>
+                        </div>
+                        <div class="h-72 rounded-2xl report-skeleton"></div>
+                    </div>
+
+                    <div id="reportContent" class="space-y-6">
+                        <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                            <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+                                <div class="mb-5">
+                                    <h2 class="text-base font-bold text-slate-900">Revenue by Date</h2>
+                                    <p class="text-xs text-slate-400 mt-1">Daily revenue from non-cancelled orders</p>
+                                </div>
+                                <div class="report-chart"><canvas id="revenueChart"></canvas></div>
+                            </div>
+                            <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+                                <div class="mb-5">
+                                    <h2 class="text-base font-bold text-slate-900">Top Products by Quantity</h2>
+                                    <p class="text-xs text-slate-400 mt-1">Five products with the most units sold</p>
+                                </div>
+                                <div class="report-chart"><canvas id="productsChart"></canvas></div>
+                            </div>
+                        </section>
+
+                        <section class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+                            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-900">Top-selling Products</h2>
+                                    <p class="text-xs text-slate-400 mt-1">Ranked by quantity sold</p>
+                                </div>
+                                <span id="productCountLabel" class="text-xs font-semibold text-slate-500">0 products</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-[760px] text-left">
+                                    <thead class="bg-slate-50 text-[10px] uppercase text-slate-500">
+                                        <tr>
+                                            <th class="px-5 py-3 font-bold">Product Name</th>
+                                            <th class="px-5 py-3 font-bold">SKU</th>
+                                            <th class="px-5 py-3 font-bold">Category</th>
+                                            <th class="px-5 py-3 font-bold text-right">Quantity Sold</th>
+                                            <th class="px-5 py-3 font-bold text-right">Revenue</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="topProductsTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+                            <div class="px-6 py-5 border-b border-slate-100">
+                                <h2 class="text-base font-bold text-slate-900">Recent Orders</h2>
+                                <p class="text-xs text-slate-400 mt-1">Latest orders in the selected period</p>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-[760px] text-left">
+                                    <thead class="bg-slate-50 text-[10px] uppercase text-slate-500">
+                                        <tr>
+                                            <th class="px-5 py-3 font-bold">Order ID</th>
+                                            <th class="px-5 py-3 font-bold">Customer</th>
+                                            <th class="px-5 py-3 font-bold">Date</th>
+                                            <th class="px-5 py-3 font-bold">Status</th>
+                                            <th class="px-5 py-3 font-bold text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentOrdersTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div id="reportEmpty" class="hidden bg-white border border-slate-100 rounded-2xl shadow-sm py-16 px-6 text-center">
+                        <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l3.414 3.414A1 1 0 0117 7.414V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                        </div>
+                        <h2 class="text-base font-bold text-slate-800 mt-4">No sales data found</h2>
+                        <p class="text-sm text-slate-400 mt-1">Try selecting a wider date range.</p>
                     </div>
                 </div>
             </div>
@@ -169,76 +310,369 @@
     </div>
 
     <script>
-        async function fetchDashboardData() {
-            try {
-                const { data: orders, error: ordersError } = await window.supabaseClient
-                    .from('orders')
-                    .select('*, customers(*)')
-                    .order('created_at', { ascending: false });
+        const currencyFormatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            maximumFractionDigits: 0
+        });
+        const compactCurrencyFormatter = new Intl.NumberFormat('vi-VN', {
+            notation: 'compact',
+            maximumFractionDigits: 1
+        });
+        const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        let revenueChartInstance = null;
+        let productsChartInstance = null;
 
-                if (ordersError) throw ordersError;
+        function toInputDate(date) {
+            const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+            return offsetDate.toISOString().slice(0, 10);
+        }
 
-                if (orders) {
-                    const totalOrders = orders.length;
-                    const totalRevenue = orders.reduce((acc, o) => acc + Number(o.total_amount), 0);
-                    const avgValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+        function initializeDateRange() {
+            const end = new Date();
+            const start = new Date(end);
+            start.setDate(start.getDate() - 30);
+            document.getElementById('startDate').value = toInputDate(start);
+            document.getElementById('endDate').value = toInputDate(end);
+            document.getElementById('endDate').max = toInputDate(end);
+        }
 
-                    document.getElementById('totalOrders').innerText = totalOrders.toLocaleString();
-                    document.getElementById('totalRevenue').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue);
-                    document.getElementById('avgOrderValue').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(avgValue);
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
 
-                    const tbody = document.getElementById('recentOpsTableBody');
-                    tbody.innerHTML = '';
-                    orders.slice(0, 5).forEach(order => {
-                        const date = new Date(order.created_at).toLocaleDateString('vi-VN');
-                        const amount = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_amount);
+        function formatCurrency(value) {
+            return currencyFormatter.format(Number(value) || 0);
+        }
 
-                        let statusClass = 'bg-slate-100 text-slate-500';
-                        if (order.status === 'Completed' || order.status === 'Delivered') statusClass = 'bg-green-100 text-green-700';
-                        if (order.status === 'Shipping' || order.status === 'Shipped') statusClass = 'bg-blue-100 text-blue-700';
-                        if (order.status === 'Pending' || order.status === 'Processing') statusClass = 'bg-yellow-100 text-amber-700';
-                        if (order.status === 'Cancelled') statusClass = 'bg-red-100 text-red-700';
+        function statusBadge(status) {
+            const styles = {
+                Delivered: 'bg-emerald-50 text-emerald-700',
+                Completed: 'bg-emerald-50 text-emerald-700',
+                Shipped: 'bg-blue-50 text-blue-700',
+                Shipping: 'bg-blue-50 text-blue-700',
+                Processing: 'bg-amber-50 text-amber-700',
+                Pending: 'bg-slate-100 text-slate-600',
+                Cancelled: 'bg-red-50 text-red-700'
+            };
+            return styles[status] || 'bg-slate-100 text-slate-600';
+        }
 
-                        const tr = document.createElement('tr');
-                        tr.className = 'border-b border-slate-50 hover:bg-slate-50 transition-colors';
-                        tr.innerHTML = `
-                            <td class="py-4 font-semibold">#${order.order_number}</td>
-                            <td class="py-4">${order.customers ? order.customers.full_name : 'Unknown'}</td>
-                            <td class="py-4 text-slate-500">${date}</td>
-                            <td class="py-4">
-                                <span class="px-2 py-1 ${statusClass} text-[10px] font-bold rounded-full">${order.status}</span>
-                            </td>
-                            <td class="py-4 font-bold">${amount}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                if (session) {
-                    const { data: profile } = await window.supabaseClient
-                        .from('user_profiles')
-                        .select('*')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    if (profile) {
-                        document.getElementById('adminName').innerText = profile.full_name;
-                        document.getElementById('adminEmail').innerText = session.user.email;
-                        document.getElementById('welcomeMessage').innerText = `Welcome Back, ${profile.full_name.split(' ')[0]}`;
-                        if (profile.avatar_url) {
-                            document.getElementById('adminAvatar').src = profile.avatar_url;
-                        }
-                    }
-                }
-
-            } catch (error) {
-                console.error('Error fetching dashboard data:', error);
+        function setLoading(isLoading) {
+            const button = document.getElementById('generateReportBtn');
+            button.disabled = isLoading;
+            document.getElementById('generateReportLabel').textContent =
+                isLoading ? 'Generating...' : 'Generate Report';
+            document.getElementById('reportLoading').classList.toggle('hidden', !isLoading);
+            if (isLoading) {
+                document.getElementById('reportContent').classList.add('hidden');
+                document.getElementById('reportEmpty').classList.add('hidden');
+                document.getElementById('reportError').classList.add('hidden');
             }
         }
 
-        fetchDashboardData();
+        function showError(message) {
+            document.getElementById('reportErrorMessage').textContent = message;
+            document.getElementById('reportError').classList.remove('hidden');
+            document.getElementById('reportContent').classList.add('hidden');
+            document.getElementById('reportEmpty').classList.add('hidden');
+        }
+
+        function resetMetrics() {
+            document.getElementById('totalOrders').textContent = '0';
+            document.getElementById('totalRevenue').textContent = formatCurrency(0);
+            document.getElementById('avgOrderValue').textContent = formatCurrency(0);
+            document.getElementById('topProduct').textContent = 'No sales';
+            document.getElementById('topProduct').title = 'No sales';
+            document.getElementById('topProductMeta').textContent = '0 units sold';
+        }
+
+        function aggregateProducts(orders) {
+            const products = new Map();
+            orders.forEach(order => {
+                if (order.status === 'Cancelled') return;
+                (order.items || []).forEach(item => {
+                    const product = item.products || {};
+                    const key = item.product_id || product.id || product.sku || 'unknown';
+                    const existing = products.get(key) || {
+                        name: product.name || 'Unknown Product',
+                        sku: product.sku || 'N/A',
+                        category: product.category || 'Uncategorized',
+                        quantity: 0,
+                        revenue: 0
+                    };
+                    existing.quantity += Number(item.quantity) || 0;
+                    existing.revenue += (Number(item.unit_price) || 0) * (Number(item.quantity) || 0);
+                    products.set(key, existing);
+                });
+            });
+            return Array.from(products.values()).sort((a, b) =>
+                b.quantity - a.quantity || b.revenue - a.revenue
+            );
+        }
+
+        function aggregateRevenueByDate(orders) {
+            const revenueByDate = new Map();
+            orders.forEach(order => {
+                if (order.status === 'Cancelled') return;
+                const key = order.created_at.slice(0, 10);
+                revenueByDate.set(key, (revenueByDate.get(key) || 0) + Number(order.total_amount || 0));
+            });
+            return Array.from(revenueByDate.entries()).sort(([a], [b]) => a.localeCompare(b));
+        }
+
+        function renderMetrics(orders, products) {
+            const salesOrders = orders.filter(order => order.status !== 'Cancelled');
+            const totalRevenue = salesOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
+            const averageOrderValue = salesOrders.length ? totalRevenue / salesOrders.length : 0;
+            const topProduct = products[0];
+
+            document.getElementById('totalOrders').textContent = orders.length.toLocaleString('en-US');
+            document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+            document.getElementById('avgOrderValue').textContent = formatCurrency(averageOrderValue);
+            document.getElementById('topProduct').textContent = topProduct?.name || 'No sales';
+            document.getElementById('topProduct').title = topProduct?.name || 'No sales';
+            document.getElementById('topProductMeta').textContent = topProduct
+                ? `${topProduct.quantity.toLocaleString('en-US')} units sold`
+                : '0 units sold';
+        }
+
+        function renderTopProductsTable(products) {
+            const tbody = document.getElementById('topProductsTableBody');
+            document.getElementById('productCountLabel').textContent =
+                `${products.length.toLocaleString('en-US')} product${products.length === 1 ? '' : 's'}`;
+
+            if (!products.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-10 text-center text-sm text-slate-400">No product sales in this date range.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = products.map((product, index) => `
+                <tr class="hover:bg-slate-50/70 transition">
+                    <td class="px-5 py-3.5">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 shrink-0 rounded-md ${index < 3 ? 'bg-red-50 text-[#E30016]' : 'bg-slate-100 text-slate-500'} flex items-center justify-center text-xs font-bold">${index + 1}</span>
+                            <span class="font-semibold text-slate-800">${escapeHtml(product.name)}</span>
+                        </div>
+                    </td>
+                    <td class="px-5 py-3.5 font-mono text-xs text-slate-500">${escapeHtml(product.sku)}</td>
+                    <td class="px-5 py-3.5 text-slate-600">${escapeHtml(product.category)}</td>
+                    <td class="px-5 py-3.5 text-right font-bold text-slate-800">${product.quantity.toLocaleString('en-US')}</td>
+                    <td class="px-5 py-3.5 text-right font-bold text-slate-800">${formatCurrency(product.revenue)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderRecentOrders(orders) {
+            const tbody = document.getElementById('recentOrdersTableBody');
+            const recentOrders = orders.slice(0, 8);
+            if (!recentOrders.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-10 text-center text-sm text-slate-400">No orders in this date range.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = recentOrders.map(order => `
+                <tr class="hover:bg-slate-50/70 transition">
+                    <td class="px-5 py-3.5 font-semibold text-slate-800">#${escapeHtml(order.order_number)}</td>
+                    <td class="px-5 py-3.5 text-slate-600">${escapeHtml(order.customers?.full_name || 'Unknown')}</td>
+                    <td class="px-5 py-3.5 text-slate-500">${dateFormatter.format(new Date(order.created_at))}</td>
+                    <td class="px-5 py-3.5"><span class="inline-flex rounded px-2 py-1 text-[10px] font-bold ${statusBadge(order.status)}">${escapeHtml(order.status || 'Unknown')}</span></td>
+                    <td class="px-5 py-3.5 text-right font-bold text-slate-800">${formatCurrency(order.total_amount)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCharts(orders, products) {
+            const dailyRevenue = aggregateRevenueByDate(orders);
+            const topFiveProducts = products.slice(0, 5);
+            Chart.defaults.font.family = 'Inter, sans-serif';
+            Chart.defaults.color = '#64748b';
+
+            revenueChartInstance?.destroy();
+            productsChartInstance?.destroy();
+
+            revenueChartInstance = new Chart(document.getElementById('revenueChart'), {
+                type: 'line',
+                data: {
+                    labels: dailyRevenue.map(([date]) => dateFormatter.format(new Date(`${date}T00:00:00`))),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: dailyRevenue.map(([, revenue]) => revenue),
+                        borderColor: '#E30016',
+                        backgroundColor: 'rgba(227, 0, 22, 0.08)',
+                        borderWidth: 2,
+                        pointRadius: dailyRevenue.length > 20 ? 0 : 3,
+                        pointHoverRadius: 5,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: context => `Revenue: ${formatCurrency(context.parsed.y)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { callback: value => `${compactCurrencyFormatter.format(value)} VND` }
+                        }
+                    }
+                }
+            });
+
+            productsChartInstance = new Chart(document.getElementById('productsChart'), {
+                type: 'bar',
+                data: {
+                    labels: topFiveProducts.map(product => product.sku),
+                    datasets: [{
+                        label: 'Quantity Sold',
+                        data: topFiveProducts.map(product => product.quantity),
+                        backgroundColor: ['#E30016', '#334155', '#0f766e', '#d97706', '#2563eb'],
+                        borderRadius: 4,
+                        maxBarThickness: 42
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: items => topFiveProducts[items[0]?.dataIndex]?.name || '',
+                                label: context => `${context.parsed.y} units sold`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { precision: 0 } }
+                    }
+                }
+            });
+        }
+
+        async function generateReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!startDate || !endDate) {
+                showError('Please select both Start Date and End Date.');
+                return;
+            }
+            if (startDate > endDate) {
+                showError('Start Date must be before or equal to End Date.');
+                return;
+            }
+
+            const startBoundary = new Date(`${startDate}T00:00:00`);
+            const endBoundary = new Date(`${endDate}T23:59:59.999`);
+            setLoading(true);
+
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('orders')
+                    .select(`
+                        id,
+                        order_number,
+                        total_amount,
+                        status,
+                        created_at,
+                        customers(full_name),
+                        items:order_items(
+                            product_id,
+                            quantity,
+                            unit_price,
+                            products(id,name,sku,category)
+                        )
+                    `)
+                    .gte('created_at', startBoundary.toISOString())
+                    .lte('created_at', endBoundary.toISOString())
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const orders = data || [];
+                const products = aggregateProducts(orders);
+                const formattedStart = dateFormatter.format(startBoundary);
+                const formattedEnd = dateFormatter.format(endBoundary);
+                document.getElementById('reportPeriodLabel').textContent =
+                    `Report period: ${formattedStart} - ${formattedEnd}`;
+
+                if (!orders.length) {
+                    resetMetrics();
+                    revenueChartInstance?.destroy();
+                    productsChartInstance?.destroy();
+                    document.getElementById('reportContent').classList.add('hidden');
+                    document.getElementById('reportEmpty').classList.remove('hidden');
+                    return;
+                }
+
+                renderMetrics(orders, products);
+                renderTopProductsTable(products);
+                renderRecentOrders(orders);
+                document.getElementById('reportContent').classList.remove('hidden');
+                requestAnimationFrame(() => renderCharts(orders, products));
+            } catch (error) {
+                console.error('Sales report error:', error);
+                showError(`Could not generate the sales report: ${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function loadUserProfile() {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (!session) return;
+                document.getElementById('adminEmail').textContent = session.user.email;
+
+                const { data: profile } = await window.supabaseClient
+                    .from('user_profiles')
+                    .select('full_name,avatar_url')
+                    .eq('id', session.user.id)
+                    .maybeSingle();
+
+                if (!profile) return;
+                document.getElementById('adminName').textContent = profile.full_name || 'Admin User';
+                if (profile.avatar_url) document.getElementById('adminAvatar').src = profile.avatar_url;
+            } catch (error) {
+                console.warn('Could not load user profile:', error);
+            }
+        }
+
+        document.getElementById('reportFilterForm').addEventListener('submit', event => {
+            event.preventDefault();
+            generateReport();
+        });
+        document.getElementById('startDate').addEventListener('change', event => {
+            document.getElementById('endDate').min = event.target.value;
+        });
+
+        initializeDateRange();
+        loadUserProfile();
+        generateReport();
     </script>
+    <script src="page-transition.js"></script>
 </body>
 
 </html>

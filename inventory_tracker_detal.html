@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Detail - Bitis's Management System</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>body{font-family:Inter,sans-serif;background:#f8f9fa}.field-error{min-height:18px;color:#dc2626;font-size:12px;margin-top:4px}</style>
+</head>
+<body class="text-slate-800">
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-[#2C333A] text-white flex flex-col h-screen sticky top-0">
+            <div class="p-6 mb-4"><h2 class="text-xl font-bold leading-tight">Bitis's<br />Management</h2><p class="text-xs text-slate-400 mt-1">System Terminal</p></div>
+            <nav class="flex-1">
+                <a class="block px-6 py-3 text-sm text-slate-300 hover:bg-slate-700/50" href="index.html">Dashboard</a>
+                <a class="block px-6 py-3 text-sm text-slate-300 hover:bg-slate-700/50" href="product_catalog.html">Products</a>
+                <a class="block px-6 py-3 text-sm font-semibold bg-white/10 border-l-4 border-[#E30016]" href="inventory_tracker.html">Inventory</a>
+                <a class="block px-6 py-3 text-sm text-slate-300 hover:bg-slate-700/50" href="order_management.html">Orders</a>
+            </nav>
+        </aside>
+        <main class="flex-1 min-w-0">
+            <header class="h-16 bg-white border-b flex items-center px-8"><a href="inventory_tracker.html" class="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#E30016]"><span>←</span> Back to Inventory</a></header>
+            <div class="p-8">
+                <div id="productHeader" class="bg-white border rounded-lg p-6 mb-6"></div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white border rounded-lg p-5"><p class="text-xs uppercase text-slate-400 font-semibold">Total Units</p><p id="totalUnits" class="text-2xl font-bold mt-2">0</p></div>
+                    <div class="bg-white border rounded-lg p-5"><p class="text-xs uppercase text-slate-400 font-semibold">Warehouses</p><p id="warehouseCount" class="text-2xl font-bold mt-2">0</p></div>
+                    <div class="bg-white border border-red-100 rounded-lg p-5"><p class="text-xs uppercase text-red-500 font-semibold">Out of Stock Sizes</p><p id="outSizes" class="text-2xl font-bold mt-2">0</p></div>
+                    <div class="bg-white border border-amber-100 rounded-lg p-5"><p class="text-xs uppercase text-amber-600 font-semibold">Low Quantity Sizes</p><p id="lowSizes" class="text-2xl font-bold mt-2">0</p></div>
+                </div>
+                <div id="warehouseSections" class="space-y-5"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="editModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-2xl">
+            <div class="p-6 border-b flex justify-between"><div><h2 class="font-bold text-lg">Edit Size Inventory</h2><p id="editContext" class="text-sm text-slate-500 mt-1"></p></div><button onclick="closeEdit()">✕</button></div>
+            <form id="editForm" class="p-6 space-y-4">
+                <input id="editId" type="hidden" />
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-semibold mb-2">Quantity</label><input id="editQuantity" type="number" min="0" class="w-full rounded-lg border-slate-200" /></div>
+                    <div><label class="block text-sm font-semibold mb-2">Low Quantity</label><input id="editLow" type="number" min="0" class="w-full rounded-lg border-slate-200" /></div>
+                </div>
+                <p id="editError" class="field-error"></p>
+                <div class="flex justify-end gap-3"><button type="button" onclick="closeEdit()" class="px-4 py-2 border rounded-lg">Cancel</button><button class="px-4 py-2 bg-[#E30016] text-white rounded-lg font-bold">Save Changes</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const productId = new URLSearchParams(location.search).get('product_id');
+        let rows = [];
+        let product = null;
+        let warehouses = [];
+        const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+        const status = row => row.current_stock === 0 ? {key:'out',label:'Out of Stock',cls:'bg-red-100 text-red-700'} : row.current_stock <= row.low_quantity ? {key:'low',label:'Low Quantity',cls:'bg-amber-100 text-amber-700'} : {key:'ok',label:'In Stock',cls:'bg-green-100 text-green-700'};
+        const productImage = product => {
+            const imageUrl = product.image_url || product.product_images?.[0]?.image_url;
+            const initial = esc((product.name || '?')[0]);
+            return imageUrl
+                ? `<img src="${esc(imageUrl)}" alt="${esc(product.name)}" class="w-full h-full object-cover" onerror="this.outerHTML='<span class=&quot;text-2xl font-bold text-slate-400&quot;>${initial}</span>'" />`
+                : `<span class="text-2xl font-bold text-slate-400">${initial}</span>`;
+        };
+
+        function render() {
+            const total = rows.reduce((sum,row) => sum + (row.current_stock || 0), 0);
+            document.getElementById('totalUnits').textContent = total.toLocaleString('vi-VN');
+            document.getElementById('warehouseCount').textContent = warehouses.length;
+            const expectedSizes = Number.isInteger(Number(product.size_from)) && Number.isInteger(Number(product.size_to))
+                ? Array.from({length: Number(product.size_to) - Number(product.size_from) + 1}, (_, index) => Number(product.size_from) + index)
+                : [...new Set(rows.map(row => row.size))].sort((a,b) => a-b);
+            const allSlots = warehouses.flatMap(warehouse => expectedSizes.map(size => {
+                return rows.find(row => row.warehouse_id === warehouse.id && row.size === size) || {
+                    id: null, product_id: productId, warehouse_id: warehouse.id, warehouses: warehouse,
+                    size, current_stock: 0, low_quantity: 20, missing: true
+                };
+            }));
+            document.getElementById('outSizes').textContent = allSlots.filter(row => status(row).key === 'out').length;
+            document.getElementById('lowSizes').textContent = allSlots.filter(row => status(row).key === 'low').length;
+            document.getElementById('productHeader').innerHTML = `<div class="flex items-center gap-5"><div class="w-24 h-24 rounded-lg border bg-white overflow-hidden flex items-center justify-center flex-shrink-0">${productImage(product)}</div><div><div class="flex flex-wrap items-center gap-2"><h1 class="text-xl font-bold">${esc(product.name)}</h1>${allSlots.some(r=>status(r).key==='out')?'<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">Has out-of-stock sizes</span>':''}${allSlots.some(r=>status(r).key==='low')?'<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-bold">Has low sizes</span>':''}</div><p class="text-sm text-slate-500 mt-2">${esc(product.sku)} · ${esc(product.category || '—')} · Product sizes ${product.size_from ?? '—'}–${product.size_to ?? '—'}</p></div></div>`;
+
+            const grouped = warehouses.map(warehouse => ({
+                warehouse,
+                rows: allSlots.filter(row => row.warehouse_id === warehouse.id)
+            }));
+            document.getElementById('warehouseSections').innerHTML = grouped.map(group => {
+                const sorted = group.rows.sort((a,b)=>a.size-b.size);
+                const warehouseTotal = sorted.reduce((sum,row)=>sum+row.current_stock,0);
+                return `<section class="bg-white border rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b flex justify-between items-center"><div><h2 class="font-bold">${esc(group.warehouse?.name)}</h2><p class="text-xs text-slate-400 mt-1">${esc(group.warehouse?.location_code)}</p></div><p class="text-sm"><strong>${warehouseTotal.toLocaleString('vi-VN')}</strong> total units</p></div>
+                    <div class="overflow-x-auto"><table class="w-full"><thead class="bg-slate-50 text-[11px] uppercase text-slate-400"><tr><th class="px-6 py-3 text-left">Size</th><th class="px-6 py-3 text-left">Quantity</th><th class="px-6 py-3 text-left">Low Quantity</th><th class="px-6 py-3 text-left">Status</th><th class="px-6 py-3 text-right">Action</th></tr></thead>
+                    <tbody class="divide-y">${sorted.map(row => { const s=status(row); return `<tr class="${s.key==='out'?'bg-red-50/60':s.key==='low'?'bg-amber-50/60':''}"><td class="px-6 py-4 font-bold text-lg">${row.size}</td><td class="px-6 py-4 font-bold">${row.current_stock} pcs</td><td class="px-6 py-4 text-slate-600">${row.low_quantity} pcs</td><td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-bold ${s.cls}">${row.missing ? 'Not configured' : s.label}</span></td><td class="px-6 py-4 text-right"><button onclick="openEdit('${row.id || ''}','${row.warehouse_id}',${row.size})" class="text-sm font-semibold text-[#E30016] hover:underline">${row.missing ? 'Add' : 'Edit'}</button></td></tr>`}).join('')}</tbody></table></div>
+                </section>`;
+            }).join('') || '<div class="bg-white border rounded-lg p-10 text-center text-slate-400">No size inventory exists for this product.</div>';
+        }
+
+        function openEdit(id, warehouseId = '', size = 0) {
+            const row = rows.find(item => item.id === id) || {
+                id: '', warehouse_id: warehouseId, size, current_stock: 100, low_quantity: 20,
+                warehouses: warehouses.find(item => item.id === warehouseId)
+            };
+            document.getElementById('editId').value = row.id || '';
+            document.getElementById('editId').dataset.warehouseId = row.warehouse_id;
+            document.getElementById('editId').dataset.size = row.size;
+            document.getElementById('editQuantity').value = row.current_stock;
+            document.getElementById('editLow').value = row.low_quantity;
+            document.getElementById('editContext').textContent = `${row.warehouses?.name} · Size ${row.size}`;
+            document.getElementById('editError').textContent = '';
+            const modal = document.getElementById('editModal'); modal.classList.remove('hidden'); modal.classList.add('flex');
+        }
+        function closeEdit() { const modal=document.getElementById('editModal'); modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        document.getElementById('editForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const current_stock = Number(document.getElementById('editQuantity').value);
+            const low_quantity = Number(document.getElementById('editLow').value);
+            if (!Number.isInteger(current_stock) || current_stock < 0 || !Number.isInteger(low_quantity) || low_quantity < 0) { document.getElementById('editError').textContent='Enter valid non-negative quantities.'; return; }
+            const idField = document.getElementById('editId');
+            const id = idField.value;
+            const operation = id
+                ? window.supabaseClient.from('inventory').update({current_stock,low_quantity,updated_at:new Date().toISOString()}).eq('id',id)
+                : window.supabaseClient.from('inventory').insert({
+                    product_id: productId,
+                    warehouse_id: idField.dataset.warehouseId,
+                    size: Number(idField.dataset.size),
+                    current_stock,
+                    low_quantity,
+                    updated_at: new Date().toISOString()
+                });
+            const {error}=await operation;
+            if(error){document.getElementById('editError').textContent=error.message;return;} closeEdit(); await load();
+        });
+
+        async function load() {
+            if (!productId) { location.href='inventory_tracker.html'; return; }
+            const [{data:p,error:pError},{data:i,error:iError},{data:w,error:wError}] = await Promise.all([
+                window.supabaseClient.from('products').select('*,product_images(image_url,created_at)').eq('id',productId).maybeSingle(),
+                window.supabaseClient.from('inventory').select('*,warehouses(*)').eq('product_id',productId).order('size'),
+                window.supabaseClient.from('warehouses').select('id,name,location_code').in('location_code',['HN','HCM']).order('name')
+            ]);
+            if(pError||!p){document.getElementById('productHeader').innerHTML='<p class="text-red-500">Product not found.</p>';return;}
+            if(iError||wError){document.getElementById('warehouseSections').innerHTML=`<p class="text-red-500">${esc((iError||wError).message)}</p>`;return;}
+            product=p; rows=i||[]; warehouses=w||[]; render();
+        }
+        load();
+    </script>
+    <script src="page-transition.js"></script>
+</body>
+</html>
