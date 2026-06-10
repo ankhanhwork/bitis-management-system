@@ -6,6 +6,14 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+const allowedRedirectOrigins = new Set([
+  "https://bitis-management-system.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:8000",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:8000",
+]);
+
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -71,6 +79,19 @@ Deno.serve(async (request) => {
       return jsonResponse({ error: "A password setup redirect URL is required." }, 400);
     }
 
+    let redirectUrl: URL;
+    try {
+      redirectUrl = new URL(redirectTo);
+    } catch {
+      return jsonResponse({ error: "The password setup redirect URL is invalid." }, 400);
+    }
+    if (
+      !allowedRedirectOrigins.has(redirectUrl.origin) ||
+      redirectUrl.pathname !== "/set-password.html"
+    ) {
+      return jsonResponse({ error: "The password setup redirect URL is not allowed." }, 400);
+    }
+
     const adminClient = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
@@ -87,7 +108,12 @@ Deno.serve(async (request) => {
       );
     }
 
-    return jsonResponse({ success: true, user_id: data.user?.id }, 200);
+    return jsonResponse({
+      success: true,
+      user_id: data.user?.id,
+      email,
+      redirect_to: redirectUrl.href,
+    }, 200);
   } catch (error) {
     console.error("invite-staff failed", error);
     return jsonResponse({ error: "Unable to send the staff invitation." }, 500);

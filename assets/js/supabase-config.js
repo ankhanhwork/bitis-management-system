@@ -1,5 +1,6 @@
 const SUPABASE_URL = "https://xutfbmifmiwtmtdsvzgm.supabase.co";
 const SUPABASE_KEY = "sb_publishable_BgHhGVhdVp47kP6mI92QpQ_djo_LEfS";
+const PRODUCTION_APP_URL = "https://bitis-management-system.vercel.app";
 
 const AUTH_PUBLIC_PAGES = new Set([
     'login.html',
@@ -29,7 +30,11 @@ const { createClient } = supabase;
 const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 window.supabaseClient = _supabase;
-window.getAuthRedirectUrl = () => new URL('set-password.html', window.location.href).href;
+window.getAuthRedirectUrl = () => {
+    const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const appUrl = isLocal ? PRODUCTION_APP_URL : window.location.origin;
+    return new URL('/set-password.html', appUrl).href;
+};
 
 function redirectToLogin() {
     const loginUrl = new URL('login.html', window.location.href);

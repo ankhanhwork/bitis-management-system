@@ -147,8 +147,11 @@
                                 </div>
                                 <button type="submit" id="regBtn"
                                     class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all mt-2">
-                                    Register Staff Member
+                                    Send Account Invitation
                                 </button>
+                                <p class="text-xs leading-5 text-slate-400">
+                                    The staff member will receive a secure email link to create their password.
+                                </p>
                             </form>
                         </section>
                     </div>
@@ -347,7 +350,7 @@
                 if (error) throw error;
                 if (!data?.success) throw new Error(data?.error || 'Unable to send invitation.');
 
-                alert('Invitation sent. The staff member must verify their email and set a password.');
+                alert(`Invitation sent to ${data.email || email}.\n\nThe password setup link will open:\n${data.redirect_to || redirectTo}`);
                 document.getElementById('registerForm').reset();
                 await loadStaff();
             } catch (error) {
