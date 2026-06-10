@@ -933,13 +933,12 @@
                 options += `<option value="${s}">${s}</option>`;
             });
 
-            // Use appearance-none + padding-right to prevent text/arrow overlap
-            return `<div class="relative inline-block">
+            return `<div class="inline-block">
                         <select onchange="updateOrderStatusInline('${order.id}', this.value, this)"
-                            class="text-[11px] font-bold rounded-xl pl-3 pr-7 py-1.5 focus:ring-1 focus:ring-[#E30016] outline-none cursor-pointer transition border appearance-none ${c.bg} ${c.text} ${c.border}">
+                            class="text-[11px] font-bold rounded-xl pl-3 pr-2 py-1.5 focus:ring-1 focus:ring-[#E30016] outline-none cursor-pointer transition border ${c.bg} ${c.text} ${c.border}"
+                            style="appearance: auto; -webkit-appearance: menulist; background-image: none;">
                             ${options}
                         </select>
-                        <svg class="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none ${c.text} opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
                     </div>`;
         }
 
@@ -2356,6 +2355,7 @@
         // Initialize
         fetchOrders();
     </script>
+    <script src="sidebar-toggle.js"></script>
     <script src="page-transition.js"></script>
 </body>
 
