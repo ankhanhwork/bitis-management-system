@@ -1,4 +1,16 @@
 project_id = "xutfbmifmiwtmtdsvzgm"
 
+[auth]
+site_url = "https://bitis-management-system.vercel.app"
+additional_redirect_urls = [
+  "https://bitis-management-system.vercel.app/set-password.html",
+  "http://localhost:3000/set-password.html",
+  "http://localhost:8000/set-password.html"
+]
+
+[auth.email.template.invite]
+subject = "Biti's Management - Account invitation"
+content_path = "./supabase/templates/invite.html"
+
 [functions.invite-staff]
 verify_jwt = true

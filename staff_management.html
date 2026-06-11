@@ -343,9 +343,8 @@
             const role = document.getElementById('regRole').value;
 
             try {
-                const redirectTo = window.getAuthRedirectUrl();
                 const { data, error } = await window.supabaseClient.functions.invoke('invite-staff', {
-                    body: { email, full_name: fullName, role, redirect_to: redirectTo }
+                    body: { action: 'invite', email, full_name: fullName, role }
                 });
                 if (error) throw error;
                 if (!data?.success) throw new Error(data?.error || 'Unable to send invitation.');
@@ -445,17 +444,29 @@
         // Hard Delete Logic
         async function hardDeleteStaff() {
             const id = document.getElementById('editStaffId').value;
-            if (confirm('WARNING: This will permanently delete the user profile from the database. They will no longer be able to log in to the dashboard. Are you absolutely sure?')) {
-                const { error } = await window.supabaseClient
-                    .from('user_profiles')
-                    .delete()
-                    .eq('id', id);
+            const email = document.getElementById('editStaffEmail').value;
+            if (confirm(`WARNING: This permanently deletes ${email} from both Staff Management and Supabase Authentication. All active sessions will stop working. Continue?`)) {
+                try {
+                    const { data, error } = await window.supabaseClient.functions.invoke('invite-staff', {
+                        body: { action: 'delete', user_id: id }
+                    });
+                    if (error) throw error;
+                    if (!data?.success) throw new Error(data?.error || 'Unable to delete the account.');
 
-                if (error) {
-                    alert('Error deleting staff: ' + error.message);
-                } else {
                     closeEditStaffModal();
-                    loadStaff();
+                    await loadStaff();
+                    alert(`Account ${email} was permanently deleted.`);
+                } catch (error) {
+                    let message = error.message || 'Unable to delete the account.';
+                    if (error.context) {
+                        try {
+                            const payload = await error.context.json();
+                            message = payload.error || message;
+                        } catch (_) {
+                            // Keep the original invocation error.
+                        }
+                    }
+                    alert('Error deleting staff: ' + message);
                 }
             }
         }

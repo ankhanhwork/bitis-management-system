@@ -6,13 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const allowedRedirectOrigins = new Set([
+const passwordSetupUrl = new URL(
+  "/set-password.html",
   "https://bitis-management-system.vercel.app",
-  "http://localhost:3000",
-  "http://localhost:8000",
-  "http://127.0.0.1:3000",
-  "http://127.0.0.1:8000",
-]);
+);
 
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -61,10 +58,36 @@ Deno.serve(async (request) => {
     }
 
     const payload = await request.json();
+    const action = String(payload.action ?? "invite").trim().toLowerCase();
+    const adminClient = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    if (action === "delete") {
+      const userId = String(payload.user_id ?? "").trim();
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId)) {
+        return jsonResponse({ error: "A valid user ID is required." }, 400);
+      }
+      if (userId === userData.user.id) {
+        return jsonResponse({ error: "You cannot delete your own account." }, 400);
+      }
+
+      const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId);
+      if (deleteError) {
+        return jsonResponse({ error: deleteError.message }, 400);
+      }
+
+      await adminClient.from("user_profiles").delete().eq("id", userId);
+      return jsonResponse({ success: true, deleted_user_id: userId }, 200);
+    }
+
+    if (action !== "invite") {
+      return jsonResponse({ error: "Unsupported action." }, 400);
+    }
+
     const email = String(payload.email ?? "").trim().toLowerCase();
     const fullName = String(payload.full_name ?? "").trim();
     const role = String(payload.role ?? "").trim().toUpperCase();
-    const redirectTo = String(payload.redirect_to ?? "").trim();
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return jsonResponse({ error: "A valid email address is required." }, 400);
@@ -75,28 +98,8 @@ Deno.serve(async (request) => {
     if (!["EMPLOYEE", "MANAGER"].includes(role)) {
       return jsonResponse({ error: "Invalid staff role." }, 400);
     }
-    if (!redirectTo) {
-      return jsonResponse({ error: "A password setup redirect URL is required." }, 400);
-    }
-
-    let redirectUrl: URL;
-    try {
-      redirectUrl = new URL(redirectTo);
-    } catch {
-      return jsonResponse({ error: "The password setup redirect URL is invalid." }, 400);
-    }
-    if (
-      !allowedRedirectOrigins.has(redirectUrl.origin) ||
-      redirectUrl.pathname !== "/set-password.html"
-    ) {
-      return jsonResponse({ error: "The password setup redirect URL is not allowed." }, 400);
-    }
-
-    const adminClient = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
     const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
-      redirectTo,
+      redirectTo: passwordSetupUrl.href,
       data: { full_name: fullName, role, email },
     });
 
@@ -112,7 +115,7 @@ Deno.serve(async (request) => {
       success: true,
       user_id: data.user?.id,
       email,
-      redirect_to: redirectUrl.href,
+      redirect_to: passwordSetupUrl.href,
     }, 200);
   } catch (error) {
     console.error("invite-staff failed", error);
