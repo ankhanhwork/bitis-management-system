@@ -101,7 +101,7 @@
         <div id="addCard" class="modal-card bg-white w-full max-w-lg rounded-xl shadow-2xl scale-95">
             <div class="px-7 py-5 border-b flex items-start justify-between">
                 <div><h2 class="text-lg font-bold">Add Inventory by Size</h2><p class="text-sm text-slate-500 mt-1">Each entry represents one product size at one warehouse.</p></div>
-                <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-slate-700">âœ•</button>
+                <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-slate-700">✕</button>
             </div>
             <form id="addForm" class="p-7 space-y-4">
                 <div class="relative">
@@ -209,9 +209,9 @@
                 ].join(' ');
                 return `<tr class="hover:bg-slate-50 cursor-pointer" onclick="openDetails('${product.id}')">
                     <td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-16 h-16 rounded-lg bg-white border overflow-hidden flex items-center justify-center flex-shrink-0">${productImage(product)}</div><div><p class="font-bold text-slate-800">${esc(product.name)}</p><p class="text-xs text-slate-400 mt-1">${esc(product.sku)}</p></div></div></td>
-                    <td class="px-6 py-4 text-sm text-slate-600">${esc(product.category || 'â€”')}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600">${esc(product.category || '—')}</td>
                     <td class="px-6 py-4 text-sm font-semibold">${item.warehouses.size}</td>
-                    <td class="px-6 py-4 text-sm">${item.sizes.size ? `${Math.min(...item.sizes)}â€“${Math.max(...item.sizes)} <span class="text-slate-400">(${item.sizes.size})</span>` : `${product.size_from ?? 'â€”'}â€“${product.size_to ?? 'â€”'} <span class="text-slate-400">(0/${expectedSizeCount})</span>`}</td>
+                    <td class="px-6 py-4 text-sm">${item.sizes.size ? `${Math.min(...item.sizes)}–${Math.max(...item.sizes)} <span class="text-slate-400">(${item.sizes.size})</span>` : `${product.size_from ?? '—'}–${product.size_to ?? '—'} <span class="text-slate-400">(0/${expectedSizeCount})</span>`}</td>
                     <td class="px-6 py-4 font-bold">${item.total.toLocaleString('vi-VN')} <span class="font-normal text-slate-400">pcs</span></td>
                     <td class="px-6 py-4"><div class="flex flex-wrap gap-1">${alerts}</div></td>
                     <td class="px-6 py-4 text-right"><button class="p-2 text-slate-400 hover:text-[#E30016]" title="View size details"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-width="2"/></svg></button></td>
@@ -225,7 +225,7 @@
             const list = document.getElementById('productList');
             const normalized = query.toLowerCase();
             const matches = products.filter(p => `${p.name} ${p.sku}`.toLowerCase().includes(normalized)).slice(0, 15);
-            list.innerHTML = matches.length ? matches.map(p => `<button type="button" data-id="${p.id}" class="w-full text-left px-4 py-3 border-b last:border-0 hover:bg-slate-50"><span class="block text-sm font-semibold">${esc(p.name)}</span><span class="text-xs text-slate-400">${esc(p.sku)} Â· Size ${p.size_from ?? 'â€”'}â€“${p.size_to ?? 'â€”'}</span></button>`).join('') : '<p class="p-4 text-sm text-slate-400">No matching products.</p>';
+            list.innerHTML = matches.length ? matches.map(p => `<button type="button" data-id="${p.id}" class="w-full text-left px-4 py-3 border-b last:border-0 hover:bg-slate-50"><span class="block text-sm font-semibold">${esc(p.name)}</span><span class="text-xs text-slate-400">${esc(p.sku)} · Size ${p.size_from ?? '—'}–${p.size_to ?? '—'}</span></button>`).join('') : '<p class="p-4 text-sm text-slate-400">No matching products.</p>';
             list.querySelectorAll('[data-id]').forEach(button => button.onclick = () => selectProduct(button.dataset.id));
             list.classList.remove('hidden');
         }

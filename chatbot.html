@@ -232,7 +232,7 @@
         function normalizeAssistantText(value) {
             return String(value)
                 .replace(/\r\n?/g, '\n')
-                .replace(/\s+(?=(?:Káº¿t luáº­n(?: chÃ­nh)?|Giáº£i thÃ­ch|LÆ°u Ã½|Khuyáº¿n nghá»‹|Äá» xuáº¥t)\s*:)/gi, '\n')
+                .replace(/\s+(?=(?:Kết luận(?: chính)?|Giải thích|Lưu ý|Khuyến nghị|Đề xuất)\s*:)/gi, '\n')
                 .replace(/\s+-\s+(?=[^\n])/g, '\n- ')
                 .trim();
         }
@@ -262,9 +262,9 @@
                 }
 
                 flushList();
-                const section = line.match(/^(Káº¿t luáº­n(?: chÃ­nh)?|Giáº£i thÃ­ch|LÆ°u Ã½|Khuyáº¿n nghá»‹|Äá» xuáº¥t)\s*:\s*(.*)$/i);
+                const section = line.match(/^(Kết luận(?: chính)?|Giải thích|Lưu ý|Khuyến nghị|Đề xuất)\s*:\s*(.*)$/i);
                 if (section) {
-                    const isConclusion = section[1].toLocaleLowerCase('vi-VN').startsWith('káº¿t luáº­n');
+                    const isConclusion = section[1].toLocaleLowerCase('vi-VN').startsWith('kết luận');
                     parts.push(
                         `<div class="${isConclusion ? 'rounded-xl border border-red-100 bg-red-50/70 px-4 py-3' : ''}">` +
                         `<div class="mb-1 text-xs font-bold uppercase tracking-wide ${isConclusion ? 'text-[#C80014]' : 'text-slate-500'}">${escapeHtml(section[1])}</div>` +
@@ -318,7 +318,7 @@
                 <div class="group mb-2 flex items-center gap-3 rounded-xl border border-slate-100 p-3 hover:border-red-100 hover:bg-red-50/30">
                     <button type="button" data-open-chat="${escapeHtml(chat.id)}" class="min-w-0 flex-1 text-left">
                         <p class="truncate text-sm font-semibold text-slate-800">${escapeHtml(chat.title || 'New conversation')}</p>
-                        <p class="mt-1 text-xs text-slate-400">${chat.messages?.length || 0} messages Â· ${formatHistoryDate(chat.updatedAt)}</p>
+                        <p class="mt-1 text-xs text-slate-400">${chat.messages?.length || 0} messages · ${formatHistoryDate(chat.updatedAt)}</p>
                     </button>
                     <button type="button" data-delete-chat="${escapeHtml(chat.id)}" aria-label="Delete conversation" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-300 hover:bg-white hover:text-red-600">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14M10 10v6m4-6v6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>

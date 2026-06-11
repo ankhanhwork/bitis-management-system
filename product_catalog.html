@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- ================================================================
-     PRODUCT CATALOG â€” PRODUCTION VERSION
-     Káº¿t ná»‘i Supabase tháº­t. YÃªu cáº§u supabase-config.js há»£p lá»‡.
+     PRODUCT CATALOG — PRODUCTION VERSION
+     Kết nối Supabase thật. Yêu cầu supabase-config.js hợp lệ.
      ================================================================ -->
 
 <html lang="en">
@@ -116,11 +116,11 @@
                 <div></div>
                 <div class="flex items-center space-x-6">
                     <a href="profile.html" class="flex items-center space-x-3 hover:bg-slate-50 p-1 rounded-lg transition">
-                        <img id="adminAvatar" alt="Admin" class="w-10 h-10 rounded-full border border-slate-200 object-cover"
+                        <img id="adminAvatar" alt="Current user" class="w-10 h-10 rounded-full border border-slate-200 object-cover"
                             src="https://via.placeholder.com/40" />
                         <div class="text-left">
-                            <p id="adminName" class="text-sm font-bold text-slate-800 leading-tight">Admin User</p>
-                            <p id="adminEmail" class="text-xs text-slate-400">admin@bitis.com.vn</p>
+                            <p id="adminName" class="text-sm font-bold text-slate-800 leading-tight">Loading...</p>
+                            <p id="adminEmail" class="text-xs text-slate-400"></p>
                         </div>
                     </a>
                 </div>
@@ -159,12 +159,12 @@
                                 <option value="">All Categories</option>
                                 <option value="Hunter">Hunter</option>
                                 <option value="Sandal">Sandal</option>
-                                <option value="GiÃ y Thá»ƒ Thao">GiÃ y Thá»ƒ Thao</option>
-                                <option value="GiÃ y Cháº¡y Bá»™ & Äi Bá»™">GiÃ y Cháº¡y Bá»™ & Äi Bá»™</option>
-                                <option value="GiÃ y TÃ¢y">GiÃ y TÃ¢y</option>
-                                <option value="DÃ©p - HÃ i">DÃ©p - HÃ i</option>
+                                <option value="Giày Thể Thao">Giày Thể Thao</option>
+                                <option value="Giày Chạy Bộ & Đi Bộ">Giày Chạy Bộ & Đi Bộ</option>
+                                <option value="Giày Tây">Giày Tây</option>
+                                <option value="Dép - Hài">Dép - Hài</option>
                                 <option value="Balo">Balo</option>
-                                <option value="Quáº§n Ão">Quáº§n Ão</option>
+                                <option value="Quần Áo">Quần Áo</option>
                             </select>
                         </div>
                         <!-- Status Filter -->
@@ -550,7 +550,7 @@
     </div>
 
     <script>
-        // â”€â”€ Main app state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Main app state ──────────────────────────────────────────
         let productsData = []; // Full raw data
         let filteredProducts = []; // Filtered data
         let selectedProductIds = new Set();
@@ -594,21 +594,8 @@
         // Initialize application
         async function initApp() {
             try {
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                if (session) {
-                    const { data: profile } = await window.supabaseClient
-                        .from('user_profiles')
-                        .select('*')
-                        .eq('id', session.user.id)
-                        .single();
-                    if (profile) {
-                        document.getElementById('adminName').innerText = profile.full_name || 'Admin';
-                        document.getElementById('adminEmail').innerText = session.user.email;
-                        if (profile.avatar_url) {
-                            document.getElementById('adminAvatar').src = profile.avatar_url;
-                        }
-                    }
-                }
+                const currentUser = await window.populateCurrentUserUI();
+                if (!currentUser) return;
             } catch (e) {
                 console.error('Error loading profile:', e);
             }
@@ -910,7 +897,7 @@
             }, 300);
         }
 
-        // Submit product edit â€” write to Supabase
+        // Submit product edit — write to Supabase
         document.getElementById('editProductForm').onsubmit = async (e) => {
             e.preventDefault();
             const saveBtn = document.getElementById('saveBtn');
@@ -1072,7 +1059,7 @@
             }, 300);
         }
 
-        // Confirm single-row deletion â€” Supabase
+        // Confirm single-row deletion — Supabase
         document.getElementById('confirmRowDeleteBtn').onclick = async () => {
             if (!pendingDeleteProductId) return;
             const btn = document.getElementById('confirmRowDeleteBtn');
@@ -1100,7 +1087,7 @@
             }
         };
 
-        // Confirm batch deletion â€” Supabase
+        // Confirm batch deletion — Supabase
         document.getElementById('confirmDeleteBtn').onclick = async () => {
             const btn = document.getElementById('confirmDeleteBtn');
             btn.disabled = true;
@@ -1144,7 +1131,7 @@
         }
 
 
-        // Submit Add Product form â€” insert into Supabase
+        // Submit Add Product form — insert into Supabase
         document.getElementById('addProductForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('addSaveBtn');

@@ -59,47 +59,105 @@ window.authReady = requiresAuthentication
     })
     : Promise.resolve(null);
 
+let currentUserContextPromise;
+
+window.getCurrentUserContext = async () => {
+    if (currentUserContextPromise) return currentUserContextPromise;
+
+    currentUserContextPromise = (async () => {
+        const session = requiresAuthentication
+            ? await window.authReady
+            : (await _supabase.auth.getSession()).data.session;
+        if (!session) return null;
+
+        const { data: profile, error } = await _supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+        if (error) console.error('Profile fetch error:', error);
+
+        return {
+            session,
+            user: session.user,
+            profile,
+            displayName: profile?.full_name
+                || session.user.user_metadata?.full_name
+                || session.user.email?.split('@')[0]
+                || 'User',
+            email: session.user.email || profile?.email || '',
+            role: profile?.role || session.user.app_metadata?.role || 'EMPLOYEE',
+            avatarUrl: profile?.avatar_url || session.user.user_metadata?.avatar_url || ''
+        };
+    })();
+
+    return currentUserContextPromise;
+};
+
+window.populateCurrentUserUI = async () => {
+    const context = await window.getCurrentUserContext();
+    if (!context) return null;
+
+    ['userName', 'adminName'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = context.displayName;
+    });
+    ['userEmail', 'adminEmail'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = context.email;
+    });
+    ['userRole', 'adminRole'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = context.role;
+    });
+    ['userAvatar', 'adminAvatar'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element && context.avatarUrl) element.src = context.avatarUrl;
+        if (element) element.alt = context.displayName;
+    });
+
+    if (context.role !== 'MANAGER') {
+        document.querySelectorAll('.manager-only').forEach(element => element.classList.add('hidden'));
+    }
+
+    return context;
+};
+
+function hydrateCurrentUserUI() {
+    window.populateCurrentUserUI().catch(error => {
+        console.error('Unable to populate current user UI:', error);
+    });
+}
+
+if (requiresAuthentication) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hydrateCurrentUserUI, { once: true });
+    } else {
+        hydrateCurrentUserUI();
+    }
+}
+
 // Auth Guard & UI Helper
 window.authGuard = async (requiredRole = null) => {
-    const session = requiresAuthentication
-        ? await window.authReady
-        : (await _supabase.auth.getSession()).data.session;
+    const context = await window.getCurrentUserContext();
+    const session = context?.session;
 
     if (!session) {
         if (requiresAuthentication) redirectToLogin();
         return null;
     }
 
-    // Fetch Profile for Role & Name
-    const { data: profile, error } = await _supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-
-    if (error || !profile) {
-        console.error("Profile fetch error:", error);
-        return { session, user: session.user, profile: null };
-    }
+    const profile = context.profile;
 
     // Role check if needed
-    if (requiredRole && profile.role !== requiredRole && profile.role !== 'MANAGER') {
+    if (requiredRole && context.role !== requiredRole && context.role !== 'MANAGER') {
         alert('Unauthorized access.');
         window.location.href = 'index.html';
         return null;
     }
 
-    // Update UI Sidebar/Header if elements exist
-    const userNameEl = document.getElementById('userName');
-    const userRoleEl = document.getElementById('userRole');
-    if (userNameEl) userNameEl.innerText = profile.full_name;
-    if (userRoleEl) userRoleEl.innerText = profile.role;
-
-    // Handle Sidebar Visibility based on role
-    const managerOnlyLinks = document.querySelectorAll('.manager-only');
-    if (profile.role !== 'MANAGER') {
-        managerOnlyLinks.forEach(el => el.classList.add('hidden'));
-    }
+    await window.populateCurrentUserUI();
 
     return { session, user: session.user, profile };
 };

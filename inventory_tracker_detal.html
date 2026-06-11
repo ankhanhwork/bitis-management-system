@@ -24,7 +24,7 @@
             </nav>
         </aside>
         <main class="flex-1 min-w-0">
-            <header class="h-16 bg-white border-b flex items-center px-8"><a href="inventory_tracker.html" class="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#E30016]"><span>â†</span> Back to Inventory</a></header>
+            <header class="h-16 bg-white border-b flex items-center px-8"><a href="inventory_tracker.html" class="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#E30016]"><span>←</span> Back to Inventory</a></header>
             <div class="p-8">
                 <div id="productHeader" class="bg-white border rounded-lg p-6 mb-6"></div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -40,7 +40,7 @@
 
     <div id="editModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white w-full max-w-md rounded-xl shadow-2xl">
-            <div class="p-6 border-b flex justify-between"><div><h2 class="font-bold text-lg">Edit Size Inventory</h2><p id="editContext" class="text-sm text-slate-500 mt-1"></p></div><button onclick="closeEdit()">âœ•</button></div>
+            <div class="p-6 border-b flex justify-between"><div><h2 class="font-bold text-lg">Edit Size Inventory</h2><p id="editContext" class="text-sm text-slate-500 mt-1"></p></div><button onclick="closeEdit()">✕</button></div>
             <form id="editForm" class="p-6 space-y-4">
                 <input id="editId" type="hidden" />
                 <div class="grid grid-cols-2 gap-4">
@@ -83,7 +83,7 @@
             }));
             document.getElementById('outSizes').textContent = allSlots.filter(row => status(row).key === 'out').length;
             document.getElementById('lowSizes').textContent = allSlots.filter(row => status(row).key === 'low').length;
-            document.getElementById('productHeader').innerHTML = `<div class="flex items-center gap-5"><div class="w-24 h-24 rounded-lg border bg-white overflow-hidden flex items-center justify-center flex-shrink-0">${productImage(product)}</div><div><div class="flex flex-wrap items-center gap-2"><h1 class="text-xl font-bold">${esc(product.name)}</h1>${allSlots.some(r=>status(r).key==='out')?'<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">Has out-of-stock sizes</span>':''}${allSlots.some(r=>status(r).key==='low')?'<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-bold">Has low sizes</span>':''}</div><p class="text-sm text-slate-500 mt-2">${esc(product.sku)} Â· ${esc(product.category || 'â€”')} Â· Product sizes ${product.size_from ?? 'â€”'}â€“${product.size_to ?? 'â€”'}</p></div></div>`;
+            document.getElementById('productHeader').innerHTML = `<div class="flex items-center gap-5"><div class="w-24 h-24 rounded-lg border bg-white overflow-hidden flex items-center justify-center flex-shrink-0">${productImage(product)}</div><div><div class="flex flex-wrap items-center gap-2"><h1 class="text-xl font-bold">${esc(product.name)}</h1>${allSlots.some(r=>status(r).key==='out')?'<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">Has out-of-stock sizes</span>':''}${allSlots.some(r=>status(r).key==='low')?'<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-bold">Has low sizes</span>':''}</div><p class="text-sm text-slate-500 mt-2">${esc(product.sku)} · ${esc(product.category || '—')} · Product sizes ${product.size_from ?? '—'}–${product.size_to ?? '—'}</p></div></div>`;
 
             const grouped = warehouses.map(warehouse => ({
                 warehouse,
@@ -110,7 +110,7 @@
             document.getElementById('editId').dataset.size = row.size;
             document.getElementById('editQuantity').value = row.current_stock;
             document.getElementById('editLow').value = row.low_quantity;
-            document.getElementById('editContext').textContent = `${row.warehouses?.name} Â· Size ${row.size}`;
+            document.getElementById('editContext').textContent = `${row.warehouses?.name} · Size ${row.size}`;
             document.getElementById('editError').textContent = '';
             const modal = document.getElementById('editModal'); modal.classList.remove('hidden'); modal.classList.add('flex');
         }

@@ -324,10 +324,10 @@
                 <div></div>
                 <div class="flex items-center space-x-6">
                     <a href="profile.html" class="flex items-center space-x-3 border-l border-slate-100 pl-6 hover:bg-slate-50 p-1 rounded-lg transition">
-                        <img id="adminAvatar" alt="Admin" class="w-10 h-10 rounded-full border border-slate-200 object-cover" src="https://via.placeholder.com/40" />
+                        <img id="adminAvatar" alt="Current user" class="w-10 h-10 rounded-full border border-slate-200 object-cover" src="https://via.placeholder.com/40" />
                         <div class="text-left">
-                            <p id="adminName" class="text-sm font-bold text-slate-800 leading-tight">Admin User</p>
-                            <p id="adminEmail" class="text-xs text-slate-400">admin@bitis.com.vn</p>
+                            <p id="adminName" class="text-sm font-bold text-slate-800 leading-tight">Loading...</p>
+                            <p id="adminEmail" class="text-xs text-slate-400"></p>
                         </div>
                     </a>
                 </div>
@@ -2422,23 +2422,6 @@
         // FETCH ORDERS FROM SUPABASE
         // ============================
         async function fetchOrders() {
-            // Load user profile
-            try {
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                if (session) {
-                    const { data: profile } = await window.supabaseClient
-                        .from('user_profiles')
-                        .select('*')
-                        .eq('id', session.user.id)
-                        .single();
-                    if (profile) {
-                        document.getElementById('adminName').textContent = profile.full_name;
-                        document.getElementById('adminEmail').textContent = session.user.email;
-                        if (profile.avatar_url) document.getElementById('adminAvatar').src = profile.avatar_url;
-                    }
-                }
-            } catch (e) { console.error("Profile load error:", e); }
-
             // Show loading state
             const tableBody = document.getElementById('orderTableBody');
             tableBody.innerHTML = `
@@ -2608,8 +2591,20 @@
             }
         });
 
-        // Initialize
-        fetchOrders();
+        // Initialize only after authentication and profile hydration finish.
+        async function initializeOrdersPage() {
+            const currentUser = await window.populateCurrentUserUI();
+            if (!currentUser) return;
+            await fetchOrders();
+        }
+
+        initializeOrdersPage().catch(error => {
+            console.error('Order page initialization failed:', error);
+            const tableBody = document.getElementById('orderTableBody');
+            if (tableBody) {
+                tableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-10 text-center text-red-500">Unable to load this page. Please refresh and try again.</td></tr>';
+            }
+        });
     </script>
     <script src="assets/js/sidebar-toggle.js"></script>
     <script src="assets/js/page-transition.js"></script>
