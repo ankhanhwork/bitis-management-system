@@ -350,7 +350,7 @@
                 if (error) throw error;
                 if (!data?.success) throw new Error(data?.error || 'Unable to send invitation.');
 
-                alert(`Invitation sent to ${data.email || email}.\n\nThe password setup link will open:\n${data.redirect_to || redirectTo}`);
+                alert(`Invitation sent to ${data.email || email}.\n\nPlease ask the staff member to check their email and click "Accept the invite" to create a password.`);
                 document.getElementById('registerForm').reset();
                 await loadStaff();
             } catch (error) {
