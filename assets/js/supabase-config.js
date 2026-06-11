@@ -7,8 +7,8 @@ const AUTH_PUBLIC_PAGES = new Set([
     'forgot-password.html',
     'set-password.html'
 ]);
-const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-const requiresAuthentication = !AUTH_PUBLIC_PAGES.has(currentPage);
+const authPageName = window.location.pathname.split('/').pop() || 'index.html';
+const requiresAuthentication = !AUTH_PUBLIC_PAGES.has(authPageName);
 
 if (requiresAuthentication) {
     document.documentElement.style.visibility = 'hidden';
