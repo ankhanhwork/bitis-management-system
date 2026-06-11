@@ -593,9 +593,6 @@
 
         // Initialize application
         async function initApp() {
-            const session = await window.authReady;
-            if (!session) return;
-
             window.populateCurrentUserUI().catch(error => {
                 console.error('Error loading profile:', error);
             });
@@ -615,7 +612,12 @@
                 if (error) throw error;
                 productsData = data || [];
                 selectedProductIds.clear();
-                applyFilters();
+                try {
+                    applyFilters();
+                } catch (renderError) {
+                    console.error('Error rendering products:', renderError);
+                    tableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-8 text-center text-red-500 font-medium">Products loaded, but the table could not be rendered. Please refresh the page.</td></tr>';
+                }
             } catch (error) {
                 console.error('Error fetching products:', error);
                 tableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-8 text-center text-red-500 font-medium">Failed to retrieve product records. Please check Supabase schema.</td></tr>';
@@ -1182,8 +1184,27 @@
             }
         };
 
-        // Initialize application on load
-        window.addEventListener('DOMContentLoaded', initApp);
+        // Initialize exactly once whether this script runs before or after
+        // DOMContentLoaded (including browser back/forward cache restores).
+        let productPageStarted = false;
+        function startProductPage() {
+            if (productPageStarted) return;
+            productPageStarted = true;
+            initApp().catch(error => {
+                console.error('Product page initialization failed:', error);
+                const tableBody = document.getElementById('productTableBody');
+                if (tableBody) {
+                    tableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-8 text-center text-red-500 font-medium">Unable to load this page. Please refresh and try again.</td></tr>';
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startProductPage, { once: true });
+        } else {
+            startProductPage();
+        }
+        window.addEventListener('pageshow', startProductPage);
     </script>
     <script src="assets/js/sidebar-toggle.js"></script>
     <script src="assets/js/page-transition.js"></script>

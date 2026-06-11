@@ -2594,9 +2594,6 @@
         // Load business data as soon as authentication finishes. Profile
         // hydration is independent and must never block the orders table.
         async function initializeOrdersPage() {
-            const session = await window.authReady;
-            if (!session) return;
-
             window.populateCurrentUserUI().catch(error => {
                 console.error('Error loading profile:', error);
             });
@@ -2604,13 +2601,25 @@
             await fetchOrders();
         }
 
-        initializeOrdersPage().catch(error => {
-            console.error('Order page initialization failed:', error);
-            const tableBody = document.getElementById('orderTableBody');
-            if (tableBody) {
-                tableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-10 text-center text-red-500">Unable to load this page. Please refresh and try again.</td></tr>';
-            }
-        });
+        let ordersPageStarted = false;
+        function startOrdersPage() {
+            if (ordersPageStarted) return;
+            ordersPageStarted = true;
+            initializeOrdersPage().catch(error => {
+                console.error('Order page initialization failed:', error);
+                const tableBody = document.getElementById('orderTableBody');
+                if (tableBody) {
+                    tableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-10 text-center text-red-500">Unable to load this page. Please refresh and try again.</td></tr>';
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startOrdersPage, { once: true });
+        } else {
+            startOrdersPage();
+        }
+        window.addEventListener('pageshow', startOrdersPage);
     </script>
     <script src="assets/js/sidebar-toggle.js"></script>
     <script src="assets/js/page-transition.js"></script>
